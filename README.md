@@ -25,8 +25,8 @@ __foo.go__
 package foo
 
 type Foo struct {
-	zoo []int `mus:",3,validators.BiggerThanTen"`
-	Bar MyString
+  zoo []int `mus:",3,validators.BiggerThanTen"`
+  Bar MyString
 }
 
 type MyString string
@@ -41,10 +41,10 @@ import "errors"
 var ErrBiggerThanTen error = errors.New("bigger then ten")
 
 func BiggerThanTen(n int) error {
-	if n > 10 {
-		return ErrBiggerThanTen
-	}
-	return nil
+  if n > 10 {
+    return ErrBiggerThanTen
+  }
+  return nil
 }
 ```
 
@@ -55,28 +55,28 @@ __musable.go__
 package main
 
 import (
-	"foo"
-	"reflect"
+  "foo"
+  "reflect"
 
-	"github.com/ymz-ncnk/musgo"
+  "github.com/ymz-ncnk/musgo"
 )
 
 func main() {
-	musGo, err := musgo.New()
-	if err != nil {
-		panic(err)
-	}
-	// You should "Generate" for all involved custom types.
-	var myStr foo.MyString
-	err = musGo.Generate(reflect.TypeOf(myStr), false)
-	if err != nil {
-		panic(err)
-	}
-	var foo foo.Foo
-	err = musGo.Generate(reflect.TypeOf(foo), false)
-	if err != nil {
-		panic(err)
-	}
+  musGo, err := musgo.New()
+  if err != nil {
+    panic(err)
+  }
+  // You should "Generate" for all involved custom types.
+  var myStr foo.MyString
+  err = musGo.Generate(reflect.TypeOf(myStr), false)
+  if err != nil {
+    panic(err)
+  }
+  var foo foo.Foo
+  err = musGo.Generate(reflect.TypeOf(foo), false)
+  if err != nil {
+    panic(err)
+  }
 }
 ```
 
@@ -104,89 +104,89 @@ __foo_test.go__
 package foo
 
 import (
-	"foo/validators"
-	"reflect"
-	"testing"
+  "foo/validators"
+  "reflect"
+  "testing"
 
-	"github.com/ymz-ncnk/musgo/errs"
+  "github.com/ymz-ncnk/musgo/errs"
 )
 
 func TestFooSerialization(t *testing.T) {
-	foo := Foo{
-		Bar: MyString("hello world"),
-		zoo: []int{4, 2}, // private fields are supported too
-	}
-	buf := make([]byte, foo.SizeMUS())
-	foo.MarshalMUS(buf)
+  foo := Foo{
+    Bar: MyString("hello world"),
+    zoo: []int{4, 2}, // private fields are supported too
+  }
+  buf := make([]byte, foo.SizeMUS())
+  foo.MarshalMUS(buf)
 
-	afoo := Foo{}
-	_, err := afoo.UnmarshalMUS(buf)
-	if err != nil {
-		t.Error(err)
-	}
-	if !reflect.DeepEqual(foo, afoo) {
-		t.Error("something went wrong")
-	}
+  afoo := Foo{}
+  _, err := afoo.UnmarshalMUS(buf)
+  if err != nil {
+    t.Error(err)
+  }
+  if !reflect.DeepEqual(foo, afoo) {
+    t.Error("something went wrong")
+  }
 }
 
 func TestFooValidation(t *testing.T) {
-	// test max length
-	{
-		foo := Foo{
-			Bar: MyString("hello world"),
-			zoo: []int{9, -2, 0, 5},
-		}
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+  // test max length
+  {
+    foo := Foo{
+      Bar: MyString("hello world"),
+      zoo: []int{9, -2, 0, 5},
+    }
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation doesn't work")
-		}
-		fieldErr, ok := err.(errs.FieldError)
-		if !ok {
-			t.Error("wrong field error")
-		}
-		if fieldErr.FieldName() != "zoo" {
-			t.Error("wrong field error fieldName")
-		}
-		if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
-			t.Error("wrong error")
-		}
-	}
-	// test element validator
-	{
-		foo := Foo{
-			Bar: MyString("hello world"),
-			zoo: []int{8, 12},
-		}
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation doesn't work")
+    }
+    fieldErr, ok := err.(errs.FieldError)
+    if !ok {
+      t.Error("wrong field error")
+    }
+    if fieldErr.FieldName() != "zoo" {
+      t.Error("wrong field error fieldName")
+    }
+    if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
+      t.Error("wrong error")
+    }
+  }
+  // test element validator
+  {
+    foo := Foo{
+      Bar: MyString("hello world"),
+      zoo: []int{8, 12},
+    }
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation doesn't work")
-		}
-		fieldErr, ok := err.(errs.FieldError)
-		if !ok {
-			t.Error("wrong field error")
-		}
-		if fieldErr.FieldName() != "zoo" {
-			t.Error("wrong field error fieldName")
-		}
-		sliceErr, ok := fieldErr.Cause().(errs.ArrayError)
-		if !ok {
-			t.Error("wrong array error")
-		}
-		if sliceErr.Index() != 1 {
-			t.Error("wrong array error index")
-		}
-		if sliceErr.Cause() != validators.ErrBiggerThanTen {
-			t.Error("wrong error")
-		}
-	}
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation doesn't work")
+    }
+    fieldErr, ok := err.(errs.FieldError)
+    if !ok {
+      t.Error("wrong field error")
+    }
+    if fieldErr.FieldName() != "zoo" {
+      t.Error("wrong field error fieldName")
+    }
+    sliceErr, ok := fieldErr.Cause().(errs.ArrayError)
+    if !ok {
+      t.Error("wrong array error")
+    }
+    if sliceErr.Index() != 1 {
+      t.Error("wrong array error index")
+    }
+    if sliceErr.Cause() != validators.ErrBiggerThanTen {
+      t.Error("wrong error")
+    }
+  }
 }
 ```
 
