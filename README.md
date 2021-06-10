@@ -32,7 +32,7 @@ type Foo struct {
 type MyString string
 ```
 
-__validators.go__
+__validators/validators.go__
 ```go
 package validators
 
@@ -48,7 +48,7 @@ func BiggerThanTen(n int) error {
 }
 ```
 
-__musable.go__
+__make/musable.go__
 ```go
 // +build ignore
 
@@ -224,7 +224,7 @@ You could encode and decode private fields too.
 # Unsafe code
 
 You could generate fast unsafe code. Read more about it at 
-`"https://github.com/ymz-ncnk/musgen".`
+"https://github.com/ymz-ncnk/musgen".
 
 # Validation
 
