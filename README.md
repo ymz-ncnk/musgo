@@ -238,6 +238,7 @@ For every structure field you can set up validators using the
   elements, if field type is an array, slice of map.
 - KeyValidator - it's a name of the function which will validate field's keys,
   if field type is a map.
+  
 Decoding(and encoding) is performed in order, from the first field to the last 
 one. That's why, it will stop with validation error on the first not valid 
 field.
