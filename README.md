@@ -1,14 +1,14 @@
 # Musgo
 
 Musgo is a Go code generator for binary MUS format with validation support.
-Generated code converts data to and from MUS format. More info about it, about 
-the format, and more you can find at "https://github.com/ymz-ncnk/musgen".
+Generated code converts data to and from MUS format. More info about it and
+about the format you can find at "https://github.com/ymz-ncnk/musgen".
 
 # How to use
 
-First of all, you should download and install Go.
+First, you should download and install Go, version 1.4 or later.
 
-Create in the home directory `foo` folder with the following structure:
+Create in your home directory `foo` folder with the following structure:
 
 ```
 foo/
@@ -91,7 +91,7 @@ $ go generate
 Now you can see `Foo.musgen.go` and `MyString.musgen.go` files in the `foo` 
 folder. Pay attention to the location of the generated files. The data type and 
 the code generated for it must be in the same package.
-Let's test it. Create `foo_test.go` file.
+Let's write some tests. Create `foo_test.go` file.
 
 ```
 foo
@@ -176,12 +176,12 @@ func TestFooValidation(t *testing.T) {
     if fieldErr.FieldName() != "zoo" {
       t.Error("wrong field error fieldName")
     }
-    sliceErr, ok := fieldErr.Cause().(errs.ArrayError)
+    sliceErr, ok := fieldErr.Cause().(errs.SliceError)
     if !ok {
-      t.Error("wrong array error")
+      t.Error("wrong slice error")
     }
     if sliceErr.Index() != 1 {
-      t.Error("wrong array error index")
+      t.Error("wrong slice error index")
     }
     if sliceErr.Cause() != validators.ErrBiggerThanTen {
       t.Error("wrong error")
