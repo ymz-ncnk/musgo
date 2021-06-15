@@ -3,8 +3,8 @@ package parser
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -389,5 +389,10 @@ func primitive(k reflect.Kind) bool {
 }
 
 func pkg(t reflect.Type) string {
-	return filepath.Base(t.PkgPath())
+	re := regexp.MustCompile(`^(.*)\.`)
+	match := re.FindStringSubmatch(t.String())
+	if len(match) != 2 {
+		return ""
+	}
+	return match[1]
 }
