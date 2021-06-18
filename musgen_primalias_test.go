@@ -36,7 +36,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255}
 // 			val := mgtd.Uint64Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrSmallBuf {
 // 				t.Error("incorrect encoding is ok")
 // 			}
@@ -45,7 +45,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255, 255, 255, 225, 255, 255, 255, 2}
 // 			val := mgtd.Uint64Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrOverflow {
 // 				t.Error("too long encoding is ok")
 // 			}
@@ -71,7 +71,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255, 255, 255, 2}
 // 			val := mgtd.Uint32Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrOverflow {
 // 				t.Error("too long encoding is ok")
 // 			}
@@ -97,7 +97,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255, 2}
 // 			val := mgtd.Uint16Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrOverflow {
 // 				t.Error("too long encoding is ok")
 // 			}
@@ -154,7 +154,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255}
 // 			val := mgtd.Int64Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrSmallBuf {
 // 				t.Error("incorrect encoding is ok")
 // 			}
@@ -163,7 +163,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255, 255, 255, 225, 255, 255, 255, 2}
 // 			val := mgtd.Int64Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrOverflow {
 // 				t.Error("too long encoding is ok")
 // 			}
@@ -189,7 +189,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255, 255, 255, 2}
 // 			val := mgtd.Int32Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrOverflow {
 // 				t.Error("too long encoding is ok")
 // 			}
@@ -215,7 +215,7 @@ package musgo
 // 		{
 // 			arr := []byte{255, 255, 255, 2}
 // 			val := mgtd.Int16Alias(0)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrOverflow {
 // 				t.Error("too long encoding is ok")
 // 			}
@@ -301,7 +301,7 @@ package musgo
 // 		{
 // 			arr := []byte{3}
 // 			val := mgtd.BoolAlias(false)
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrWrongByte {
 // 				t.Error("wrong byte bool is ok")
 // 			}
@@ -344,7 +344,7 @@ package musgo
 // 		{
 // 			arr := []byte{12, 1, 1}
 // 			val := mgtd.StringAlias("")
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrSmallBuf {
 // 				t.Error("too short buf is ok")
 // 			}
@@ -353,7 +353,7 @@ package musgo
 // 		{
 // 			arr := []byte{1, 12, 12}
 // 			val := mgtd.StringAlias("")
-// 			_, err := val.UnmarshalMUS(arr)
+// 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrNegativeLength {
 // 				t.Error("negative length in byte string is ok")
 // 			}

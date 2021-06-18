@@ -11,12 +11,12 @@ var InvalidSizeErrMsg string = "%v type has invalid size\n"
 var MuErrMsg string = "MarshalMUS/UnmarshalMUS of %v type failed\n"
 
 type InitValType interface {
-	SizeMUS() int
-	MarshalMUS([]byte) int
+	Size() int
+	Marshal([]byte) int
 }
 
 type ZeroValType interface {
-	UnmarshalMUS([]byte) (int, error)
+	Unmarshal([]byte) (int, error)
 }
 
 type GenError struct {
@@ -35,15 +35,15 @@ func (err *GenError) Cause() error {
 func ExecGeneratedCode(initVal InitValType, zeroVal ZeroValType,
 	typeName string) error {
 	var err error
-	size := initVal.SizeMUS()
+	size := initVal.Size()
 	bs := make([]byte, size)
 	i := 0
-	i = initVal.MarshalMUS(bs)
+	i = initVal.Marshal(bs)
 	if i != len(bs) {
 		return &GenError{"Wrong length",
 			fmt.Errorf("required length %v, got %v", len(bs), i)}
 	}
-	_, err = zeroVal.UnmarshalMUS(bs)
+	_, err = zeroVal.Unmarshal(bs)
 	if err != nil {
 		return &GenError{"UnmarshalMUS", err}
 	}
@@ -51,7 +51,7 @@ func ExecGeneratedCode(initVal InitValType, zeroVal ZeroValType,
 }
 
 func TestBufferEnds(val ZeroValType, buf []byte) error {
-	_, err := val.UnmarshalMUS(buf)
+	_, err := val.Unmarshal(buf)
 	if err != errs.ErrSmallBuf {
 		return errors.New("small buf is ok")
 	}

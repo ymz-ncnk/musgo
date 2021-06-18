@@ -23,6 +23,8 @@ import (
 
 var ErrNotAliasType = errors.New("not alias type")
 
+const DefaultSuffix = "MUS"
+
 func New() (MusGo, error) {
 	musGen, err := musgen.New()
 	if err != nil {
@@ -43,13 +45,12 @@ func (musGo MusGo) Generate(t reflect.Type, unsafe bool) error {
 	conf := NewConf()
 	conf.T = t
 	conf.Unsafe = unsafe
-	// return musGo.GenerateAs(t, unsafe, "", "")
 	return musGo.GenerateAs(conf)
 }
 
 func NewConf() Conf {
 	return Conf{
-		Suffix: "MUS",
+		Suffix: DefaultSuffix,
 	}
 }
 
@@ -98,8 +99,6 @@ func (musGo MusGo) GenerateAlias(t reflect.Type, unsafe bool, validator string,
 	conf.MaxLength = maxLength
 	conf.ElemValidator = elemValidator
 	conf.KeyValidator = keyValidator
-	// return musGo.GenerateAliasAs(t, unsafe, validator, maxLength, elemValidator,
-	// 	keyValidator, "", "")
 	return musGo.GenerateAliasAs(conf)
 }
 
