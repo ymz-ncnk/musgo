@@ -66,7 +66,7 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
-						if l > 9 || l == 9 && b > 1 {
+						if l > 9 || (l == 9 && b > 1) {
 							return i, errs.ErrOverflow
 						}
 						if b < 0x80 {
@@ -107,7 +107,7 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 								shift := 0
 								done := false
 								for l, b := range buf[i:] {
-									if l > 9 || l == 9 && b > 1 {
+									if l > 9 || (l == 9 && b > 1) {
 										return i, errs.ErrOverflow
 									}
 									if b < 0x80 {
@@ -150,7 +150,7 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
-								if l > 9 || l == 9 && b > 1 {
+								if l > 9 || (l == 9 && b > 1) {
 									return i, errs.ErrOverflow
 								}
 								if b < 0x80 {

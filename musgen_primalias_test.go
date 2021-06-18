@@ -32,12 +32,23 @@ package musgo
 // 				}
 // 			}
 // 		}
-// 		// int64 incorrect encoding
+// 		// uint64 incorrect encoding
 // 		{
 // 			arr := []byte{255, 255, 255}
 // 			val := mgtd.Uint64Alias(0)
 // 			_, err := val.Unmarshal(arr)
 // 			if err != errs.ErrSmallBuf {
+// 				t.Error("incorrect encoding is ok")
+// 			}
+// 		}
+// 		// uint64 last byte is too big, should be less or equal to 1
+// 		{
+// 			// 131 - 10000011
+// 			// 128 - 10000000
+// 			arr := []byte{131, 128, 128, 128, 128, 128, 128, 128, 128, 2}
+// 			val := mgtd.Uint64Alias(0)
+// 			_, err := val.Unmarshal(arr)
+// 			if err != errs.ErrOverflow {
 // 				t.Error("incorrect encoding is ok")
 // 			}
 // 		}
@@ -67,6 +78,17 @@ package musgo
 // 				}
 // 			}
 // 		}
+// 		// uint32 last byte is too big, should be less or equal to 15
+// 		{
+// 			// 131 - 10000011
+// 			// 128 - 10000000
+// 			arr := []byte{131, 128, 128, 128, 16}
+// 			val := mgtd.Uint32Alias(0)
+// 			_, err := val.Unmarshal(arr)
+// 			if err != errs.ErrOverflow {
+// 				t.Error("incorrect encoding is ok")
+// 			}
+// 		}
 // 		// uint32 encoding is to long
 // 		{
 // 			arr := []byte{255, 255, 255, 255, 255, 2}
@@ -91,6 +113,17 @@ package musgo
 // 						t.Errorf(mgtd.MuErrMsg, typeName)
 // 					}
 // 				}
+// 			}
+// 		}
+// 		// uint16 last byte is too big, should be less or equal to 3
+// 		{
+// 			// 131 - 10000011
+// 			// 128 - 10000000
+// 			arr := []byte{131, 128, 4}
+// 			val := mgtd.Uint16Alias(0)
+// 			_, err := val.Unmarshal(arr)
+// 			if err != errs.ErrOverflow {
+// 				t.Error("incorrect encoding is ok")
 // 			}
 // 		}
 // 		// uint16 encoding is to long
