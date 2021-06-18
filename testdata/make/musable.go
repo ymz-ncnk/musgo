@@ -178,8 +178,16 @@ func generateMusgo(unsafe bool) error {
 		return err
 	}
 	var v testdata.MyMap
-	err = musGo.GenerateAliasAs(reflect.TypeOf(v), unsafe,
-		"ValidateMyMap", 3, "BiggerThenTen", "NotHello", dir, "xxxMyMap.musgen.go")
+	conf := musgo.NewAliasConf()
+	conf.T = reflect.TypeOf(v)
+	conf.Unsafe = unsafe
+	conf.Validator = "ValidateMyMap"
+	conf.MaxLength = 3
+	conf.ElemValidator = "BiggerThenTen"
+	conf.KeyValidator = "NotHello"
+	conf.Path = dir
+	conf.Name = "xxxMyMap.musgen.go"
+	err = musGo.GenerateAliasAs(conf)
 	if err != nil {
 		return err
 	}

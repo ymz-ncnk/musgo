@@ -40,46 +40,87 @@ type MusGo struct {
 // placed to the current directory.
 // If type is an alias to a pointer type returns error.
 func (musGo MusGo) Generate(t reflect.Type, unsafe bool) error {
-	return musGo.GenerateAs(t, unsafe, "", "")
+	conf := NewConf()
+	conf.T = t
+	conf.Unsafe = unsafe
+	// return musGo.GenerateAs(t, unsafe, "", "")
+	return musGo.GenerateAs(conf)
+}
+
+func NewConf() Conf {
+	return Conf{
+		Suffix: "MUS",
+	}
+}
+
+type Conf struct {
+	T      reflect.Type
+	Unsafe bool
+	Path   string
+	Name   string
+	Suffix string
 }
 
 // Same as Generate. Generated file is placed into the specified path with the
 // specified name.
-func (musGo MusGo) GenerateAs(t reflect.Type, unsafe bool, path,
-	name string) error {
-	td, err := parser.Parse(t)
-	td.Unsafe = unsafe
+// func (musGo MusGo) GenerateAs(t reflect.Type, unsafe bool, path,
+func (musGo MusGo) GenerateAs(conf Conf) error {
+	td, err := parser.Parse(conf.T)
+	td.Unsafe = conf.Unsafe
+	td.Suffix = conf.Suffix
 	if err != nil {
 		return err
 	}
-	return musGo.generate(td, path, name)
+	return musGo.generate(td, conf.Path, conf.Name)
+}
+
+func NewAliasConf() AliasConf {
+	return AliasConf{
+		Conf: NewConf(),
+	}
+}
+
+type AliasConf struct {
+	Conf
+	Validator     string
+	MaxLength     int
+	ElemValidator string
+	KeyValidator  string
 }
 
 // Same as Generate. Use it if you want provide validation for an alias type.
 func (musGo MusGo) GenerateAlias(t reflect.Type, unsafe bool, validator string,
 	maxLength int, elemValidator, keyValidator string) error {
-	return musGo.GenerateAliasAs(t, unsafe, validator, maxLength, elemValidator,
-		keyValidator, "", "")
+	conf := NewAliasConf()
+	conf.Conf.T = t
+	conf.Conf.Unsafe = unsafe
+	conf.Validator = validator
+	conf.MaxLength = maxLength
+	conf.ElemValidator = elemValidator
+	conf.KeyValidator = keyValidator
+	// return musGo.GenerateAliasAs(t, unsafe, validator, maxLength, elemValidator,
+	// 	keyValidator, "", "")
+	return musGo.GenerateAliasAs(conf)
 }
 
 // Same as GenerateAlias. Generated file is placed into the specified path with
 // the specified name.
-func (musGo MusGo) GenerateAliasAs(t reflect.Type, unsafe bool, validator string,
-	maxLength int, elemValidator, keyValidator, path, name string) error {
-	td, err := parser.Parse(t)
+func (musGo MusGo) GenerateAliasAs(conf AliasConf) error {
+	td, err := parser.Parse(conf.T)
 	if err != nil {
 		return err
 	}
 	if !musgen.Alias(td) {
 		return ErrNotAliasType
 	}
-	td.Unsafe = unsafe
+	td.Unsafe = conf.Unsafe
+	td.Suffix = conf.Suffix
 	// alias type description has one field
-	td.Fields[0].Validator = validator
-	td.Fields[0].MaxLength = maxLength
-	td.Fields[0].ElemValidator = elemValidator
-	td.Fields[0].KeyValidator = keyValidator
-	return musGo.generate(td, path, name)
+	td.Fields[0].Validator = conf.Validator
+	td.Fields[0].MaxLength = conf.MaxLength
+	td.Fields[0].ElemValidator = conf.ElemValidator
+	td.Fields[0].KeyValidator = conf.KeyValidator
+	return musGo.generate(td, conf.Path, conf.Name)
 }
 
 func (musGo MusGo) generate(td musgen.TypeDesc, path, name string) error {
