@@ -186,7 +186,7 @@ func generateMusgo(unsafe bool) error {
 	conf.ElemValidator = "BiggerThenTen"
 	conf.KeyValidator = "NotHello"
 	conf.Path = dir
-	conf.Name = "xxxMyMap.musgen.go"
+	conf.Filename = "xxxMyMap.musgen.go"
 	err = musGo.GenerateAliasAs(conf)
 	if err != nil {
 		return err
