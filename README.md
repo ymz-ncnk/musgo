@@ -192,6 +192,38 @@ func TestFooValidation(t *testing.T) {
 
 More advanced usage you can find at https://github.com/ymz-ncnk/musgotest.
 
+When encoding multiple values, it is impractical to create a new buffer each 
+time. It takes too long. Instead, we can use the same buffer for each Marshal.
+```go
+...
+buf := make([]byte, FixedLength)
+for foo := range foos {
+  if foo.Size() > len(buf) {
+    return errors.New("buf is too small")
+  }
+  i := foo.MarshalMUS(buf)
+  err = handle(buf[:i])
+  ...
+}
+```
+
+To gain more performance, we can use `recover()` function. It will intercept 
+every panic, so use it with careful.
+```go
+...
+defer func() {
+  if r := recover(); r != nil {
+    return errors.New("buf is too small")
+  }
+}()
+buf := make([]byte, FixedLength)
+for foo := range foos {
+  i := foo.MarshalMUS(buf)
+  err = handle(buf[:i])
+  ...
+}
+```
+
 # Supported Types
 
 Supports following types:
