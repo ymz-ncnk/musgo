@@ -134,7 +134,7 @@ var ValidStringIntMapAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Fields: []musgen.FieldDesc{{
 		Name:          "",
 		Type:          "map-0[string]-0int",
-		Validator:     "MapSumBiggerThanTen",
+		Validator:     "ValidStringIntMapAliasSumBiggerThanTen",
 		MaxLength:     3,
 		ElemValidator: "BiggerThanTenInt",
 		KeyValidator:  "StrIsHello",

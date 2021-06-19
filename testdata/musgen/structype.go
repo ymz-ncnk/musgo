@@ -138,7 +138,7 @@ var ValidStructTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 			Validator: "Uint16SlicePtrSumBiggerThanTen"},
 
 		{Name: "Array", Type: "[2]int", ElemValidator: "BiggerThanTenInt",
-			Validator: "UintArraySumBiggerThanTen"},
+			Validator: "IntArraySumBiggerThanTen"},
 		{Name: "ArrayPtr", Type: "*[2]int32", ElemValidator: "BiggerThanTenInt32",
 			Validator: "Int32ArrayPtrSumBiggerThanTen"},
 

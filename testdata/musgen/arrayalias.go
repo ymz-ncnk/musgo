@@ -161,6 +161,6 @@ var ValidIntArrayAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Package: "musgen",
 	Name:    "ValidIntArrayAlias",
 	Fields: []musgen.FieldDesc{{Name: "", Type: "[2]int",
-		Validator:     "UintArraySumBiggerThanTen",
+		Validator:     "ValidIntArrayAliasSumBiggerThanTen",
 		ElemValidator: "BiggerThanTenInt", Alias: "ValidIntArrayAlias"}},
 }

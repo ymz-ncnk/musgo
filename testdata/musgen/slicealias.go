@@ -135,7 +135,7 @@ var ValidUintSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Fields: []musgen.FieldDesc{{
 		Name:          "",
 		Type:          "[]uint",
-		Validator:     "UintSliceSumBiggerThanTen",
+		Validator:     "ValidUintSliceAliasSumBiggerThanTen",
 		MaxLength:     3,
 		ElemValidator: "BiggerThanTenUint",
 		Alias:         "ValidUintSliceAlias"}},

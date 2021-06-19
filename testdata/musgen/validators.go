@@ -52,6 +52,10 @@ func PositiveBool(b bool) error {
 
 var ErrSliceSumBiggerThanTen = errors.New("slice sum bigger than ten")
 
+func ValidUintSliceAliasSumBiggerThanTen(s *ValidUintSliceAlias) error {
+	return UintSliceSumBiggerThanTen([]uint(*s))
+}
+
 func UintSliceSumBiggerThanTen(s []uint) error {
 	var sum uint
 	for _, n := range s {
@@ -83,8 +87,11 @@ func Uint16SlicePtrSumBiggerThanTen(s *[]uint16) error {
 
 var ErrArraySumBiggerThanTen = errors.New("array sum is bigger than ten")
 
-// TODO Rename to IntArray...
-func UintArraySumBiggerThanTen(s [2]int) error {
+func ValidIntArrayAliasSumBiggerThanTen(s *ValidIntArrayAlias) error {
+	return IntArraySumBiggerThanTen([2]int(*s))
+}
+
+func IntArraySumBiggerThanTen(s [2]int) error {
 	var sum int
 	for _, n := range s {
 		sum += n
@@ -121,6 +128,10 @@ func BiggerThanTenInt32(n int32) error {
 }
 
 var ErrMapSumBiggerThanTen = errors.New("map sum is bigger than 10")
+
+func ValidStringIntMapAliasSumBiggerThanTen(m *ValidStringIntMapAlias) error {
+	return MapSumBiggerThanTen(map[string]int(*m))
+}
 
 func MapSumBiggerThanTen(m map[string]int) error {
 	var sum int

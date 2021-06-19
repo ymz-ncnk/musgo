@@ -8,9 +8,9 @@ var ErrHelloString = errors.New("hello string")
 
 type MyMap map[string]int
 
-func ValidateMyMap(sl MyMap) error {
+func ValidateMyMap(sl *MyMap) error {
 	sum := 0
-	for _, el := range sl {
+	for _, el := range *sl {
 		sum += el
 	}
 	if sum > 10 {
