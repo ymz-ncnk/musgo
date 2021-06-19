@@ -17,7 +17,7 @@ import (
 	"golang.org/x/tools/imports"
 )
 
-// main could generate unsafe code if unsafe arg is present.
+// main could generate unsafe code if unsafe 'ARG=unsafe' is present
 func main() {
 	primAlias := flag.Bool("prim", false, "generate prim alias")
 	arrayAlias := flag.Bool("array", false, "generate array alias")
@@ -188,8 +188,6 @@ func generateMusgo(unsafe bool) error {
 	conf.Path = dir
 	conf.Name = "xxxMyMap.musgen.go"
 	err = musGo.GenerateAliasAs(conf)
-	// err = musGo.GenerateAliasAs(reflect.TypeOf(v), unsafe,
-	// 	"ValidateMyMap", 3, "BiggerThenTen", "NotHello", dir, "xxxMyMap.musgen.go")
 	if err != nil {
 		return err
 	}
