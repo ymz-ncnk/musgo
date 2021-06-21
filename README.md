@@ -277,3 +277,7 @@ field.
 
 For alias type, you can set up validators with help of MusGo.GenerateAlias()
 method.
+
+# Benchmarks
+
+[github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)
