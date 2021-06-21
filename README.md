@@ -72,8 +72,8 @@ func main() {
   if err != nil {
     panic(err)
   }
-  var foo foo.Foo
-  err = musGo.Generate(reflect.TypeOf(foo), false)
+  // Variable creation can be skipped.
+  err = musGo.Generate(reflect.TypeOf(*foo.Foo(nil)).Elem(), false)
   if err != nil {
     panic(err)
   }
@@ -193,7 +193,7 @@ func TestFooValidation(t *testing.T) {
 More advanced usage you can find at https://github.com/ymz-ncnk/musgotest.
 
 When encoding multiple values, it is impractical to create a new buffer each 
-time. It takes too long. Instead, we can use the same buffer for each Marshal.
+time. It takes too long. Instead, you can use the same buffer for each Marshal:
 ```go
 ...
 buf := make([]byte, FixedLength)
@@ -207,8 +207,7 @@ for foo := range foos {
 }
 ```
 
-To gain more performance, we can use `recover()` function. It will intercept 
-every panic, so use it with careful.
+To gain more performance, `recover()` function can be used:
 ```go
 ...
 defer func() {
@@ -223,6 +222,7 @@ for foo := range foos {
   ...
 }
 ```
+It will intercept every panic, so use it with careful.
 
 # Supported Types
 
