@@ -27,6 +27,7 @@ var ErrNotAliasType = errors.New("not alias type")
 // DefaultSuffix for Marshal, Unmarsha, Size methods.
 const DefaultSuffix = "MUS"
 
+// New returns a new MusGo.
 func New() (MusGo, error) {
 	musGen, err := musgen.New()
 	if err != nil {
@@ -35,7 +36,7 @@ func New() (MusGo, error) {
 	return MusGo{musGen: musGen}, nil
 }
 
-// MusGo is a code generator for MUS format.
+// MusGo is a GoLang code generator for the MUS format.
 type MusGo struct {
 	musGen musgen.MusGen
 }
@@ -51,6 +52,7 @@ func (musGo MusGo) Generate(t reflect.Type, unsafe bool) error {
 	return musGo.GenerateAs(conf)
 }
 
+// NewConf creates Conf for MusGo.
 func NewConf() Conf {
 	return Conf{
 		Suffix: DefaultSuffix,
@@ -66,8 +68,7 @@ type Conf struct {
 	Suffix   string       // suffix for Marshal, Unmarshal, Size methods
 }
 
-// Same as Generate. Generated file is placed into the specified path with the
-// specified name.
+// GenerateAs performs like Generate.
 func (musGo MusGo) GenerateAs(conf Conf) error {
 	td, err := parser.Parse(conf.T)
 	td.Unsafe = conf.Unsafe
@@ -78,6 +79,7 @@ func (musGo MusGo) GenerateAs(conf Conf) error {
 	return musGo.generate(td, conf.Path, conf.Filename)
 }
 
+// NewAliasConf creates an AliasConf for the MusGo.
 func NewAliasConf() AliasConf {
 	return AliasConf{
 		Conf: NewConf(),
@@ -94,7 +96,8 @@ type AliasConf struct {
 	KeyValidator  string // if alias to map, validates keys
 }
 
-// Same as Generate. Use it if you want provide validation for an alias type.
+// GenerateAlias performs like Generate. Use it if you want provide validation
+// for an alias type.
 func (musGo MusGo) GenerateAlias(t reflect.Type, unsafe bool, validator string,
 	maxLength int, elemValidator, keyValidator string) error {
 	conf := NewAliasConf()
@@ -107,8 +110,7 @@ func (musGo MusGo) GenerateAlias(t reflect.Type, unsafe bool, validator string,
 	return musGo.GenerateAliasAs(conf)
 }
 
-// Same as GenerateAlias. Generated file is placed into the specified path with
-// the specified name.
+// GenerateAliasAs performs like GenerateAlias.
 func (musGo MusGo) GenerateAliasAs(conf AliasConf) error {
 	td, err := parser.Parse(conf.T)
 	if err != nil {

@@ -2,6 +2,7 @@ package testdata
 
 import "github.com/ymz-ncnk/musgo/errs"
 
+// MarshalMUS fills buf with the MUS encoding of v.
 func (v MyMap) MarshalMUS(buf []byte) int {
 	i := 0
 	{
@@ -52,6 +53,7 @@ func (v MyMap) MarshalMUS(buf []byte) int {
 	return i
 }
 
+// UnmarshalMUS parses the MUS-encoded buf, and sets the result to *v.
 func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 	i := 0
 	var err error
@@ -62,25 +64,24 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 			{
 				if i > len(buf)-1 {
 					return i, errs.ErrSmallBuf
-				} else {
-					shift := 0
-					done := false
-					for l, b := range buf[i:] {
-						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
-						}
-						if b < 0x80 {
-							uv = uv | uint64(b)<<shift
-							done = true
-							i += l + 1
-							break
-						}
-						uv = uv | uint64(b&0x7F)<<shift
-						shift += 7
+				}
+				shift := 0
+				done := false
+				for l, b := range buf[i:] {
+					if l == 9 && b > 1 {
+						return i, errs.ErrOverflow
 					}
-					if !done {
-						return i, errs.ErrSmallBuf
+					if b < 0x80 {
+						uv = uv | uint64(b)<<shift
+						done = true
+						i += l + 1
+						break
 					}
+					uv = uv | uint64(b&0x7F)<<shift
+					shift += 7
+				}
+				if !done {
+					return i, errs.ErrSmallBuf
 				}
 			}
 			uv = (uv >> 1) ^ uint64((int(uv&1)<<63)>>63)
@@ -103,25 +104,24 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 						{
 							if i > len(buf)-1 {
 								return i, errs.ErrSmallBuf
-							} else {
-								shift := 0
-								done := false
-								for l, b := range buf[i:] {
-									if l == 9 && b > 1 {
-										return i, errs.ErrOverflow
-									}
-									if b < 0x80 {
-										uv = uv | uint64(b)<<shift
-										done = true
-										i += l + 1
-										break
-									}
-									uv = uv | uint64(b&0x7F)<<shift
-									shift += 7
+							}
+							shift := 0
+							done := false
+							for l, b := range buf[i:] {
+								if l == 9 && b > 1 {
+									return i, errs.ErrOverflow
 								}
-								if !done {
-									return i, errs.ErrSmallBuf
+								if b < 0x80 {
+									uv = uv | uint64(b)<<shift
+									done = true
+									i += l + 1
+									break
 								}
+								uv = uv | uint64(b&0x7F)<<shift
+								shift += 7
+							}
+							if !done {
+								return i, errs.ErrSmallBuf
 							}
 						}
 						uv = (uv >> 1) ^ uint64((int(uv&1)<<63)>>63)
@@ -146,25 +146,24 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 					{
 						if i > len(buf)-1 {
 							return i, errs.ErrSmallBuf
-						} else {
-							shift := 0
-							done := false
-							for l, b := range buf[i:] {
-								if l == 9 && b > 1 {
-									return i, errs.ErrOverflow
-								}
-								if b < 0x80 {
-									uv = uv | uint64(b)<<shift
-									done = true
-									i += l + 1
-									break
-								}
-								uv = uv | uint64(b&0x7F)<<shift
-								shift += 7
+						}
+						shift := 0
+						done := false
+						for l, b := range buf[i:] {
+							if l == 9 && b > 1 {
+								return i, errs.ErrOverflow
 							}
-							if !done {
-								return i, errs.ErrSmallBuf
+							if b < 0x80 {
+								uv = uv | uint64(b)<<shift
+								done = true
+								i += l + 1
+								break
 							}
+							uv = uv | uint64(b&0x7F)<<shift
+							shift += 7
+						}
+						if !done {
+							return i, errs.ErrSmallBuf
 						}
 					}
 					uv = (uv >> 1) ^ uint64((int(uv&1)<<63)>>63)
@@ -185,6 +184,7 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 	return i, err
 }
 
+// SizeMUS returns the size of the MUS-encoded v.
 func (v MyMap) SizeMUS() int {
 	size := 0
 	{

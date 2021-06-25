@@ -11,33 +11,48 @@ import (
 	"github.com/ymz-ncnk/musgen"
 )
 
+// TagKey represents a key of the tag, which marks field validators.
 const TagKey = "mus"
 
+// InvalidTagFormatErrMsg happens if tag has invalid format.
 const InvalidTagFormatErrMsg = `%v field has invalid tag, it should be: ` +
 	`"-" or "validator,maxLength,elemValidator,keyValidator"`
 
+// InvalidTagMaxLengthErrMsg happens if maxLength is invalid, for example is
+// negative.
 const InvalidTagMaxLengthErrMsg = "%v field has invalid tag, because of " +
 	"maxLength"
 
-const InvalidTagOwnMaxLengthErrMsg = "%v field has invalid tag, maxLength " +
-	"could have only string, slice or map"
+// InvalidTagOwnMaxLengthErrMsg happens if maxLength is set for not supported
+// type.
+const InvalidTagOwnMaxLengthErrMsg = "%v field has invalid tag, " +
+	"only strings, slices or maps could have maxLength"
 
+// InvalidTagOwnElemValidatorErrMsg happens if elemValidator is set for not
+// supported type.
 const InvalidTagOwnElemValidatorErrMsg = "%v field has invalid tag, " +
-	"elemValidator could have only array, slice or map"
+	"only arrays, slices or maps could have elemValidator"
 
+// InvalidTagOwnKeyValidatorErrMsg happens if keyValidator is set for not
+// supported type.
 const InvalidTagOwnKeyValidatorErrMsg = "%v field has invalid tag, " +
-	"keyValidator could have only map"
+	"only maps could have keyValidator"
 
+// InvalidTagArrayMaxLengthErrMsg happens when maxLength is speccified for an
+// array.
 const InvalidTagArrayMaxLengthErrMsg = "%v field has invalid tag, maxLength " +
-	"specified for array"
+	"is specified for an array"
 
-const InvalidTagNegativeMaxLength = "%v field has invalid tag, maxLength is " +
-	"negative"
+// // InvalidTagNegativeMaxLength happens when maxLength is negative.
+// const InvalidTagNegativeMaxLength = "%v field has invalid tag, maxLength is " +
+// 	"negative"
 
+// NotSupportedTypeError happens when tries to parse not supported type.
 type NotSupportedTypeError struct {
 	t string
 }
 
+// Type returns not supported type.
 func (err NotSupportedTypeError) Type() string {
 	return err.t
 }
@@ -174,9 +189,8 @@ func ParseFieldTag(f reflect.StructField, field *musgen.FieldDesc) (skip bool,
 		if len(vals) == 1 {
 			if vals[0] == "-" {
 				return true, nil
-			} else {
-				setUpValidator(field, vals[0])
 			}
+			setUpValidator(field, vals[0])
 		} else if len(vals) == 2 {
 			if (k == reflect.String || k == reflect.Slice || k == reflect.Map) &&
 				f.Type.PkgPath() == "" {
@@ -284,10 +298,9 @@ func ParseType(t reflect.Type, pkgPath string,
 				return stars + st.Name(), mapsCount, nil
 			}
 			return stars + st.String(), mapsCount, nil
-		} else {
-			// here could be an alias of an interface type
-			return "", mapsCount, NotSupportedTypeError{st.String()}
 		}
+		// here could be an alias of an interface type
+		return "", mapsCount, NotSupportedTypeError{st.String()}
 	}
 	if primitive(k) {
 		return t.String(), mapsCount, nil
@@ -337,7 +350,7 @@ func ParseArrayType(stars string, t reflect.Type, pkgPath string,
 	return stars + "[" + strconv.Itoa(t.Len()) + "]" + aelt, mapsCount, nil
 }
 
-// ParseArrayType returns string representation of the slice type.
+// ParseSliceType returns string representation of the slice type.
 func ParseSliceType(stars string, t reflect.Type, pkgPath string,
 	mapsCount int) (string, int, error) {
 	var selt string
@@ -349,7 +362,7 @@ func ParseSliceType(stars string, t reflect.Type, pkgPath string,
 	return stars + "[]" + selt, mapsCount, nil
 }
 
-// ParseArrayType returns string representation of the map type.
+// ParseMapType returns string representation of the map type.
 func ParseMapType(stars string, t reflect.Type, pkgPath string,
 	mapsCount int) (string, int, error) {
 	var mkt string
