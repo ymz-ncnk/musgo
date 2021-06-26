@@ -7,21 +7,21 @@ import (
 
 // ErrSmallBuf means that an Unmarshal requires a longer buffer than was
 // provided.
-var ErrSmallBuf error = errors.New("buf is too small")
+var ErrSmallBuf = errors.New("buf is too small")
 
 // ErrOverflow happens on Unmarshal when bytes number limit of the type was
 // exceeded.
-var ErrOverflow error = errors.New("overflow")
+var ErrOverflow = errors.New("overflow")
 
 // ErrNegativeLength happens on Unmarshal when some data was encoded with
 // length and value, and length is negative.
-var ErrNegativeLength error = errors.New("negative length")
+var ErrNegativeLength = errors.New("negative length")
 
 // ErrWrongByte happens on Unmarshal when unexpected byte was caught.
-var ErrWrongByte error = errors.New("wrong byte")
+var ErrWrongByte = errors.New("wrong byte")
 
 // ErrMaxLengthExceeded is a MaxLength validator error.
-var ErrMaxLengthExceeded error = errors.New("max length exceeded")
+var ErrMaxLengthExceeded = errors.New("max length exceeded")
 
 // NewArrayError returns a new ArrayError.
 func NewArrayError(i int, cause error) error {

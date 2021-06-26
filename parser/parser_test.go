@@ -10,7 +10,7 @@ import (
 	"github.com/ymz-ncnk/musgen"
 )
 
-var currPkg string = "parser"
+var currPkg = "parser"
 
 func TestParseSimpleType(t *testing.T) {
 	var v int
@@ -773,10 +773,9 @@ func TestParseStructWithTags(t *testing.T) {
 func shouldFail(err error) bool {
 	if err == nil {
 		return true
-	} else {
-		if _, ok := err.(NotSupportedTypeError); !ok {
-			return true
-		}
+	}
+	if _, ok := err.(NotSupportedTypeError); !ok {
+		return true
 	}
 	return false
 }
