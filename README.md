@@ -25,12 +25,12 @@ __foo.go__
 package foo
 
 type Foo struct {
-	boo int `mus:"validators.BiggerThanTen"` // private fields are supported
-	// too, while unmarshalling will be checked with BiggerThanTen validator
-	zoo []int `mus:",,validators.BiggerThanTen"` // every element will be checked
-	// with BiggerThanTen validator
-	Bar MyString // alias types are supported too
-	Car bool     `mus:"-"` // this field will be skiped
+  boo int `mus:"validators.BiggerThanTen"` // private fields are supported
+  // too, while unmarshalling will be checked with BiggerThanTen validator
+  zoo []int `mus:",,validators.BiggerThanTen"` // every element will be checked
+  // with BiggerThanTen validator
+  Bar MyString // alias types are supported too
+  Car bool     `mus:"-"` // this field will be skiped
 }
 
 type MyString string
@@ -59,33 +59,33 @@ __make/musable.go__
 package main
 
 import (
-	"foo"
-	"reflect"
+  "foo"
+  "reflect"
 
-	"github.com/ymz-ncnk/musgo"
+  "github.com/ymz-ncnk/musgo"
 )
 
 func main() {
-	musGo, err := musgo.New()
-	if err != nil {
-		panic(err)
-	}
-	// You should "Generate" for all involved custom types.
-	unsafe := false // to generate safe code
-	var myStr foo.MyString
-	// Alias types don't support tags, so to set up validators we use
-	// GenerateAlias method.
-	maxLength := 5 // restricts length of MyString values to 5 characters
-	err = musGo.GenerateAlias(reflect.TypeOf(myStr), unsafe, "", maxLength, "",
-		"")
-	if err != nil {
-		panic(err)
-	}
-	// reflect.Type could be created without any variable.
-	err = musGo.Generate(reflect.TypeOf((*foo.Foo)(nil)).Elem(), unsafe)
-	if err != nil {
-		panic(err)
-	}
+  musGo, err := musgo.New()
+  if err != nil {
+    panic(err)
+  }
+  // You should "Generate" for all involved custom types.
+  unsafe := false // to generate safe code
+  var myStr foo.MyString
+  // Alias types don't support tags, so to set up validators we use
+  // GenerateAlias method.
+  maxLength := 5 // restricts length of MyString values to 5 characters
+  err = musGo.GenerateAlias(reflect.TypeOf(myStr), unsafe, "", maxLength, "",
+    "")
+  if err != nil {
+    panic(err)
+  }
+  // reflect.Type could be created without any variable.
+  err = musGo.Generate(reflect.TypeOf((*foo.Foo)(nil)).Elem(), unsafe)
+  if err != nil {
+    panic(err)
+  }
 }
 ```
 
@@ -113,120 +113,120 @@ __foo_test.go__
 package foo
 
 import (
-	"foo/validators"
-	"reflect"
-	"testing"
+  "foo/validators"
+  "reflect"
+  "testing"
 
-	"github.com/ymz-ncnk/musgo/errs"
+  "github.com/ymz-ncnk/musgo/errs"
 )
 
 func TestFooSerialization(t *testing.T) {
-	foo := Foo{
-		zoo: []int{4, 2},
-		boo: 5,
-		Bar: MyString("hello"),
-		Car: true,
-	}
-	buf := make([]byte, foo.SizeMUS())
-	foo.MarshalMUS(buf)
+  foo := Foo{
+    zoo: []int{4, 2},
+    boo: 5,
+    Bar: MyString("hello"),
+    Car: true,
+  }
+  buf := make([]byte, foo.SizeMUS())
+  foo.MarshalMUS(buf)
 
-	afoo := Foo{}
-	_, err := afoo.UnmarshalMUS(buf)
-	if err != nil {
-		t.Error(err)
-	}
-	foo.Car = false
-	if !reflect.DeepEqual(foo, afoo) {
-		t.Error("something went wrong")
-	}
+  afoo := Foo{}
+  _, err := afoo.UnmarshalMUS(buf)
+  if err != nil {
+    t.Error(err)
+  }
+  foo.Car = false
+  if !reflect.DeepEqual(foo, afoo) {
+    t.Error("something went wrong")
+  }
 }
 
 func TestFooValidation(t *testing.T) {
-	// test simple validator
-	{
-		foo := Foo{
-			boo: 11,
-			zoo: []int{1, 2},
-			Bar: "hello",
-		}
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+  // test simple validator
+  {
+    foo := Foo{
+      boo: 11,
+      zoo: []int{1, 2},
+      Bar: "hello",
+    }
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation doesn't work")
-		}
-		fieldErr, ok := err.(errs.FieldError)
-		if !ok {
-			t.Error("wrong field error")
-		}
-		if fieldErr.FieldName() != "boo" {
-			t.Error("wrong field error fieldName")
-		}
-		if fieldErr.Cause() != validators.ErrBiggerThanTen {
-			t.Error("wrong error")
-		}
-	}
-	// test element validator
-	{
-		foo := Foo{
-			boo: 3,
-			zoo: []int{1, 12, 2},
-			Bar: "hello",
-		}
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation doesn't work")
+    }
+    fieldErr, ok := err.(errs.FieldError)
+    if !ok {
+      t.Error("wrong field error")
+    }
+    if fieldErr.FieldName() != "boo" {
+      t.Error("wrong field error fieldName")
+    }
+    if fieldErr.Cause() != validators.ErrBiggerThanTen {
+      t.Error("wrong error")
+    }
+  }
+  // test element validator
+  {
+    foo := Foo{
+      boo: 3,
+      zoo: []int{1, 12, 2},
+      Bar: "hello",
+    }
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation doesn't work")
-		}
-		fieldErr, ok := err.(errs.FieldError)
-		if !ok {
-			t.Error("wrong field error")
-		}
-		if fieldErr.FieldName() != "zoo" {
-			t.Error("wrong field error fieldName")
-		}
-		sliceErr, ok := fieldErr.Cause().(errs.SliceError)
-		if !ok {
-			t.Error("wrong slice error")
-		}
-		if sliceErr.Index() != 1 {
-			t.Error("wrong slice error index")
-		}
-		if sliceErr.Cause() != validators.ErrBiggerThanTen {
-			t.Error("wrong error")
-		}
-	}
-	// test max length
-	{
-		foo := Foo{
-			boo: 8,
-			zoo: []int{1, 2},
-			Bar: "hello world",
-		}
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation doesn't work")
+    }
+    fieldErr, ok := err.(errs.FieldError)
+    if !ok {
+      t.Error("wrong field error")
+    }
+    if fieldErr.FieldName() != "zoo" {
+      t.Error("wrong field error fieldName")
+    }
+    sliceErr, ok := fieldErr.Cause().(errs.SliceError)
+    if !ok {
+      t.Error("wrong slice error")
+    }
+    if sliceErr.Index() != 1 {
+      t.Error("wrong slice error index")
+    }
+    if sliceErr.Cause() != validators.ErrBiggerThanTen {
+      t.Error("wrong error")
+    }
+  }
+  // test max length
+  {
+    foo := Foo{
+      boo: 8,
+      zoo: []int{1, 2},
+      Bar: "hello world",
+    }
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation doesn't work")
-		}
-		fieldErr, ok := err.(errs.FieldError)
-		if !ok {
-			t.Error("wrong field error")
-		}
-		if fieldErr.FieldName() != "Bar" {
-			t.Error("wrong field error fieldName")
-		}
-		if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
-			t.Error("wrong error")
-		}
-	}
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation doesn't work")
+    }
+    fieldErr, ok := err.(errs.FieldError)
+    if !ok {
+      t.Error("wrong field error")
+    }
+    if fieldErr.FieldName() != "Bar" {
+      t.Error("wrong field error fieldName")
+    }
+    if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
+      t.Error("wrong error")
+    }
+  }
 }
 ```
 
