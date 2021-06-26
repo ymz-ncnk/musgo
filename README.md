@@ -94,7 +94,7 @@ the code generated for it must be in the same package.
 Let's write some tests. Create `foo_test.go` file.
 
 ```
-foo
+foo/
  |‒‒‒...
  |‒‒‒foo_test.go
 ```
@@ -270,13 +270,79 @@ For every structure field you can set up validators using the
   elements, if field type is an array, slice of map.
 - KeyValidator - it's a name of the function which will validate field's keys,
   if field type is a map.
-  
+
+All tag items, except MaxLength, should have the format like 
+"package.FunctionName" or "FunctionName".
+
 Decoding(and encoding) is performed in order, from the first field to the last 
 one. That's why, it will stop with validation error on the first not valid 
 field.
 
 For alias type, you can set up validators with help of MusGo.GenerateAlias()
 method.
+
+## Validators
+
+Validators are functions with the following signature
+
+```go
+func (value Type) error
+```
+, where Type is a type of the value to which validator is applied.
+
+A few examples,
+
+```go
+// Simple validator for the field.
+type Foo struct {
+  Field string `mus:"StrValidator"`
+}
+
+func StrValidator(str string) errorr {...}
+
+// ElemValidator for the slice field.
+type Bar struct {
+  Field []string `mus:",,StrValidator"`
+}
+
+// KeyValidator for the map field.
+type Zoo struct {
+  Field map[int]string `mus:",,,StrValidator"`
+}
+
+// Simple Validator for the field of a custom type.
+type Far struct {
+  Field Foo `mus:FooValidator`
+}
+
+func FooValidator(foo *Foo) error {...} // validators for custom types receive
+// a pointer as argument
+
+// Simple Validator for the alias field.
+type Ror []string
+
+type Pac struct {
+  Field Ror `mus:RorValidator`  // you can't set MaxLength or 
+  // ElemValidator here, they should be applied for the Ror type.
+}
+
+func RorValidator(ror *Ror) error {...} // has pointer as argument too
+```
+
+## Errors
+
+Often validation errors are wrapped by one of the predefined error 
+(from `errs` package):
+- FieldError - happens when a field validation failed. Contains field name and 
+  cause.
+- SliceError - happens when a validation of a slice element failed. Contains
+  element index and cause.
+- ArrayError - happens when a validation of an array element failed. Contains
+  element index and cause.  
+- MapKeyError - happens when a validation of a map key failed. Contains key and
+  cause.
+- MapValueError - happens when validation of a map value failed. Contains key,
+  value and cause.
 
 # Benchmarks
 
