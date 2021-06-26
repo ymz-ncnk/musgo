@@ -25,8 +25,12 @@ __foo.go__
 package foo
 
 type Foo struct {
-  zoo []int `mus:",3,validators.BiggerThanTen"`
-  Bar MyString
+	boo int `mus:"validators.BiggerThanTen"` // private fields are supported
+	// too, while unmarshalling will be checked with BiggerThanTen validator
+	zoo []int `mus:",,validators.BiggerThanTen"` // every element will be checked
+	// with BiggerThanTen validator
+	Bar MyString // alias types are supported too
+	Car bool     `mus:"-"` // this field will be skiped
 }
 
 type MyString string
@@ -55,33 +59,38 @@ __make/musable.go__
 package main
 
 import (
-  "foo"
-  "reflect"
+	"foo"
+	"reflect"
 
-  "github.com/ymz-ncnk/musgo"
+	"github.com/ymz-ncnk/musgo"
 )
 
 func main() {
-  musGo, err := musgo.New()
-  if err != nil {
-    panic(err)
-  }
-  // You should "Generate" for all involved custom types.
-  var myStr foo.MyString
-  err = musGo.Generate(reflect.TypeOf(myStr), false)
-  if err != nil {
-    panic(err)
-  }
-  // Variable creation can be skipped.
-  err = musGo.Generate(reflect.TypeOf(*foo.Foo(nil)).Elem(), false)
-  if err != nil {
-    panic(err)
-  }
+	musGo, err := musgo.New()
+	if err != nil {
+		panic(err)
+	}
+	// You should "Generate" for all involved custom types.
+	unsafe := false // to generate safe code
+	var myStr foo.MyString
+	// Alias types don't support tags, so to set up validators we use
+	// GenerateAlias method.
+	maxLength := 5 // restricts length of MyString values to 5 characters
+	err = musGo.GenerateAlias(reflect.TypeOf(myStr), unsafe, "", maxLength, "",
+		"")
+	if err != nil {
+		panic(err)
+	}
+	// reflect.Type could be created without any variable.
+	err = musGo.Generate(reflect.TypeOf((*foo.Foo)(nil)).Elem(), unsafe)
+	if err != nil {
+		panic(err)
+	}
 }
 ```
 
 Run from the comamnd line:
-```
+```bash
 $ cd ~/foo
 $ go mod init foo
 $ go get github.com/ymz-ncnk/musgo
@@ -104,89 +113,120 @@ __foo_test.go__
 package foo
 
 import (
-  "foo/validators"
-  "reflect"
-  "testing"
+	"foo/validators"
+	"reflect"
+	"testing"
 
-  "github.com/ymz-ncnk/musgo/errs"
+	"github.com/ymz-ncnk/musgo/errs"
 )
 
 func TestFooSerialization(t *testing.T) {
-  foo := Foo{
-    Bar: MyString("hello world"),
-    zoo: []int{4, 2}, // private fields are supported too
-  }
-  buf := make([]byte, foo.SizeMUS())
-  foo.MarshalMUS(buf)
+	foo := Foo{
+		zoo: []int{4, 2},
+		boo: 5,
+		Bar: MyString("hello"),
+		Car: true,
+	}
+	buf := make([]byte, foo.SizeMUS())
+	foo.MarshalMUS(buf)
 
-  afoo := Foo{}
-  _, err := afoo.UnmarshalMUS(buf)
-  if err != nil {
-    t.Error(err)
-  }
-  if !reflect.DeepEqual(foo, afoo) {
-    t.Error("something went wrong")
-  }
+	afoo := Foo{}
+	_, err := afoo.UnmarshalMUS(buf)
+	if err != nil {
+		t.Error(err)
+	}
+	foo.Car = false
+	if !reflect.DeepEqual(foo, afoo) {
+		t.Error("something went wrong")
+	}
 }
 
 func TestFooValidation(t *testing.T) {
-  // test max length
-  {
-    foo := Foo{
-      Bar: MyString("hello world"),
-      zoo: []int{9, -2, 0, 5},
-    }
-    buf := make([]byte, foo.SizeMUS())
-    foo.MarshalMUS(buf)
+	// test simple validator
+	{
+		foo := Foo{
+			boo: 11,
+			zoo: []int{1, 2},
+			Bar: "hello",
+		}
+		buf := make([]byte, foo.SizeMUS())
+		foo.MarshalMUS(buf)
 
-    afoo := Foo{}
-    _, err := afoo.UnmarshalMUS(buf)
-    if err == nil {
-      t.Error("validation doesn't work")
-    }
-    fieldErr, ok := err.(errs.FieldError)
-    if !ok {
-      t.Error("wrong field error")
-    }
-    if fieldErr.FieldName() != "zoo" {
-      t.Error("wrong field error fieldName")
-    }
-    if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
-      t.Error("wrong error")
-    }
-  }
-  // test element validator
-  {
-    foo := Foo{
-      Bar: MyString("hello world"),
-      zoo: []int{8, 12},
-    }
-    buf := make([]byte, foo.SizeMUS())
-    foo.MarshalMUS(buf)
+		afoo := Foo{}
+		_, err := afoo.UnmarshalMUS(buf)
+		if err == nil {
+			t.Error("validation doesn't work")
+		}
+		fieldErr, ok := err.(errs.FieldError)
+		if !ok {
+			t.Error("wrong field error")
+		}
+		if fieldErr.FieldName() != "boo" {
+			t.Error("wrong field error fieldName")
+		}
+		if fieldErr.Cause() != validators.ErrBiggerThanTen {
+			t.Error("wrong error")
+		}
+	}
+	// test element validator
+	{
+		foo := Foo{
+			boo: 3,
+			zoo: []int{1, 12, 2},
+			Bar: "hello",
+		}
+		buf := make([]byte, foo.SizeMUS())
+		foo.MarshalMUS(buf)
 
-    afoo := Foo{}
-    _, err := afoo.UnmarshalMUS(buf)
-    if err == nil {
-      t.Error("validation doesn't work")
-    }
-    fieldErr, ok := err.(errs.FieldError)
-    if !ok {
-      t.Error("wrong field error")
-    }
-    if fieldErr.FieldName() != "zoo" {
-      t.Error("wrong field error fieldName")
-    }
-    sliceErr, ok := fieldErr.Cause().(errs.SliceError)
-    if !ok {
-      t.Error("wrong slice error")
-    }
-    if sliceErr.Index() != 1 {
-      t.Error("wrong slice error index")
-    }
-    if sliceErr.Cause() != validators.ErrBiggerThanTen {
-      t.Error("wrong error")
-    }
-  }
+		afoo := Foo{}
+		_, err := afoo.UnmarshalMUS(buf)
+		if err == nil {
+			t.Error("validation doesn't work")
+		}
+		fieldErr, ok := err.(errs.FieldError)
+		if !ok {
+			t.Error("wrong field error")
+		}
+		if fieldErr.FieldName() != "zoo" {
+			t.Error("wrong field error fieldName")
+		}
+		sliceErr, ok := fieldErr.Cause().(errs.SliceError)
+		if !ok {
+			t.Error("wrong slice error")
+		}
+		if sliceErr.Index() != 1 {
+			t.Error("wrong slice error index")
+		}
+		if sliceErr.Cause() != validators.ErrBiggerThanTen {
+			t.Error("wrong error")
+		}
+	}
+	// test max length
+	{
+		foo := Foo{
+			boo: 8,
+			zoo: []int{1, 2},
+			Bar: "hello world",
+		}
+		buf := make([]byte, foo.SizeMUS())
+		foo.MarshalMUS(buf)
+
+		afoo := Foo{}
+		_, err := afoo.UnmarshalMUS(buf)
+		if err == nil {
+			t.Error("validation doesn't work")
+		}
+		fieldErr, ok := err.(errs.FieldError)
+		if !ok {
+			t.Error("wrong field error")
+		}
+		if fieldErr.FieldName() != "Bar" {
+			t.Error("wrong field error fieldName")
+		}
+		if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
+			t.Error("wrong error")
+		}
+	}
 }
 ```
 
@@ -283,17 +323,13 @@ method.
 
 ## Validators
 
-Validators are functions with the following signature
-
-```go
-func (value Type) error
-```
-, where Type is a type of the value to which validator is applied.
+Validator is a function with the following signature `func (value Type) error`,
+where `Type` is a type of the value to which the validator is applied.
 
 A few examples,
 
 ```go
-// Simple validator for the field.
+// Validator for the field.
 type Foo struct {
   Field string `mus:"StrValidator"`
 }
@@ -310,7 +346,7 @@ type Zoo struct {
   Field map[int]string `mus:",,,StrValidator"`
 }
 
-// Simple Validator for the field of a custom type.
+// Validator for the field of a custom type.
 type Far struct {
   Field Foo `mus:FooValidator`
 }
@@ -318,7 +354,7 @@ type Far struct {
 func FooValidator(foo *Foo) error {...} // validators for custom types receive
 // a pointer as argument
 
-// Simple Validator for the alias field.
+// Validator for the alias field.
 type Ror []string
 
 type Pac struct {
