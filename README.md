@@ -311,8 +311,8 @@ For every structure field you can set up validators using the
 - KeyValidator - it's a name of the function which will validate field's keys,
   if field type is a map.
 
-All tag items, except MaxLength, should have the format like 
-"package.FunctionName" or "FunctionName".
+All tag items, except MaxLength, should have the "package.FunctionName" or 
+"FunctionName" format.
 
 Decoding(and encoding) is performed in order, from the first field to the last 
 one. That's why, it will stop with validation error on the first not valid 
@@ -346,13 +346,12 @@ type Zoo struct {
   Field map[int]string `mus:",,,StrValidator"`
 }
 
-// Validator for the field of a custom type.
+// Validator for the field of a custom pointer type.
 type Far struct {
-  Field Foo `mus:FooValidator`
+  Field *Foo `mus:FooValidator`
 }
 
-func FooValidator(foo *Foo) error {...} // validators for custom types receive
-// a pointer as argument
+func FooValidator(foo *Foo) error {...}
 
 // Validator for the alias field.
 type Ror []string
@@ -362,7 +361,7 @@ type Pac struct {
   // ElemValidator here, they should be applied for the Ror type.
 }
 
-func RorValidator(ror *Ror) error {...} // has pointer as argument too
+func RorValidator(ror Ror) error {...}
 ```
 
 ## Errors
