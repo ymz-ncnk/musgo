@@ -1,15 +1,14 @@
 # Musgo
 
-Musgo is a Go code generator for binary MUS format with validation support.
-Generated code converts data to and from MUS format. More info about it and
+Musgo is a Go code generator for the binary MUS format with validation support.
+Generated code converts data to and from the MUS format. More info about it and
 about the format you can find at "https://github.com/ymz-ncnk/musgen".
 
 # How to use
 
 First, you should download and install Go, version 1.4 or later.
 
-Create in your home directory `foo` folder with the following structure:
-
+Create in your home directory a `foo` folder with the following structure:
 ```
 foo/
  |‒‒‒make/
@@ -26,7 +25,7 @@ package foo
 
 type Foo struct {
   boo int `mus:"validators.BiggerThanTen"` // private fields are supported
-  // too, while unmarshalling will be checked with BiggerThanTen validator
+  // too, will be checked with BiggerThanTen validator while unmarshalling 
   zoo []int `mus:",,validators.BiggerThanTen"` // every element will be checked
   // with BiggerThanTen validator
   Bar MyString // alias types are supported too
@@ -81,7 +80,7 @@ func main() {
   if err != nil {
     panic(err)
   }
-  // reflect.Type could be created without any variable.
+  // reflect.Type could be created without the explicit variable.
   err = musGo.Generate(reflect.TypeOf((*foo.Foo)(nil)).Elem(), unsafe)
   if err != nil {
     panic(err)
@@ -99,9 +98,8 @@ $ go generate
 
 Now you can see `Foo.musgen.go` and `MyString.musgen.go` files in the `foo` 
 folder. Pay attention to the location of the generated files. The data type and 
-the code generated for it must be in the same package.
-Let's write some tests. Create `foo_test.go` file.
-
+the code generated for it must be in the same package. Let's write some tests.
+Create a `foo_test.go` file:
 ```
 foo/
  |‒‒‒...
@@ -122,8 +120,8 @@ import (
 
 func TestFooSerialization(t *testing.T) {
   foo := Foo{
-    zoo: []int{4, 2},
     boo: 5,
+    zoo: []int{4, 2},
     Bar: MyString("hello"),
     Car: true,
   }
@@ -229,11 +227,10 @@ func TestFooValidation(t *testing.T) {
   }
 }
 ```
-
 More advanced usage you can find at https://github.com/ymz-ncnk/musgotest.
 
 When encoding multiple values, it is impractical to create a new buffer each 
-time. It takes too long. Instead, you can use the same buffer for each Marshal:
+time, it takes too long. Instead, you can use the same buffer for each Marshal:
 ```go
 ...
 buf := make([]byte, FixedLength)
@@ -247,7 +244,7 @@ for foo := range foos {
 }
 ```
 
-To gain more performance, `recover()` function can be used:
+To gain more performance, the `recover()` function can be used:
 ```go
 ...
 defer func() {
@@ -302,32 +299,31 @@ You could generate fast unsafe code. Read more about it at
 
 For every structure field you can set up validators using the
 `mus:"Validator,MaxLength,ElemValidator,KeyValidator"` tag , where:
-- Validator - it's a name of the function which will validate current 
+- Validator - it's a name of the function that will validate the current 
   field.
-- MaxLength - if field has a string, array, slice or map type, MaxLength 
-  will restrict its length. Should be positive number.
-- ElemValidator - it's a name of the function which will validate field's 
-  elements, if field type is an array, slice of map.
-- KeyValidator - it's a name of the function which will validate field's keys,
-  if field type is a map.
+- MaxLength - if the field is a string, array, slice or map, MaxLength will 
+  restrict its length. Must be a positive number.
+- ElemValidator - it's a name of the function that will validate field
+  elements, if the field is an array, slice or map.
+- KeyValidator - it's a name of the function that will validate field keys,
+  if the field is a map.
 
-All tag items, except MaxLength, should have the "package.FunctionName" or 
+All tag items, except MaxLength, must have the "package.FunctionName" or 
 "FunctionName" format.
 
 Decoding(and encoding) is performed in order, from the first field to the last 
-one. That's why, it will stop with validation error on the first not valid 
+one. That's why, it will stop with a validation error on the first not valid 
 field.
 
-For alias type, you can set up validators with help of MusGo.GenerateAlias()
-method.
+For an alias type, you can set up validators with the help of the 
+`MusGo.GenerateAlias()` method.
 
 ## Validators
 
 Validator is a function with the following signature `func (value Type) error`,
 where `Type` is a type of the value to which the validator is applied.
 
-A few examples,
-
+A few examples:
 ```go
 // Validator for the field.
 type Foo struct {
@@ -367,17 +363,17 @@ func RorValidator(ror Ror) error {...}
 ## Errors
 
 Often validation errors are wrapped by one of the predefined error 
-(from `errs` package):
-- FieldError - happens when a field validation failed. Contains field name and 
-  cause.
-- SliceError - happens when a validation of a slice element failed. Contains
-  element index and cause.
-- ArrayError - happens when a validation of an array element failed. Contains
-  element index and cause.  
-- MapKeyError - happens when a validation of a map key failed. Contains key and
-  cause.
-- MapValueError - happens when validation of a map value failed. Contains key,
-  value and cause.
+(from the `errs` package):
+- FieldError - happens when field validation failed. Contains the field name
+  and cause.
+- SliceError - happens when validation of the slice element failed. Contains 
+  the element index and cause.
+- ArrayError - happens when validation of the array element failed. Contains 
+  the element index and cause.
+- MapKeyError - happens when validation of the map key failed. Contains the 
+  key and cause.
+- MapValueError - happens when validation of the map value failed. Contains 
+  the key, value and cause.
 
 # Benchmarks
 
