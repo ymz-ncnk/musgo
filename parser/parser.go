@@ -14,45 +14,42 @@ import (
 // TagKey represents a key of the tag, which marks field validators.
 const TagKey = "mus"
 
-// InvalidTagFormatErrMsg happens if tag has invalid format.
+// InvalidTagFormatErrMsg happens if a tag has an invalid format.
 const InvalidTagFormatErrMsg = `%v field has invalid tag, it should be: ` +
 	`"-" or "validator,maxLength,elemValidator,keyValidator"`
 
-// InvalidTagMaxLengthErrMsg happens if maxLength is invalid, for example is
+// InvalidTagMaxLengthErrMsg happens if a maxLength is invalid, for example is
 // negative.
 const InvalidTagMaxLengthErrMsg = "%v field has invalid tag, because of " +
 	"maxLength"
 
-// InvalidTagOwnMaxLengthErrMsg happens if maxLength is set for not supported
-// type.
+// InvalidTagOwnMaxLengthErrMsg happens if a maxLength is set for not the
+// supported type.
 const InvalidTagOwnMaxLengthErrMsg = "%v field has invalid tag, " +
 	"only strings, slices or maps could have maxLength"
 
-// InvalidTagOwnElemValidatorErrMsg happens if elemValidator is set for not
-// supported type.
+// InvalidTagOwnElemValidatorErrMsg happens if an elemValidator is set for the
+// not supported type.
 const InvalidTagOwnElemValidatorErrMsg = "%v field has invalid tag, " +
 	"only arrays, slices or maps could have elemValidator"
 
-// InvalidTagOwnKeyValidatorErrMsg happens if keyValidator is set for not
+// InvalidTagOwnKeyValidatorErrMsg happens if a keyValidator is set for the not
 // supported type.
 const InvalidTagOwnKeyValidatorErrMsg = "%v field has invalid tag, " +
 	"only maps could have keyValidator"
 
-// InvalidTagArrayMaxLengthErrMsg happens when maxLength is speccified for an
+// InvalidTagArrayMaxLengthErrMsg happens when a maxLength is speccified for an
 // array.
 const InvalidTagArrayMaxLengthErrMsg = "%v field has invalid tag, maxLength " +
 	"is specified for an array"
 
-// // InvalidTagNegativeMaxLength happens when maxLength is negative.
-// const InvalidTagNegativeMaxLength = "%v field has invalid tag, maxLength is " +
-// 	"negative"
-
-// NotSupportedTypeError happens when tries to parse not supported type.
+// NotSupportedTypeError happens when the parser tries to parse the not
+// supported type.
 type NotSupportedTypeError struct {
 	t string
 }
 
-// Type returns not supported type.
+// Type returns the not supported type.
 func (err NotSupportedTypeError) Type() string {
 	return err.t
 }
@@ -61,9 +58,9 @@ func (err NotSupportedTypeError) Error() string {
 	return fmt.Sprintf("%v type is not supported", err.Type())
 }
 
-// Parse creates TypeDesc from the specified type. It handles and public, and
-// private fields. If the type is not an alias or struct returns error.
-// If type is an alias to a pointer type returns error.
+// Parse creates a TypeDesc from the specified type. It handles and public, and
+// private fields. If the type is not an alias or struct returns an error.
+// If type is an alias to a pointer type returns an error.
 //
 // Adds to each map type a "map number". For example, map[string]int becomes
 // map-0[string]-0int. With help of map numbers we could parse map types
@@ -71,11 +68,11 @@ func (err NotSupportedTypeError) Error() string {
 //
 // Each field of the struct type could have a tag: `mus:-` or
 // `mus:validator,maxLength,elemValidator,keyValidator`
-// Only string, array, slice, map fields could have maxLenght validator.
-// MaxLength should be positive number.
-// Only array, slice, map fields could have elemValidator.
-// And only map fields could have keyValidation.
-// Otherwise returns error.
+// Only string, array, slice, map fields could have a maxLenght validator.
+// The maxLength should be positive number.
+// Only array, slice, map fields could have an elemValidator.
+// And only map fields could have a keyValidator.
+// Otherwise returns an error.
 func Parse(t reflect.Type) (musgen.TypeDesc, error) {
 	if t == nil {
 		return musgen.TypeDesc{}, errors.New("type is nil")
@@ -101,7 +98,7 @@ func Parse(t reflect.Type) (musgen.TypeDesc, error) {
 	return td, nil
 }
 
-// ParseAlias tries to parse alias type(not an alias to a struct).
+// ParseAlias tries to parse an alias type(not an alias to a struct).
 // Returns true on success.
 func ParseAlias(t reflect.Type) (musgen.TypeDesc, bool, error) {
 	var ft string
@@ -172,7 +169,7 @@ func ParseStruct(t reflect.Type) (musgen.TypeDesc, error) {
 	}, nil
 }
 
-// ParseFieldTag tries to parse a field's tag. Returns true, if the field should
+// ParseFieldTag tries to parse a field tag. Returns true, if the field should
 // be skipped.
 func ParseFieldTag(f reflect.StructField, field *musgen.FieldDesc) (skip bool,
 	err error) {
@@ -272,8 +269,8 @@ func setUpKeyValidator(field *musgen.FieldDesc, value string) {
 	}
 }
 
-// ParseType parses type into string representation. Complex types are parsed
-// recursively.
+// ParseType parses a type into the string representation. Complex types are
+// parsed recursively.
 // Translates a custom type to its name or package + name(if it's from
 // another package).
 // Adds a map number to the map type. In this case returns an incremented
@@ -318,7 +315,7 @@ func ParseType(t reflect.Type, pkgPath string,
 }
 
 // ParseStars returns pointer signs and real type. If real type is an alias
-// to pointer type returns error.
+// to the pointer type returns an error.
 func ParseStars(t reflect.Type) (stars string, st reflect.Type, err error) {
 	st = t
 	k := st.Kind()
@@ -338,7 +335,7 @@ func ParseStars(t reflect.Type) (stars string, st reflect.Type, err error) {
 	return
 }
 
-// ParseArrayType returns string representation of the array type.
+// ParseArrayType returns a string representation of the array type.
 func ParseArrayType(stars string, t reflect.Type, pkgPath string,
 	mapsCount int) (string, int, error) {
 	var aelt string
@@ -350,7 +347,7 @@ func ParseArrayType(stars string, t reflect.Type, pkgPath string,
 	return stars + "[" + strconv.Itoa(t.Len()) + "]" + aelt, mapsCount, nil
 }
 
-// ParseSliceType returns string representation of the slice type.
+// ParseSliceType returns a string representation of the slice type.
 func ParseSliceType(stars string, t reflect.Type, pkgPath string,
 	mapsCount int) (string, int, error) {
 	var selt string
@@ -362,7 +359,7 @@ func ParseSliceType(stars string, t reflect.Type, pkgPath string,
 	return stars + "[]" + selt, mapsCount, nil
 }
 
-// ParseMapType returns string representation of the map type.
+// ParseMapType returns a string representation of the map type.
 func ParseMapType(stars string, t reflect.Type, pkgPath string,
 	mapsCount int) (string, int, error) {
 	var mkt string
