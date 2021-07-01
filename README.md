@@ -1,5 +1,4 @@
 # Musgo
-
 Musgo is a Go code generator for the binary MUS format with validation support.
 Generated code converts data to and from the MUS format. More info about it and
 about the format you can find at "https://github.com/ymz-ncnk/musgen".
@@ -13,8 +12,14 @@ about the format you can find at "https://github.com/ymz-ncnk/musgen".
   that decoding of the invalid data could happen almost instantly. See the 
   Validation section for more details.
 
-# How to use
+# Tests
+The generated code is well tested (to run those tests read instructions in the 
+`musgo.go` file). Test coverage is about 80%.
 
+# Benchmarks
+[github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)
+
+# How to use
 First, you should download and install Go, version 1.4 or later.
 
 Create in your home directory a `foo` folder with the following structure:
@@ -271,7 +276,6 @@ for foo := range foos {
 It will intercept every panic, so use it with careful.
 
 # Supported Types
-
 Supports following types:
   - uint64
   - uint32
@@ -296,16 +300,13 @@ Pointers are supported as well. But aliases to pointer types are not, Go
 doesn't allow methods for such types.
 
 # Private fields
-
 You could encode and decode private fields too.
 
 # Unsafe code
-
 You could generate fast unsafe code. Read more about it at 
 "https://github.com/ymz-ncnk/musgen".
 
 # Validation
-
 For every structure field you can set up validators using the
 `mus:"Validator,MaxLength,ElemValidator,KeyValidator"` tag , where:
 - Validator - it's a name of the function that will validate the current 
@@ -328,7 +329,6 @@ For an alias type, you can set up validators with the help of the
 `MusGo.GenerateAlias()` method.
 
 ## Validators
-
 Validator is a function with the following signature `func (value Type) error`,
 where `Type` is a type of the value to which the validator is applied.
 
@@ -370,7 +370,6 @@ func RorValidator(ror Ror) error {...}
 ```
 
 ## Errors
-
 Often validation errors are wrapped by one of the predefined error 
 (from the `errs` package):
 - FieldError - happens when field validation failed. Contains the field name
@@ -383,7 +382,3 @@ Often validation errors are wrapped by one of the predefined error
   key and cause.
 - MapValueError - happens when validation of the map value failed. Contains 
   the key, value and cause.
-
-# Benchmarks
-
-[github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)
