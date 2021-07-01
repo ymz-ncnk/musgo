@@ -20,24 +20,6 @@ var FloatPtrArrayAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 		Alias: "FloatPtrArrayAlias"}},
 }
 
-type FloatNilPtrArrayAlias [3]*float32
-
-var FloatNilPtrArrayAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
-	Package: "musgen",
-	Name:    "FloatNilPtrArrayAlias",
-	Fields: []musgen.FieldDesc{{Name: "", Type: "[3]*float32",
-		Alias: "FloatNilPtrArrayAlias"}},
-}
-
-type Int16NilPtrArrayAlias [3]*int16
-
-var Int16NilPtrArrayAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
-	Package: "musgen",
-	Name:    "Int16NilPtrArrayAlias",
-	Fields: []musgen.FieldDesc{{Name: "", Type: "[3]*int16",
-		Alias: "Int16NilPtrArrayAlias"}},
-}
-
 type IntAliasArrayAlias [3]IntAlias
 
 var IntAliasArrayAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{

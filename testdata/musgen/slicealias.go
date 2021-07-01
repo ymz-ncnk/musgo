@@ -19,15 +19,6 @@ var FloatPtrSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 		Alias: "FloatPtrSliceAlias"}},
 }
 
-type Int16NilPtrSliceAlias []*int16
-
-var Int16NilPtrSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
-	Package: "musgen",
-	Name:    "Int16NilPtrSliceAlias",
-	Fields: []musgen.FieldDesc{{Name: "", Type: "[]*int16",
-		Alias: "Int16NilPtrSliceAlias"}},
-}
-
 type IntAliasSliceAlias []IntAlias
 
 var IntAliasSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
@@ -116,15 +107,6 @@ var TrickySliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Name:    "TrickySliceAlias",
 	Fields: []musgen.FieldDesc{{Name: "", Type: "[][2]map-1[*[]StringAlias]-1map-0[SimpleStructType]-0[]int",
 		Alias: "TrickySliceAlias"}},
-}
-
-type IntPtrPtrPtrAliasSliceAlias []***int
-
-var IntPtrPtrPtrAliasSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
-	Package: "musgen",
-	Name:    "IntPtrPtrPtrAliasSliceAlias",
-	Fields: []musgen.FieldDesc{{Name: "", Type: "[]***int",
-		Alias: "IntPtrPtrPtrAliasSliceAlias"}},
 }
 
 type ValidUintSliceAlias []uint
