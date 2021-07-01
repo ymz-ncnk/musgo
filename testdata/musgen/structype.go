@@ -111,22 +111,35 @@ var StructTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	},
 }
 
-type ValidStructType StructType
+type ValidStructType struct {
+	Uint64 uint64
+
+	Int8 int8
+
+	String string
+	Byte   byte
+	Bool   bool
+
+	Slice    []uint
+	SlicePtr *[]uint16
+
+	Array    [2]int
+	ArrayPtr *[2]int32
+
+	Map    map[string]int
+	MapPtr *map[string]int
+
+	Struct    SimpleStructType
+	StructPtr *SimpleStructType
+}
 
 var ValidStructTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Package: "musgen",
 	Name:    "ValidStructType",
 	Fields: []musgen.FieldDesc{
 		{Name: "Uint64", Type: "uint64", Validator: "BiggerThanTenUint64"},
-		{Name: "Uint32", Type: "uint32"},
-		{Name: "Uint16", Type: "uint16"},
-		{Name: "Uint", Type: "uint"},
 
-		{Name: "Int64", Type: "int64"},
-		{Name: "Int32", Type: "int32"},
-		{Name: "Int16", Type: "int16"},
 		{Name: "Int8", Type: "int8", Validator: "BiggerThanTenInt8"},
-		{Name: "Int", Type: "int"},
 
 		{Name: "String", Type: "string", Validator: "NotEmptyString", MaxLength: 10},
 		{Name: "Byte", Type: "uint8", Validator: "BiggerThanTenByte"},
@@ -153,8 +166,6 @@ var ValidStructTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 			Validator: "ValidSimpleStructType"},
 		{Name: "StructPtr", Type: "*SimpleStructType",
 			Validator: "ValidSimpleStructPtrType"},
-
-		{Name: "Tricky", Type: "[2]map-1[[2]IntAlias]-1map-0[StringAlias]-0[2]string"},
 	},
 }
 

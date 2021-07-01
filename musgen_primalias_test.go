@@ -8,6 +8,7 @@ package musgo
 
 // 	"github.com/ymz-ncnk/musgo/errs"
 // 	mgtd "github.com/ymz-ncnk/musgo/testdata/musgen"
+// 	utils "github.com/ymz-ncnk/musgo/testdata/musgen/utils"
 // )
 
 // // Can't do this. Can't generate methods for such type, error - invalid receiver
@@ -22,12 +23,12 @@ package musgo
 // 			for _, num := range []uint64{11555598373362, 0} {
 // 				initVal := mgtd.Uint64Alias(num)
 // 				zeroVal := mgtd.Uint64Alias(0)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -68,12 +69,12 @@ package musgo
 // 			for _, num := range []uint32{9937362, 0} {
 // 				initVal := mgtd.Uint32Alias(num)
 // 				zeroVal := mgtd.Uint32Alias(0)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -105,12 +106,12 @@ package musgo
 // 			for _, num := range []uint16{34262, 0} {
 // 				initVal := mgtd.Uint16Alias(num)
 // 				zeroVal := mgtd.Uint16Alias(0)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -139,14 +140,14 @@ package musgo
 // 	{
 // 		typeName := mgtd.Uint8AliasTypeDesc.Name
 // 		for _, num := range []uint8{99, 0, 35} {
-// 			initVal := mgtd.UintAlias(num)
-// 			zeroVal := mgtd.UintAlias(0)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			initVal := mgtd.Uint8Alias(num)
+// 			zeroVal := mgtd.Uint8Alias(0)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -156,12 +157,12 @@ package musgo
 // 		for _, num := range []uint{182373, 12123131231321} {
 // 			initVal := mgtd.UintAlias(num)
 // 			zeroVal := mgtd.UintAlias(0)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -173,12 +174,12 @@ package musgo
 // 			for _, num := range []int64{-2761259239023909999, 0, 3425219181718387236} {
 // 				initVal := mgtd.Int64Alias(num)
 // 				zeroVal := mgtd.Int64Alias(0)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -208,12 +209,12 @@ package musgo
 // 			for _, num := range []int32{-1265126289, 0, 342521918} {
 // 				initVal := mgtd.Int32Alias(num)
 // 				zeroVal := mgtd.Int32Alias(0)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -234,12 +235,12 @@ package musgo
 // 			for _, num := range []int16{-28373, 0, 3736} {
 // 				initVal := mgtd.Int16Alias(num)
 // 				zeroVal := mgtd.Int16Alias(0)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -259,12 +260,12 @@ package musgo
 // 		for _, num := range []int8{-2, 0, 37} {
 // 			initVal := mgtd.Int8Alias(num)
 // 			zeroVal := mgtd.Int8Alias(0)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -274,12 +275,12 @@ package musgo
 // 		for _, num := range []int{-2982384774636, 0, 22342348} {
 // 			initVal := mgtd.IntAlias(num)
 // 			zeroVal := mgtd.IntAlias(0)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -289,12 +290,12 @@ package musgo
 // 		for _, num := range []float64{-261144411.3523, 0, 8272345.2028365} {
 // 			initVal := mgtd.Float64Alias(num)
 // 			zeroVal := mgtd.Float64Alias(0)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -304,12 +305,12 @@ package musgo
 // 		for _, num := range []float32{-2374892.161515141, 0, 299773.28} {
 // 			initVal := mgtd.Float32Alias(num)
 // 			zeroVal := mgtd.Float32Alias(0)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -321,12 +322,12 @@ package musgo
 // 			for _, num := range []bool{true, false} {
 // 				initVal := mgtd.BoolAlias(num)
 // 				zeroVal := mgtd.BoolAlias(false)
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -346,12 +347,12 @@ package musgo
 // 		for _, num := range []byte{38, 235} {
 // 			initVal := mgtd.ByteAlias(num)
 // 			zeroVal := mgtd.ByteAlias(0x00)
-// 			err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if initVal != zeroVal {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -363,12 +364,12 @@ package musgo
 // 			for _, num := range []string{"hello world", ""} {
 // 				initVal := mgtd.StringAlias(num)
 // 				zeroVal := mgtd.StringAlias("")
-// 				err := mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 				err := utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 				if err != nil {
 // 					t.Error(err)
 // 				} else {
 // 					if initVal != zeroVal {
-// 						t.Errorf(mgtd.MuErrMsg, typeName)
+// 						t.Errorf(utils.MuErrMsg, typeName)
 // 					}
 // 				}
 // 			}
@@ -394,7 +395,7 @@ package musgo
 // 		// uint, buffer ends
 // 		{
 // 			var val mgtd.IntAlias
-// 			err := mgtd.TestBufferEnds(&val, []byte{})
+// 			err := utils.TestBufferEnds(&val, []byte{})
 // 			if err != nil {
 // 				t.Error(err)
 // 			}
@@ -402,7 +403,7 @@ package musgo
 // 		// int, buffer ends
 // 		{
 // 			var val mgtd.UintAlias
-// 			err := mgtd.TestBufferEnds(&val, []byte{})
+// 			err := utils.TestBufferEnds(&val, []byte{})
 // 			if err != nil {
 // 				t.Error(err)
 // 			}
@@ -410,7 +411,7 @@ package musgo
 // 		// string, buffer ends
 // 		{
 // 			val := mgtd.StringAlias("")
-// 			err := mgtd.TestBufferEnds(&val, []byte{})
+// 			err := utils.TestBufferEnds(&val, []byte{})
 // 			if err != nil {
 // 				t.Error(err)
 // 			}
@@ -418,7 +419,7 @@ package musgo
 // 		// byte, buffer ends
 // 		{
 // 			var val mgtd.ByteAlias
-// 			err := mgtd.TestBufferEnds(&val, []byte{})
+// 			err := utils.TestBufferEnds(&val, []byte{})
 // 			if err != nil {
 // 				t.Error(err)
 // 			}
@@ -426,7 +427,7 @@ package musgo
 // 		// bool, buffer ends
 // 		{
 // 			var val mgtd.BoolAlias
-// 			err := mgtd.TestBufferEnds(&val, []byte{})
+// 			err := utils.TestBufferEnds(&val, []byte{})
 // 			if err != nil {
 // 				t.Error(err)
 // 			}
@@ -434,7 +435,7 @@ package musgo
 // 		// bool, buffer ends
 // 		{
 // 			var val mgtd.BoolAlias
-// 			err := mgtd.TestBufferEnds(&val, []byte{})
+// 			err := utils.TestBufferEnds(&val, []byte{})
 // 			if err != nil {
 // 				t.Error(err)
 // 			}

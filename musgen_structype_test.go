@@ -10,6 +10,7 @@ package musgo
 
 // 	"github.com/ymz-ncnk/musgo/errs"
 // 	mgtd "github.com/ymz-ncnk/musgo/testdata/musgen"
+// 	utils "github.com/ymz-ncnk/musgo/testdata/musgen/utils"
 // )
 
 // func TestGeneratedStructCode(t *testing.T) {
@@ -95,7 +96,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.StructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
@@ -131,7 +132,7 @@ package musgo
 // 					!reflect.DeepEqual(initVal.StructPtr, zeroVal.StructPtr) ||
 
 // 					!reflect.DeepEqual(initVal.Tricky, zeroVal.Tricky) {
-// 					t.Error(fmt.Errorf(mgtd.MuErrMsg, typeName))
+// 					t.Error(fmt.Errorf(utils.MuErrMsg, typeName))
 // 				}
 // 			}
 // 		}
@@ -139,7 +140,7 @@ package musgo
 // 	// struct, buffer ends
 // 	{
 // 		var val mgtd.StructType
-// 		err := mgtd.TestBufferEnds(&val, []byte{})
+// 		err := utils.TestBufferEnds(&val, []byte{})
 // 		if err != nil {
 // 			t.Error(err)
 // 		}
@@ -163,7 +164,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -188,7 +189,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -213,7 +214,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -238,7 +239,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -263,7 +264,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -288,7 +289,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -313,7 +314,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -337,7 +338,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -361,7 +362,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -386,7 +387,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -411,7 +412,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -435,7 +436,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -459,7 +460,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -484,7 +485,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -509,7 +510,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -534,7 +535,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -558,7 +559,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -582,7 +583,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -606,7 +607,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -631,7 +632,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -655,7 +656,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -680,7 +681,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -705,7 +706,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -731,7 +732,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -756,7 +757,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.ValidStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -775,7 +776,7 @@ package musgo
 // 		} {
 // 			initVal := num
 // 			zeroVal := *new(mgtd.FieldlessStructType)
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error("validation didn't work")
 // 			} else {
@@ -899,7 +900,7 @@ package musgo
 
 // func fieldErrorCause(occuredErr error, requiredField string,
 // 	requiredCause error) (cause error, err error) {
-// 	unmarshalErr, ok := occuredErr.(*mgtd.GenError)
+// 	unmarshalErr, ok := occuredErr.(*utils.GenError)
 // 	if !ok {
 // 		return nil, fmt.Errorf("received unknown error: %v", occuredErr)
 // 	}

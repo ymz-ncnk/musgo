@@ -9,6 +9,7 @@ package musgo
 
 // 	"github.com/ymz-ncnk/musgo/errs"
 // 	mgtd "github.com/ymz-ncnk/musgo/testdata/musgen"
+// 	utils "github.com/ymz-ncnk/musgo/testdata/musgen/utils"
 // )
 
 // func TestGeneratedSliceAliasCode(t *testing.T) {
@@ -19,12 +20,12 @@ package musgo
 // 		for _, num := range [][]string{{"hello", "world"}, {"", "tekejt"}} {
 // 			initVal := mgtd.StrSliceAlias(num)
 // 			zeroVal := mgtd.StrSliceAlias(*new([]string))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -38,12 +39,12 @@ package musgo
 // 		for _, num := range [][]*float64{{&foo, &bar, &car}} {
 // 			initVal := mgtd.FloatPtrSliceAlias(num)
 // 			zeroVal := mgtd.FloatPtrSliceAlias(*new([]*float64))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -57,12 +58,12 @@ package musgo
 // 		} {
 // 			initVal := mgtd.IntAliasSliceAlias(num)
 // 			zeroVal := mgtd.IntAliasSliceAlias(*new([]mgtd.IntAlias))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -76,12 +77,12 @@ package musgo
 // 		for _, num := range [][]*mgtd.Uint64Alias{{&foo, &bar, &car}} {
 // 			initVal := mgtd.Uint64PtrAliasSliceAlias(num)
 // 			zeroVal := mgtd.Uint64PtrAliasSliceAlias(*new([]*mgtd.Uint64Alias))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -92,12 +93,12 @@ package musgo
 // 		for _, num := range [][][]bool{{{true, false}, {true, true, true}}} {
 // 			initVal := mgtd.BoolSliceSliceAlias(num)
 // 			zeroVal := mgtd.BoolSliceSliceAlias(*new([][]bool))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -111,12 +112,12 @@ package musgo
 // 		}} {
 // 			initVal := mgtd.ByteArraySliceAlias(num)
 // 			zeroVal := mgtd.ByteArraySliceAlias(*new([][2]byte))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -130,12 +131,12 @@ package musgo
 // 		}} {
 // 			initVal := mgtd.FloatArrayPtrSliceAlias(num)
 // 			zeroVal := mgtd.FloatArrayPtrSliceAlias(*new([]*[2]float32))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -149,12 +150,12 @@ package musgo
 // 		}} {
 // 			initVal := mgtd.IntStrMapSliceAlias(num)
 // 			zeroVal := mgtd.IntStrMapSliceAlias(*new([]map[int16]string))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -168,12 +169,12 @@ package musgo
 // 		}} {
 // 			initVal := mgtd.Uint32Int32MapPtrSliceAlias(num)
 // 			zeroVal := mgtd.Uint32Int32MapPtrSliceAlias(*new([]*map[uint32]int32))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -187,12 +188,12 @@ package musgo
 // 		}} {
 // 			initVal := mgtd.StructTypeSliceAlias(num)
 // 			zeroVal := mgtd.StructTypeSliceAlias(*new([]mgtd.SimpleStructType))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -206,12 +207,12 @@ package musgo
 // 		}} {
 // 			initVal := mgtd.StructTypePtrSliceAlias(num)
 // 			zeroVal := mgtd.StructTypePtrSliceAlias(*new([]*mgtd.SimpleStructType))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
 // 			} else {
 // 				if !reflect.DeepEqual(initVal, zeroVal) {
-// 					t.Errorf(mgtd.MuErrMsg, typeName)
+// 					t.Errorf(utils.MuErrMsg, typeName)
 // 				}
 // 			}
 // 		}
@@ -246,7 +247,7 @@ package musgo
 // 		initVal := mgtd.TrickySliceAlias(num)
 // 		zeroVal := mgtd.TrickySliceAlias(
 // 			*new([][2]map[*[]mgtd.StringAlias]map[mgtd.SimpleStructType][]int))
-// 		err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 		err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 		if err != nil {
 // 			t.Error(err)
 // 		} else {
@@ -259,11 +260,11 @@ package musgo
 // 					for k, im := range a {
 // 						zm, pst := getVal(k, zeroVal[i][j])
 // 						if !pst {
-// 							t.Errorf(mgtd.MuErrMsg, typeName)
+// 							t.Errorf(utils.MuErrMsg, typeName)
 // 						}
 // 						for kk, imm := range im {
 // 							if !reflect.DeepEqual(imm, zm[kk]) {
-// 								t.Errorf(mgtd.MuErrMsg, typeName)
+// 								t.Errorf(utils.MuErrMsg, typeName)
 // 							}
 // 						}
 // 					}
@@ -275,7 +276,7 @@ package musgo
 // 	// slice, buffer ends
 // 	{
 // 		var val mgtd.StrSliceAlias
-// 		err := mgtd.TestBufferEnds(&val, []byte{})
+// 		err := utils.TestBufferEnds(&val, []byte{})
 // 		if err != nil {
 // 			t.Error(err)
 // 		}
@@ -284,7 +285,7 @@ package musgo
 // 	{
 // 		var val mgtd.StrSliceAlias
 // 		buf := []byte{12, 6, 1, 1, 1}
-// 		err := mgtd.TestBufferEnds(&val, buf)
+// 		err := utils.TestBufferEnds(&val, buf)
 // 		if err != nil {
 // 			t.Error(err)
 // 		}
@@ -295,11 +296,11 @@ package musgo
 // 		for _, num := range [][]uint{{2, 11}} {
 // 			initVal := mgtd.ValidUintSliceAlias(num)
 // 			zeroVal := mgtd.ValidUintSliceAlias(*new([]uint))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error(err)
 // 			}
-// 			genErr, ok := err.(*mgtd.GenError)
+// 			genErr, ok := err.(*utils.GenError)
 // 			if !ok {
 // 				t.Error("wrong gen error")
 // 			}
@@ -318,11 +319,11 @@ package musgo
 // 		for _, num := range [][]uint{{8, 6}} {
 // 			initVal := mgtd.ValidUintSliceAlias(num)
 // 			zeroVal := mgtd.ValidUintSliceAlias(*new([]uint))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error(err)
 // 			}
-// 			genErr, ok := err.(*mgtd.GenError)
+// 			genErr, ok := err.(*utils.GenError)
 // 			if !ok {
 // 				t.Error("wrong gen error")
 // 			}
@@ -337,11 +338,11 @@ package musgo
 // 		for _, num := range [][]uint{{1, 0, 0, 0}} {
 // 			initVal := mgtd.ValidUintSliceAlias(num)
 // 			zeroVal := mgtd.ValidUintSliceAlias(*new([]uint))
-// 			err = mgtd.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err == nil {
 // 				t.Error(err)
 // 			}
-// 			genErr, ok := err.(*mgtd.GenError)
+// 			genErr, ok := err.(*utils.GenError)
 // 			if !ok {
 // 				t.Error("wrong gen error")
 // 			}
