@@ -7,7 +7,8 @@ about the format you can find at "https://github.com/ymz-ncnk/musgen".
 1. With Musgo you can encode/decode your data really fast.
 2. MUS format-encoded values take up so little space because the format is 
   very simple.
-3. Also, invalid data decodes almost instantly. See the Validation section.
+3. Also, with Musgo invalid data decodes almost instantly. See the Validation 
+  section.
 
 # Tests
 The generated code is well tested (to run these tests read the instructions in 
