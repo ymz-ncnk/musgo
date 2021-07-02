@@ -7,10 +7,7 @@ about the format you can find at "https://github.com/ymz-ncnk/musgen".
 1. With Musgo you can encode/decode your data really fast.
 2. MUS format-encoded values take up so little space because the format is 
   very simple.
-3. Quite often, the decoded values need to be checked (for example, if we have 
-  received data over the network). Musgo improves this process in such a way 
-  that decoding of the invalid data could happen almost instantly, see the 
-  Validation section.
+3. Also, invalid data decodes almost instantly. See the Validation section.
 
 # Tests
 The generated code is well tested (to run these tests read the instructions in 
@@ -323,7 +320,8 @@ All tag items, except MaxLength, must have the "package.FunctionName" or
 
 Decoding(and encoding) is performed in order, from the first field to the last 
 one. That's why, it will stop with a validation error on the first not valid 
-field.
+field. There is no practical reason for decoding the rest of the structure when 
+we already know that it is not valid.
 
 For an alias type, you can set up validators with the help of the 
 `MusGo.GenerateAlias()` method.
