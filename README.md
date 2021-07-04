@@ -1,13 +1,13 @@
 # Musgo
 Musgo is a code generation-based, extremely fast serializer with validation 
-support.
+support. Also, it supports aliases, pointers and private fields.
 
 # Why we need another serializer?
 1. With Musgo you can encode/decode your data really fast.
 2. Encoded values take up so little space because the serialization format is 
   very simple.
-3. Also, with Musgo invalid data decodes almost instantly, see the Validation 
-  section.
+3. Moreover, with Musgo invalid data decodes almost instantly, see the 
+  Validation section.
 
 # Tests
 The generated code is well tested (to run tests read the instructions in the 
@@ -15,9 +15,6 @@ The generated code is well tested (to run tests read the instructions in the
 
 # Benchmarks
 [github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)
-
-# Binary format
-[github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
 
 # How to use
 First, you should download and install Go, version 1.4 or later.
@@ -304,7 +301,7 @@ You could encode and decode private fields too.
 
 # Unsafe code
 You could generate fast unsafe code. Read more about it at 
-"https://github.com/ymz-ncnk/musgen".
+[github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen).
 
 # Validation
 For every structure field you can set up validators using the
@@ -383,3 +380,6 @@ Often validation errors are wrapped by one of the predefined error
   key and cause.
 - MapValueError - happens when validation of the map value failed. Contains 
   the key, value and cause.
+
+# Binary format
+[github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
