@@ -1,21 +1,23 @@
 # Musgo
-Musgo is a Go code generator for the binary MUS format with validation support.
-Generated code converts data to and from the MUS format. More info about it and
-about the format you can find at "https://github.com/ymz-ncnk/musgen".
+Musgo is a code generation-based, extremely fast serializer with validation 
+support.
 
 # Why we need another serializer?
 1. With Musgo you can encode/decode your data really fast.
-2. MUS format-encoded values take up so little space because the format is 
+2. Encoded values take up so little space because the serialization format is 
   very simple.
-3. Also, with Musgo invalid data decodes almost instantly. See the Validation 
+3. Also, with Musgo invalid data decodes almost instantly, see the Validation 
   section.
 
 # Tests
-The generated code is well tested (to run these tests read the instructions in 
-the `musgo.go` file). Test coverage is about 80%.
+The generated code is well tested (to run tests read the instructions in the 
+`musgo.go` file). Test coverage is about 80%.
 
 # Benchmarks
 [github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)
+
+# Binary format
+[github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
 
 # How to use
 First, you should download and install Go, version 1.4 or later.
