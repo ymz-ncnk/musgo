@@ -1,12 +1,12 @@
-# Musgo
-Musgo is a code generation-based, extremely fast serializer with validation 
+# MusGo
+MusGo is a code generation-based, extremely fast serializer with validation 
 support. Also, it supports aliases, pointers and private fields.
 
 # Why we need another serializer?
-1. With Musgo you can encode/decode your data really fast.
+1. With MusGo you can encode/decode your data really fast.
 2. Encoded values take up so little space because the serialization format is 
   very simple.
-3. Moreover, with Musgo invalid data decodes almost instantly, see the 
+3. Moreover, with MusGo invalid data decodes almost instantly, see the 
   Validation section.
 
 # Tests
