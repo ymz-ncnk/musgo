@@ -49,7 +49,7 @@ func main() {
 		err = generateStructType(unsafe)
 	} else if !*primAlias && !*arrayAlias && !*sliceAlias && !*mapAlias &&
 		!*structType && *musgo {
-		err = generateMusgo(unsafe)
+		err = generateMusGo(unsafe)
 	} else {
 		err = errors.New("invalid flag")
 	}
@@ -166,7 +166,7 @@ func generateStructType(unsafe bool) error {
 	return generate(allTypes, "musgen", unsafe)
 }
 
-func generateMusgo(unsafe bool) error {
+func generateMusGo(unsafe bool) error {
 	_, filename, _, _ := runtime.Caller(1)
 	dir := filepath.Dir(filepath.Dir(filename))
 	musGo, err := musgo.New()
