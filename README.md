@@ -1,6 +1,6 @@
 # MusGo
-MusGo is a code generation-based, extremely fast serializer with validation 
-support. Also, it supports aliases, pointers and private fields.
+MusGo is an extremely fast serializer with validation support. It is based on 
+code generation. In addition, it supports aliases, pointers, and private fields.
 
 # Why we need another serializer?
 1. With MusGo you can encode/decode your data really fast.
@@ -381,5 +381,5 @@ Often validation errors are wrapped by one of the predefined error
 - MapValueError - happens when validation of the map value failed. Contains 
   the key, value and cause.
 
-# Binary format
+# Binary serialization format
 [github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
