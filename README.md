@@ -402,7 +402,7 @@ type Foo struct {
 `Raw` encoding has better speed and worse size. Only on large numbers (> 2^48) 
 it has same or lesser size as `Varint`.
 
-For an alias type, you can set up encoding with the help of the 
+For an alias type, you can set up encoding with help of the 
 `MusGo.GenerateAlias()` method.
 
 # Binary serialization format
