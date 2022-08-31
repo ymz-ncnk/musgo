@@ -11,12 +11,22 @@ import (
 	"github.com/ymz-ncnk/musgen"
 )
 
-// TagKey represents a key of the tag, which marks field validators.
+// TagKey represents a key of a tag, which marks field validators and
+// encodings.
 const TagKey = "mus"
+
+// // EncodingSign this sign marks an encoding in a tag.
+// const EncodingSign = "#"
+
+// // RawEncoding may be used for uint and int types.
+// const RawEncoding = EncodingSign + musgen.RawEncoding
+
+// EncodingSep devides validator and encoding.
+const EncodingSep = "#"
 
 // InvalidTagFormatErrMsg happens if a tag has an invalid format.
 const InvalidTagFormatErrMsg = `%v field has invalid tag, it should be: ` +
-	`"-" or "validator,maxLength,elemValidator,keyValidator"`
+	`"-" or "validator#raw,maxLength,elemValidator#raw,keyValidator#raw"`
 
 // InvalidTagMaxLengthErrMsg happens if a maxLength is invalid, for example is
 // negative.
@@ -31,17 +41,27 @@ const InvalidTagOwnMaxLengthErrMsg = "%v field has invalid tag, " +
 // InvalidTagOwnElemValidatorErrMsg happens if an elemValidator is set for the
 // not supported type.
 const InvalidTagOwnElemValidatorErrMsg = "%v field has invalid tag, " +
-	"only arrays, slices or maps could have elemValidator"
+	"only arrays, slices or maps could have elemValidator or elemEncoding"
 
 // InvalidTagOwnKeyValidatorErrMsg happens if a keyValidator is set for the not
 // supported type.
 const InvalidTagOwnKeyValidatorErrMsg = "%v field has invalid tag, " +
-	"only maps could have keyValidator"
+	"only maps could have keyValidator or keyEncoding"
 
 // InvalidTagArrayMaxLengthErrMsg happens when a maxLength is speccified for an
 // array.
 const InvalidTagArrayMaxLengthErrMsg = "%v field has invalid tag, maxLength " +
 	"is specified for an array"
+
+const InvalidTagPartFormatErrMsg = "invalid format of the %s"
+
+var ErrUndefinedEncoding = errors.New("undefined encoding")
+var ErrUnsupportedEncoding = errors.New("unsupported encoding")
+var ErrUnsupportedElemEncoding = errors.New("unsupported elem encoding")
+var ErrUnsupportedKeyEncoding = errors.New("unsupported key encoding")
+
+var ErrOnlyUintAndIntMayHaveRawEncoding = errors.New("only uint and int " +
+	"types may have #raw encoding")
 
 // NotSupportedTypeError happens when the parser tries to parse the not
 // supported type.
@@ -178,96 +198,220 @@ func ParseFieldTag(f reflect.StructField, field *musgen.FieldDesc) (skip bool,
 		_, st, _ := ParseStars(f.Type)
 		k := st.Kind()
 		vals := strings.Split(tag, ",")
-		if len(vals) > 1 {
-			if vals[0] == "-" {
+		if len(vals) > 4 {
+			return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
+		}
+		if vals[0] == "-" {
+			if len(vals) > 1 {
 				return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
 			}
+			return true, nil
 		}
-		if len(vals) == 1 {
-			if vals[0] == "-" {
-				return true, nil
+		if len(vals) >= 1 {
+			err = setUpValidatorAndEncoding(field, vals[0])
+			if err != nil {
+				return false, err
 			}
-			setUpValidator(field, vals[0])
-		} else if len(vals) == 2 {
-			if (k == reflect.String || k == reflect.Slice || k == reflect.Map) &&
-				f.Type.PkgPath() == "" {
-				// if pkg != "" it's alias
-				setUpValidator(field, vals[0])
-				err := setUpMaxLength(field, vals[1])
-				if err != nil {
-					return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
-				}
-			} else {
-				return false, fmt.Errorf(InvalidTagOwnMaxLengthErrMsg, field.Name)
-			}
-		} else if len(vals) == 3 {
-			if (k == reflect.Array || k == reflect.Slice || k == reflect.Map) &&
-				f.Type.PkgPath() == "" {
-				setUpValidator(field, vals[0])
-				if k != reflect.Array {
+		}
+		if len(vals) >= 2 {
+			if vals[1] != "" {
+				if (k == reflect.String || k == reflect.Slice || k == reflect.Map) &&
+					f.Type.PkgPath() == "" {
 					err := setUpMaxLength(field, vals[1])
 					if err != nil {
 						return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
 					}
 				} else {
-					if vals[1] != "" {
-						return false, fmt.Errorf(InvalidTagArrayMaxLengthErrMsg, field.Name)
+					return false, fmt.Errorf(InvalidTagOwnMaxLengthErrMsg, field.Name)
+				}
+			}
+		}
+		if len(vals) >= 3 {
+			if vals[2] != "" {
+				if (k == reflect.Array || k == reflect.Slice || k == reflect.Map) &&
+					f.Type.PkgPath() == "" {
+					err = setUpElemValidatorAndEncoding(field, vals[2])
+					if err != nil {
+						return false, err
 					}
+				} else {
+					return false, fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, field.Name)
 				}
-				setUpElemValidator(field, vals[2])
-			} else {
-				return false, fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, field.Name)
 			}
-		} else if len(vals) == 4 {
-			if k == reflect.Map && f.Type.PkgPath() == "" {
-				setUpValidator(field, vals[0])
-				err := setUpMaxLength(field, vals[1])
-				if err != nil {
-					return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
+		}
+		if len(vals) == 4 {
+			if vals[3] != "" {
+				if k == reflect.Map && f.Type.PkgPath() == "" {
+					err = setUpKeyValidatorAndEncoding(field, vals[3])
+					if err != nil {
+						return false, err
+					}
+				} else {
+					return false, fmt.Errorf(InvalidTagOwnKeyValidatorErrMsg, field.Name)
 				}
-				setUpElemValidator(field, vals[2])
-				setUpKeyValidator(field, vals[3])
-			} else {
-				return false, fmt.Errorf(InvalidTagOwnKeyValidatorErrMsg, field.Name)
 			}
-		} else {
-			return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
 		}
 	}
 	return false, nil
 }
 
-func setUpValidator(field *musgen.FieldDesc, value string) {
-	if value != "" {
-		field.Validator = value
-	}
-}
+// // ParseFieldTag tries to parse a field tag. Returns true, if the field should
+// // be skipped.
+// func ParseFieldTag(f reflect.StructField, field *musgen.FieldDesc) (skip bool,
+// 	err error) {
+// 	tag, pst := f.Tag.Lookup(TagKey)
+// 	if pst {
+// 		_, st, _ := ParseStars(f.Type)
+// 		k := st.Kind()
+// 		vals := strings.Split(tag, ",")
+// 		if len(vals) > 1 {
+// 			if vals[0] == "-" {
+// 				return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
+// 			}
+// 		}
+// 		if len(vals) == 1 {
+// 			if vals[0] == "-" {
+// 				return true, nil
+// 			}
+// 			err = setUpValidatorAndEncoding(field, vals[0])
+// 			if err != nil {
+// 				return false, err
+// 			}
+// 		} else if len(vals) == 2 {
+// 			if (k == reflect.String || k == reflect.Slice || k == reflect.Map) &&
+// 				f.Type.PkgPath() == "" {
+// 				// if pkg != "" it's alias
+// 				err = setUpValidatorAndEncoding(field, vals[0])
+// 				if err != nil {
+// 					return false, err
+// 				}
+// 				err := setUpMaxLength(field, vals[1])
+// 				if err != nil {
+// 					return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
+// 				}
+// 			} else {
+// 				return false, fmt.Errorf(InvalidTagOwnMaxLengthErrMsg, field.Name)
+// 			}
+// 		} else if len(vals) == 3 {
+// 			if (k == reflect.Array || k == reflect.Slice || k == reflect.Map) &&
+// 				f.Type.PkgPath() == "" {
+// 				err = setUpValidatorAndEncoding(field, vals[0])
+// 				if err != nil {
+// 					return false, err
+// 				}
+// 				if k != reflect.Array {
+// 					err := setUpMaxLength(field, vals[1])
+// 					if err != nil {
+// 						return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
+// 					}
+// 				} else {
+// 					if vals[1] != "" {
+// 						return false, fmt.Errorf(InvalidTagArrayMaxLengthErrMsg, field.Name)
+// 					}
+// 				}
+// 				err = setUpElemValidatorAndEncoding(field, vals[2])
+// 				if err != nil {
+// 					return false, err
+// 				}
+// 			} else {
+// 				return false, fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, field.Name)
+// 			}
+// 		} else if len(vals) == 4 {
+// 			if k == reflect.Map && f.Type.PkgPath() == "" {
+// 				err = setUpValidatorAndEncoding(field, vals[0])
+// 				if err != nil {
+// 					return false, err
+// 				}
+// 				err := setUpMaxLength(field, vals[1])
+// 				if err != nil {
+// 					return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
+// 				}
+// 				err = setUpElemValidatorAndEncoding(field, vals[2])
+// 				if err != nil {
+// 					return false, err
+// 				}
+// 				err = setUpKeyValidatorAndEncoding(field, vals[3])
+// 				if err != nil {
+// 					return false, err
+// 				}
+// 			} else {
+// 				return false, fmt.Errorf(InvalidTagOwnKeyValidatorErrMsg, field.Name)
+// 			}
+// 		} else {
+// 			return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
+// 		}
+// 	}
+// 	return false, nil
+// }
 
-func setUpMaxLength(field *musgen.FieldDesc, value string) error {
-	if value != "" {
-		maxLength, err := strconv.Atoi(value)
-		if err != nil {
-			return err
-		}
-		if maxLength < 0 {
-			return errors.New("negative length")
-		}
-		field.MaxLength = maxLength
-	}
-	return nil
-}
+// func SetEncoding(field *musgen.FieldDesc, encoding string) error {
+// 	if encoding != "" {
+// 		if !SupportEncoding(field.Type, encoding) {
+// 			return ErrUnsupportedEncoding
+// 		}
+// 		field.Encoding = encoding
+// 	}
+// 	return nil
+// }
 
-func setUpElemValidator(field *musgen.FieldDesc, value string) {
-	if value != "" {
-		field.ElemValidator = value
-	}
-}
+// func SetElemEncoding(field *musgen.FieldDesc, encoding string) error {
+// 	if encoding != "" {
+// 		var elemType string
+// 		if at := musgen.ParseArrayType(field.Type); at.Valid {
+// 			elemType = at.Type
+// 		} else if st := musgen.ParseSliceType(field.Type); st.Valid {
+// 			elemType = st.Type
+// 		} else if mt := musgen.ParseMapType(field.Type); mt.Valid {
+// 			elemType = mt.Value
+// 		} else {
+// 			return ErrUnsupportedElemEncoding
+// 		}
+// 		if !SupportEncoding(elemType, encoding) {
+// 			return ErrUnsupportedElemEncoding
+// 		}
+// 		field.ElemEncoding = encoding
+// 	}
+// 	return nil
+// }
 
-func setUpKeyValidator(field *musgen.FieldDesc, value string) {
-	if value != "" {
-		field.KeyValidator = value
-	}
-}
+// func SetKeyEncoding(field *musgen.FieldDesc, encoding string) error {
+// 	if encoding != "" {
+// 		if mt := musgen.ParseMapType(field.Type); mt.Valid {
+// 			if !SupportEncoding(mt.Key, encoding) {
+// 				return ErrUnsupportedKeyEncoding
+// 			}
+// 			field.KeyEncoding = encoding
+// 		}
+// 	}
+// 	return nil
+// }
+
+// func SupportEncoding(t string, encoding string) bool {
+// 	if encoding == musgen.RawEncoding && SupportRawEncoding(t) {
+// 		return true
+// 	}
+// 	return false
+// }
+
+// func SupportRawEncoding(t string) bool {
+// 	re := regexp.MustCompile(`^\**(?:uint|int)(?:64|32|16|8|)$`)
+// 	return re.MatchString(t)
+// }
+
+// func parseFieldEncoding(field musgen.FieldDesc, str string) (encoding string,
+// 	err error) {
+// 	if strings.HasPrefix(str, EncodingSep) {
+// 		encoding := str[1:]
+// 		if SupportEncoding(field, encoding) {
+// 			return encoding, true
+// 		}
+// 		return "", "", ErrUnsupportedEncoding
+// 	}
+// }
+
+// func SupportEncoding(field musgen.FieldDesc) bool {
+// 	return SupportRawEncoding(field)
+// }
 
 // ParseType parses a type into the string representation. Complex types are
 // parsed recursively.
@@ -377,6 +521,95 @@ func ParseMapType(stars string, t reflect.Type, pkgPath string,
 	ft := stars + "map-" + strMapsCount + "[" + mkt + "]-" + strMapsCount + mvt
 	mapsCount++
 	return ft, mapsCount, nil
+}
+
+func setUpValidatorAndEncoding(field *musgen.FieldDesc, value string) error {
+	validator, encoding, err := parseValidatorAndEncoding(field, value)
+	if err != nil {
+		return err
+	}
+	field.Validator = validator
+	field.Encoding = encoding
+	return nil
+	// return SetEncoding(field, encoding)
+}
+
+func setUpMaxLength(field *musgen.FieldDesc, value string) error {
+	if value != "" {
+		maxLength, err := strconv.Atoi(value)
+		if err != nil {
+			return err
+		}
+		if maxLength < 0 {
+			return errors.New("negative length")
+		}
+		field.MaxLength = maxLength
+	}
+	return nil
+}
+
+// func setUpElemValidator(field *musgen.FieldDesc, value string) {
+// 	if value != "" {
+// 		field.ElemValidator = value
+// 	}
+// }
+
+func setUpElemValidatorAndEncoding(field *musgen.FieldDesc,
+	value string) error {
+	validator, encoding, err := parseValidatorAndEncoding(field, value)
+	if err != nil {
+		return err
+	}
+	field.ElemValidator = validator
+	field.ElemEncoding = encoding
+	return nil
+	// return SetElemEncoding(field, encoding)
+	// field.ElemEncoding = encoding
+	// return nil
+}
+
+// func setUpKeyValidator(field *musgen.FieldDesc, value string) {
+// 	if value != "" {
+// 		field.KeyValidator = value
+// 	}
+// }
+
+func setUpKeyValidatorAndEncoding(field *musgen.FieldDesc, value string) error {
+	validator, encoding, err := parseValidatorAndEncoding(field, value)
+	if err != nil {
+		return err
+	}
+	field.KeyValidator = validator
+	field.KeyEncoding = encoding
+	return nil
+	// return SetKeyEncoding(field, encoding)
+	// field.KeyEncoding = encoding
+	// return nil
+}
+
+func parseValidatorAndEncoding(field *musgen.FieldDesc, value string) (
+	validator, encoding string, err error) {
+	if value == "" {
+		return "", "", nil
+	}
+	if strings.HasPrefix(value, EncodingSep) {
+		// encoding = value[1:]
+		// if SupportEncoding(field.Type, encoding) {
+		return "", value[1:], nil
+		// }
+		// return "", "", ErrUnsupportedEncoding
+	}
+	vals := strings.Split(value, EncodingSep)
+	if len(vals) > 2 {
+		return "", "", fmt.Errorf(InvalidTagPartFormatErrMsg, value)
+	}
+	if len(vals) == 2 {
+		// if !SupportEncoding(field.Type, vals[1]) {
+		// return "", "", ErrUnsupportedEncoding
+		// }
+		return vals[0], vals[1], nil
+	}
+	return value, "", nil
 }
 
 func primitive(k reflect.Kind) bool {

@@ -24,6 +24,7 @@ func main() {
 	sliceAlias := flag.Bool("slice", false, "generate slice alias")
 	mapAlias := flag.Bool("map", false, "generate map alias")
 	structType := flag.Bool("struct", false, "generate struct")
+	intRaw := flag.Bool("intraw", false, "generate intraw")
 	musgo := flag.Bool("musgo", false, "generate musgo")
 	flag.Parse()
 	unsafe := false
@@ -33,23 +34,26 @@ func main() {
 	}
 	var err error
 	if *primAlias && !*arrayAlias && !*sliceAlias && !*mapAlias && !*structType &&
-		!*musgo {
+		!*musgo && !*intRaw {
 		err = generatePrimAlias(unsafe)
 	} else if !*primAlias && *arrayAlias && !*sliceAlias && !*mapAlias &&
-		!*structType && !*musgo {
+		!*structType && !*musgo && !*intRaw {
 		err = generateArrayAlias(unsafe)
 	} else if !*primAlias && !*arrayAlias && *sliceAlias && !*mapAlias &&
-		!*structType && !*musgo {
+		!*structType && !*musgo && !*intRaw {
 		err = generateSliceAlias(unsafe)
 	} else if !*primAlias && !*arrayAlias && !*sliceAlias && *mapAlias &&
-		!*structType && !*musgo {
+		!*structType && !*musgo && !*intRaw {
 		err = generateMapAlias(unsafe)
 	} else if !*primAlias && !*arrayAlias && !*sliceAlias && !*mapAlias &&
-		*structType && !*musgo {
+		*structType && !*musgo && !*intRaw {
 		err = generateStructType(unsafe)
 	} else if !*primAlias && !*arrayAlias && !*sliceAlias && !*mapAlias &&
-		!*structType && *musgo {
+		!*structType && *musgo && !*intRaw {
 		err = generateMusGo(unsafe)
+	} else if !*primAlias && !*arrayAlias && !*sliceAlias && !*mapAlias &&
+		!*structType && !*musgo && *intRaw {
+		err = generateRaw(unsafe)
 	} else {
 		err = errors.New("invalid flag")
 	}
@@ -61,6 +65,7 @@ func main() {
 func generatePrimAlias(unsafe bool) error {
 	var allTypes []musgen.TypeDesc
 	allTypes = append(allTypes, mgtd.Uint64AliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Uint64RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Uint32AliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Uint16AliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Uint8AliasTypeDesc)
@@ -188,6 +193,33 @@ func generateMusGo(unsafe bool) error {
 		return err
 	}
 	return nil
+}
+
+func generateRaw(unsafe bool) error {
+	var allTypes []musgen.TypeDesc
+	allTypes = append(allTypes, mgtd.Uint64RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Uint32RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Uint16RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Uint8RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.UintRawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Int64RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Int32RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Int16RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Int8RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.IntRawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.IntRawArrayAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Uint16Int32RawMapAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.IntRawPtrPtrPtrAliasSliceAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.RawStructTypeDesc)
+	allTypes = append(allTypes, mgtd.ValidInt32RawTypeDesc)
+
+	// allTypes = append(allTypes, mgtd.StringAliasTypeDesc)
+	// allTypes = append(allTypes, mgtd.SimpleStructTypeDesc)
+	// allTypes = append(allTypes, mgtd.StructTypeDesc)
+	// allTypes = append(allTypes, mgtd.ValidStructTypeDesc)
+	// allTypes = append(allTypes, mgtd.FieldlessStructTypeDesc)
+
+	return generate(allTypes, "musgen", unsafe)
 }
 
 func generate(tds []musgen.TypeDesc, folder string, unsafe bool) error {

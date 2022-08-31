@@ -588,6 +588,7 @@ func TestParseStructWithTags(t *testing.T) {
 		}
 		var v Struct
 		td, err := Parse(reflect.TypeOf(v))
+
 		if err != nil {
 			t.Error(err)
 		}
@@ -723,6 +724,54 @@ func TestParseStructWithTags(t *testing.T) {
 			t.Error("parse tag with elemValidator failed")
 		}
 	}
+	// encoding
+	{
+		type Struct struct {
+			i map[bool]string `mus:"valid#enc,5,valid1#enc1,valid2#enc2"`
+		}
+		var v Struct
+		td, err := Parse(reflect.TypeOf(v))
+		if err != nil {
+			t.Error(err)
+		}
+		etd := musgen.TypeDesc{
+			Package: "parser",
+			Name:    "Struct",
+			Fields: []musgen.FieldDesc{
+				{
+					Name:          "i",
+					Type:          "map-0[bool]-0string",
+					Validator:     "valid",
+					Encoding:      "enc",
+					MaxLength:     5,
+					ElemValidator: "valid1",
+					ElemEncoding:  "enc1",
+					KeyValidator:  "valid2",
+					KeyEncoding:   "enc2",
+				},
+			},
+		}
+		if !reflect.DeepEqual(td, etd) {
+			t.Error("parse tag with encoding failed")
+		}
+	}
+	// encoding not valid
+	{
+		type Struct struct {
+			i int `mus:",,#enc1"`
+		}
+		var v Struct
+		_, err := Parse(reflect.TypeOf(v))
+		if err == nil {
+			t.Error("nil error")
+		} else {
+			if err.Error() !=
+				fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, "i").Error() {
+				t.Error("wrong error")
+			}
+		}
+	}
+
 	// test maxLenght on string alias
 	{
 		type MyString string

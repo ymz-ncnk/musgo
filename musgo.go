@@ -95,23 +95,30 @@ func NewAliasConf() AliasConf {
 type AliasConf struct {
 	Conf
 	Validator string // validates value
+	Encoding  string // sets encoding
 	MaxLength int    // if alias to string, array, slice, or map, restricts
 	// length, should be positive number
 	ElemValidator string // if alias to array, slice, or map, validates elements
+	ElemEncoding  string // if alias to array, slic, or map, sets encoding
 	KeyValidator  string // if alias to map, validates keys
+	KeyEncoding   string // if alias to map, sets encoding
 }
 
 // GenerateAlias performs like the Generate method. Use it if you want to
 // provide validation for an alias type.
 func (musGo MusGo) GenerateAlias(t reflect.Type, unsafe bool, validator string,
-	maxLength int, elemValidator, keyValidator string) error {
+	encoding string, maxLength int, elemValidator, elemEncoding, keyValidator,
+	keyEncoding string) error {
 	conf := NewAliasConf()
 	conf.Conf.T = t
 	conf.Conf.Unsafe = unsafe
 	conf.Validator = validator
+	conf.Encoding = encoding
 	conf.MaxLength = maxLength
 	conf.ElemValidator = elemValidator
+	conf.ElemEncoding = elemEncoding
 	conf.KeyValidator = keyValidator
+	conf.KeyEncoding = keyEncoding
 	return musGo.GenerateAliasAs(conf)
 }
 
@@ -128,9 +135,15 @@ func (musGo MusGo) GenerateAliasAs(conf AliasConf) error {
 	td.Suffix = conf.Suffix
 	// alias type description has one field
 	td.Fields[0].Validator = conf.Validator
+	td.Fields[0].Encoding = conf.Encoding
+	// musGo.setEncoding(td.Fields[0], conf.Encoding)
 	td.Fields[0].MaxLength = conf.MaxLength
 	td.Fields[0].ElemValidator = conf.ElemValidator
+	td.Fields[0].ElemEncoding = conf.ElemEncoding
+	// musGo.setElemEncoding(td.Fields[0], conf.ElemEncoding)
 	td.Fields[0].KeyValidator = conf.KeyValidator
+	td.Fields[0].KeyEncoding = conf.KeyEncoding
+	// musGo.setKeyEncoding(td.Fields[0], conf.KeyEncoding)
 	return musGo.generate(td, conf.Path, conf.Filename)
 }
 
@@ -160,3 +173,46 @@ func (musGo MusGo) generate(td musgen.TypeDesc, path, name string) error {
 func makeDefaultName(td musgen.TypeDesc) string {
 	return td.Name + ".musgen.go"
 }
+
+// func (musGo MusGo) setEncoding(field musgen.FieldDesc, encoding string) error {
+// 	if encoding != "" {
+// 		if !parser.SupportEncoding(field.Type, encoding) {
+// 			return parser.ErrUnsupportedEncoding
+// 		}
+// 		field.Encoding = encoding
+// 	}
+// 	return nil
+// }
+
+// func (musGo MusGo) setElemEncoding(field musgen.FieldDesc,
+// 	encoding string) error {
+// 	if encoding != "" {
+// 		if at := musgen.ParseArrayType(field.Type); at.Valid {
+// 			if !parser.SupportEncoding(at.Type, encoding) {
+// 				return parser.ErrUnsupportedElemEncoding
+// 			}
+// 			field.ElemEncoding = encoding
+// 		} else if mt := musgen.ParseMapType(field.Type); mt.Valid {
+// 			if !parser.SupportEncoding(mt.Value, encoding) {
+// 				return parser.ErrUnsupportedElemEncoding
+// 			}
+// 			field.ElemEncoding = encoding
+// 		} else {
+// 			return parser.ErrUnsupportedElemEncoding
+// 		}
+// 	}
+// 	return nil
+// }
+
+// func (musGo MusGo) setKeyEncoding(field musgen.FieldDesc,
+// 	encoding string) error {
+// 	if encoding != "" {
+// 		if mt := musgen.ParseMapType(field.Type); mt.Valid {
+// 			if !parser.SupportEncoding(mt.Key, encoding) {
+// 				return parser.ErrUnsupportedKeyEncoding
+// 			}
+// 			field.KeyEncoding = encoding
+// 		}
+// 	}
+// 	return nil
+// }

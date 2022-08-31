@@ -105,12 +105,15 @@ package musgo
 // 					initVal.Uint32 != zeroVal.Uint32 ||
 // 					initVal.Uint64 != zeroVal.Uint64 ||
 // 					*initVal.UintPtr != *zeroVal.UintPtr ||
+// 					// initVal.UintRaw != zeroVal.UintRaw ||
+// 					// initVal.UintRaw16 != zeroVal.UintRaw16 ||
 
 // 					initVal.Int != zeroVal.Int ||
 // 					initVal.Int16 != zeroVal.Int16 ||
 // 					initVal.Int32 != zeroVal.Int32 ||
 // 					initVal.Int64 != zeroVal.Int64 ||
 // 					*initVal.IntPtr != *zeroVal.IntPtr ||
+// 					// **initVal.IntRawPtrPtr != **zeroVal.IntRawPtrPtr ||
 
 // 					initVal.String != zeroVal.String ||
 // 					*initVal.StringPtr != *zeroVal.StringPtr ||
@@ -127,6 +130,7 @@ package musgo
 
 // 					!reflect.DeepEqual(initVal.Map, zeroVal.Map) ||
 // 					!reflect.DeepEqual(initVal.MapPtr, zeroVal.MapPtr) ||
+// 					// !reflect.DeepEqual(initVal.MapRawPtr, zeroVal.MapRawPtr) ||
 
 // 					!reflect.DeepEqual(initVal.Struct, zeroVal.Struct) ||
 // 					!reflect.DeepEqual(initVal.StructPtr, zeroVal.StructPtr) ||

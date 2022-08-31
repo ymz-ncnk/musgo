@@ -20,6 +20,8 @@ func BiggerThanTenInt8(n int8) error {
 
 var ErrNotEmptyString = errors.New("string is not empty")
 
+var ErrNegative = errors.New("negative")
+
 func NotEmptyString(str string) error {
 	if str != "" {
 		return ErrNotEmptyString
@@ -36,6 +38,13 @@ func BiggerThanTenByte(n byte) error {
 
 func BiggerThanTenUint16(n uint16) error {
 	if n > 10 {
+		return ErrBiggerThanTen
+	}
+	return nil
+}
+
+func BiggerThanTenInt16Ptr(n *int16) error {
+	if *n > 10 {
 		return ErrBiggerThanTen
 	}
 	return nil
@@ -123,6 +132,13 @@ func Int32ArrayPtrSumBiggerThanTen(a *[2]int32) error {
 func BiggerThanTenInt32(n int32) error {
 	if n > 10 {
 		return ErrBiggerThanTen
+	}
+	return nil
+}
+
+func PositiveValidInt32AliasRaw(n *ValidInt32RawAlias) error {
+	if *n < 0 {
+		return ErrNegative
 	}
 	return nil
 }

@@ -326,7 +326,7 @@ package musgo
 // 		foo1 := &foo
 // 		foo2 := &foo1
 // 		foo3 := &foo2
-// 		var bar int = 28283839844
+// 		var bar int = -28283839844
 // 		bar1 := &bar
 // 		bar2 := &bar1
 // 		bar3 := &bar2

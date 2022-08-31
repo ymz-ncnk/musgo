@@ -8,7 +8,12 @@ func (v MyMap) MarshalMUS(buf []byte) int {
 	{
 		length := len(v)
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			uv := uint64(length)
+			if length < 0 {
+				uv = ^(uv << 1)
+			} else {
+				uv = uv << 1
+			}
 			{
 				for uv >= 0x80 {
 					buf[i] = byte(uv) | 0x80
@@ -23,7 +28,12 @@ func (v MyMap) MarshalMUS(buf []byte) int {
 			{
 				length := len(ke)
 				{
-					uv := uint64(length<<1) ^ uint64(length>>63)
+					uv := uint64(length)
+					if length < 0 {
+						uv = ^(uv << 1)
+					} else {
+						uv = uv << 1
+					}
 					{
 						for uv >= 0x80 {
 							buf[i] = byte(uv) | 0x80
@@ -37,7 +47,12 @@ func (v MyMap) MarshalMUS(buf []byte) int {
 				i += copy(buf[i:], ke)
 			}
 			{
-				uv := uint64(vl<<1) ^ uint64(vl>>63)
+				uv := uint64(vl)
+				if vl < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
 				{
 					for uv >= 0x80 {
 						buf[i] = byte(uv) | 0x80
@@ -84,7 +99,11 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 					return i, errs.ErrSmallBuf
 				}
 			}
-			uv = (uv >> 1) ^ uint64((int(uv&1)<<63)>>63)
+			if uv&1 == 1 {
+				uv = ^(uv >> 1)
+			} else {
+				uv = uv >> 1
+			}
 			length = int(uv)
 		}
 		if length < 0 {
@@ -124,7 +143,11 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 								return i, errs.ErrSmallBuf
 							}
 						}
-						uv = (uv >> 1) ^ uint64((int(uv&1)<<63)>>63)
+						if uv&1 == 1 {
+							uv = ^(uv >> 1)
+						} else {
+							uv = uv >> 1
+						}
 						length = int(uv)
 					}
 					if length < 0 {
@@ -166,7 +189,11 @@ func (v *MyMap) UnmarshalMUS(buf []byte) (int, error) {
 							return i, errs.ErrSmallBuf
 						}
 					}
-					uv = (uv >> 1) ^ uint64((int(uv&1)<<63)>>63)
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
+					}
 					vlm = int(uv)
 					err = BiggerThenTen(vlm)
 				}

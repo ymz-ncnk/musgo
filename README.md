@@ -1,6 +1,6 @@
 # MusGo
-MusGo is an extremely fast serializer with validation support. It is based on 
-code generation. In addition, it supports aliases, pointers, and private fields.
+MusGo is an extremely fast serializer based on code generation. It supports 
+validation, different encodings, aliases, pointers, and private fields.
 
 # Why we need another serializer?
 1. With MusGo you can encode/decode your data really fast.
@@ -238,7 +238,7 @@ func TestFooValidation(t *testing.T) {
   }
 }
 ```
-More advanced usage you can find at https://github.com/ymz-ncnk/musgotest.
+More advanced usage you can find at https://github.com/ymz-ncnk/musgotry.
 
 When encoding multiple values, it is impractical to create a new buffer each 
 time, it takes too long. Instead, you can use the same buffer for each Marshal:
@@ -249,7 +249,7 @@ for foo := range foos {
   if foo.Size() > len(buf) {
     return errors.New("buf is too small")
   }
-  i := foo.MarshalMUS(buf)
+  i = foo.MarshalMUS(buf)
   err = handle(buf[:i])
   ...
 }
@@ -264,8 +264,8 @@ defer func() {
   }
 }()
 buf := make([]byte, FixedLength)
-for foo := range foos {
-  i := foo.MarshalMUS(buf)
+for _, foo := range foos {
+  i = foo.MarshalMUS(buf)
   err = handle(buf[:i])
   ...
 }
@@ -274,24 +274,24 @@ It will intercept every panic, so use it with careful.
 
 # Supported Types
 Supports following types:
-  - uint64
-  - uint32
-  - uint18
-  - uint8
-  - uint
-  - int64
-  - int32
-  - int18
-  - int8
-  - int
-  - bool
-  - byte
-  - string
-  - array
-  - slice
-  - map
-  - struct
-  - alias
+  - `uint64`
+  - `uint32`
+  - `uint18`
+  - `uint8`
+  - `uint`
+  - `int64`
+  - `int32`
+  - `int18`
+  - `int8`
+  - `int`
+  - `bool`
+  - `byte`
+  - `string`
+  - `array`
+  - `slice`
+  - `map`
+  - `struct`
+  - `alias`
 
 Pointers are supported as well. But aliases to pointer types are not, Go
 doesn't allow methods for such types.
@@ -323,7 +323,7 @@ one. That's why, it will stop with a validation error on the first not valid
 field. There is no practical reason for decoding the rest of the structure when 
 we already know that it is not valid.
 
-For an alias type, you can set up validators with the help of the 
+For an alias type, you can set up validators with help of the 
 `MusGo.GenerateAlias()` method.
 
 ## Validators
@@ -380,6 +380,30 @@ Often validation errors are wrapped by one of the predefined error
   key and cause.
 - MapValueError - happens when validation of the map value failed. Contains 
   the key, value and cause.
+
+# Encodings
+All `uint` and `int` types support `Varint` and `Raw` encodings. By default
+`Varint` is used. You can choose `Raw` encoding using the `#raw` in
+`mus:"Validator#raw,MaxLength,ElemValidator#raw,KeyValidator#raw"` tag. 
+
+For example:
+```go
+// Set up Raw encoding without validator for the field.
+type Foo struct {
+  Field uint64 `mus:"#raw"`
+}
+
+// Set up validator and Raw encoding for the field.
+type Foo struct {
+  Field uint64 `mus:"Positive#raw"`
+}
+```
+
+`Raw` encoding has better speed and worse size. Only on large numbers (> 2^48) 
+it has same or lesser size as `Varint`.
+
+For an alias type, you can set up encoding with the help of the 
+`MusGo.GenerateAlias()` method.
 
 # Binary serialization format
 [github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
