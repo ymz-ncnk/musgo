@@ -382,8 +382,8 @@ Often validation errors are wrapped by one of the predefined error
   the key, value and cause.
 
 # Encodings
-All `uint` and `int` types support `Varint` and `Raw` encodings. By default
-`Varint` is used. You can choose `Raw` encoding using the `#raw` in
+All `uint`, `int` and `float` types support `Varint` and `Raw` encodings. By 
+default `Varint` is used. You can choose `Raw` encoding using the `#raw` in
 `mus:"Validator#raw,MaxLength,ElemValidator#raw,KeyValidator#raw"` tag. 
 
 For example:
