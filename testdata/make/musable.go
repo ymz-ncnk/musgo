@@ -202,22 +202,20 @@ func generateRaw(unsafe bool) error {
 	allTypes = append(allTypes, mgtd.Uint16RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Uint8RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.UintRawAliasTypeDesc)
+
 	allTypes = append(allTypes, mgtd.Int64RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Int32RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Int16RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Int8RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.IntRawAliasTypeDesc)
+
+	allTypes = append(allTypes, mgtd.Float64RawAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Float32RawAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.IntRawArrayAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.Uint16Int32RawMapAliasTypeDesc)
-	allTypes = append(allTypes, mgtd.IntRawPtrPtrPtrAliasSliceAliasTypeDesc)
+	allTypes = append(allTypes, mgtd.Float64RawPtrPtrPtrAliasSliceAliasTypeDesc)
 	allTypes = append(allTypes, mgtd.RawStructTypeDesc)
 	allTypes = append(allTypes, mgtd.ValidInt32RawTypeDesc)
-
-	// allTypes = append(allTypes, mgtd.StringAliasTypeDesc)
-	// allTypes = append(allTypes, mgtd.SimpleStructTypeDesc)
-	// allTypes = append(allTypes, mgtd.StructTypeDesc)
-	// allTypes = append(allTypes, mgtd.ValidStructTypeDesc)
-	// allTypes = append(allTypes, mgtd.FieldlessStructTypeDesc)
 
 	return generate(allTypes, "musgen", unsafe)
 }

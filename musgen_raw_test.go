@@ -174,6 +174,38 @@ package musgo
 // 			}
 // 		}
 // 	}
+// 	// float64
+// 	{
+// 		typeName := mgtd.Float64RawAliasTypeDesc.Name
+// 		for _, num := range []mgtd.Float64RawAlias{0.151492823822937, 0.113191817} {
+// 			initVal := mgtd.Float64RawAlias(num)
+// 			zeroVal := mgtd.Float64RawAlias(0)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			if err != nil {
+// 				t.Error(err)
+// 			} else {
+// 				if !reflect.DeepEqual(initVal, zeroVal) {
+// 					t.Errorf(utils.MuErrMsg, typeName)
+// 				}
+// 			}
+// 		}
+// 	}
+// 	// float32
+// 	{
+// 		typeName := mgtd.Float32RawAliasTypeDesc.Name
+// 		for _, num := range []mgtd.Float32RawAlias{0.151492823822937, 0.113191817} {
+// 			initVal := mgtd.Float32RawAlias(num)
+// 			zeroVal := mgtd.Float32RawAlias(0)
+// 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
+// 			if err != nil {
+// 				t.Error(err)
+// 			} else {
+// 				if !reflect.DeepEqual(initVal, zeroVal) {
+// 					t.Errorf(utils.MuErrMsg, typeName)
+// 				}
+// 			}
+// 		}
+// 	}
 // 	// array of ints
 // 	{
 // 		typeName := mgtd.IntRawArrayAliasTypeDesc.Name
@@ -207,24 +239,24 @@ package musgo
 // 		}
 // 	}
 
-// 	// array of int double pointers
+// 	// array of float64 double pointers
 // 	{
-// 		typeName := mgtd.IntRawPtrPtrPtrAliasSliceAliasTypeDesc.Name
-// 		var foo int = 181727361
+// 		typeName := mgtd.Float64RawPtrPtrPtrAliasSliceAliasTypeDesc.Name
+// 		var foo float64 = 1.181727361
 // 		foo1 := &foo
 // 		foo2 := &foo1
 // 		foo3 := &foo2
-// 		var bar int = 28283839844
+// 		var bar float64 = 0.28283839844
 // 		bar1 := &bar
 // 		bar2 := &bar1
 // 		bar3 := &bar2
-// 		var car int = 0
+// 		var car float64 = 0
 // 		car1 := &car
 // 		car2 := &car1
 // 		car3 := &car2
-// 		for _, num := range [][]***int{{foo3, bar3, car3}} {
-// 			initVal := mgtd.IntRawPtrPtrPtrAliasSliceAlias(num)
-// 			zeroVal := mgtd.IntRawPtrPtrPtrAliasSliceAlias(*new([]***int))
+// 		for _, num := range [][]***float64{{foo3, bar3, car3}} {
+// 			initVal := mgtd.Float64RawPtrPtrPtrAliasSliceAlias(num)
+// 			zeroVal := mgtd.Float64RawPtrPtrPtrAliasSliceAlias(*new([]***float64))
 // 			err = utils.ExecGeneratedCode(initVal, &zeroVal, typeName)
 // 			if err != nil {
 // 				t.Error(err)
@@ -241,12 +273,14 @@ package musgo
 // 		typeName := mgtd.RawStructTypeDesc.Name
 // 		var n int = 2
 // 		n1 := &n
-// 		var j int16 = -87
-// 		var mr map[*int16]int8 = map[*int16]int8{&j: 3}
+// 		var m int16 = 1
+// 		m1 := &m
+// 		var j float64 = -87.21938
+// 		var mr map[*float64]*int16 = map[*float64]*int16{&j: m1}
 // 		for _, num := range []mgtd.RawStructType{
 // 			{
 // 				UintRaw:      9,
-// 				UintRaw16:    95,
+// 				Float32Raw:   95,
 // 				IntRawPtrPtr: &n1,
 // 				MapRawPtr:    &mr,
 // 			},
@@ -258,7 +292,7 @@ package musgo
 // 				t.Error(err)
 // 			} else {
 // 				if initVal.UintRaw != zeroVal.UintRaw ||
-// 					initVal.UintRaw16 != zeroVal.UintRaw16 ||
+// 					initVal.Float32Raw != zeroVal.Float32Raw ||
 // 					**initVal.IntRawPtrPtr != **zeroVal.IntRawPtrPtr {
 // 					// !reflect.DeepEqual(initVal.MapRawPtr, zeroVal.MapRawPtr) {
 // 					t.Errorf(utils.MuErrMsg, typeName)

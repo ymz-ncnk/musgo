@@ -92,6 +92,24 @@ var IntRawAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 		Alias: "IntRawAlias", Encoding: "raw"}},
 }
 
+type Float64RawAlias float64
+
+var Float64RawAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
+	Package: "musgen",
+	Name:    "Float64RawAlias",
+	Fields: []musgen.FieldDesc{{Name: "", Type: "float64",
+		Alias: "Float64RawAlias", Encoding: "raw"}},
+}
+
+type Float32RawAlias float32
+
+var Float32RawAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
+	Package: "musgen",
+	Name:    "Float32RawAlias",
+	Fields: []musgen.FieldDesc{{Name: "", Type: "float32",
+		Alias: "Float32RawAlias", Encoding: "raw"}},
+}
+
 type IntRawArrayAlias [3]int
 
 var IntRawArrayAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
@@ -110,21 +128,21 @@ var Uint16Int32RawMapAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 		Alias: "Uint16Int32RawMapAlias", KeyEncoding: "raw", ElemEncoding: "raw"}},
 }
 
-type IntRawPtrPtrPtrAliasSliceAlias []***int
+type Float64RawPtrPtrPtrAliasSliceAlias []***float64
 
-var IntRawPtrPtrPtrAliasSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
+var Float64RawPtrPtrPtrAliasSliceAliasTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Package: "musgen",
-	Name:    "IntRawPtrPtrPtrAliasSliceAlias",
-	Fields: []musgen.FieldDesc{{Name: "", Type: "[]***int",
-		Alias: "IntRawPtrPtrPtrAliasSliceAlias", ElemEncoding: "raw"}},
+	Name:    "Float64RawPtrPtrPtrAliasSliceAlias",
+	Fields: []musgen.FieldDesc{{Name: "", Type: "[]***float64",
+		Alias: "Float64RawPtrPtrPtrAliasSliceAlias", ElemEncoding: "raw"}},
 }
 
 type RawStructType struct {
-	UintRaw      uint             `mus:"BiggerThanTenUint#raw"`
-	UintRaw16    uint             `mus:"#raw"`
-	IntRawPtrPtr **int            `mus:"#raw"`
-	MapRawPtr    *map[*int16]int8 `mus:",,#raw,BiggerThanTenInt16Ptr#raw"`
-	SliceRaw     []uint           `mus:",,BiggerThanTenUint#raw"`
+	UintRaw      uint                 `mus:"BiggerThanTenUint#raw"`
+	Float32Raw   float32              `mus:"#raw"`
+	IntRawPtrPtr **int                `mus:"#raw"`
+	MapRawPtr    *map[*float64]*int16 `mus:",,BiggerThanTenInt16Ptr#raw,#raw"`
+	SliceRaw     []uint               `mus:",,BiggerThanTenUint#raw"`
 }
 
 var RawStructTypeDesc musgen.TypeDesc = musgen.TypeDesc{
@@ -133,10 +151,11 @@ var RawStructTypeDesc musgen.TypeDesc = musgen.TypeDesc{
 	Fields: []musgen.FieldDesc{
 		{Name: "UintRaw", Type: "uint", Validator: "BiggerThanTenUint",
 			Encoding: "raw"},
-		{Name: "UintRaw16", Type: "uint", Encoding: "raw"},
+		{Name: "Float32Raw", Type: "float32", Encoding: "raw"},
 		{Name: "IntRawPtrPtr", Type: "**int", Encoding: "raw"},
-		{Name: "MapRawPtr", Type: "*map-0[*int16]-0int8", ElemEncoding: "raw",
-			KeyValidator: "BiggerThanTenInt16Ptr", KeyEncoding: "raw"},
+		{Name: "MapRawPtr", Type: "*map-0[*float64]-0*int16",
+			ElemValidator: "BiggerThanTenInt16Ptr", ElemEncoding: "raw",
+			KeyEncoding: "raw"},
 		{Name: "SliceRaw", Type: "[]uint", ElemValidator: "BiggerThanTenUint",
 			ElemEncoding: "raw"},
 	},
