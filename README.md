@@ -11,7 +11,7 @@ validation, different encodings, aliases, pointers, and private fields.
 
 # Tests
 The generated code is well tested (to run tests read the instructions in the 
-`musgo.go` file). Test coverage is about 80%.
+[musgo_test.go](musgo_test.go) file). Test coverage is about 80%.
 
 # Benchmarks
 [github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)

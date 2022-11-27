@@ -46,6 +46,9 @@ func (v MyMap) MarshalMUS(buf []byte) int {
 						i++
 					}
 				}
+				if len(buf[i:]) < length {
+					panic(errs.ErrSmallBuf)
+				}
 				i += copy(buf[i:], ke)
 			}
 			{

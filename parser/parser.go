@@ -15,12 +15,6 @@ import (
 // encodings.
 const TagKey = "mus"
 
-// // EncodingSign this sign marks an encoding in a tag.
-// const EncodingSign = "#"
-
-// // RawEncoding may be used for uint and int types.
-// const RawEncoding = EncodingSign + musgen.RawEncoding
-
 // EncodingSep devides validator and encoding.
 const EncodingSep = "#"
 
@@ -405,16 +399,7 @@ func setUpElemValidatorAndEncoding(field *musgen.FieldDesc,
 	field.ElemValidator = validator
 	field.ElemEncoding = encoding
 	return nil
-	// return SetElemEncoding(field, encoding)
-	// field.ElemEncoding = encoding
-	// return nil
 }
-
-// func setUpKeyValidator(field *musgen.FieldDesc, value string) {
-// 	if value != "" {
-// 		field.KeyValidator = value
-// 	}
-// }
 
 func setUpKeyValidatorAndEncoding(field *musgen.FieldDesc, value string) error {
 	validator, encoding, err := parseValidatorAndEncoding(field, value)
@@ -424,9 +409,6 @@ func setUpKeyValidatorAndEncoding(field *musgen.FieldDesc, value string) error {
 	field.KeyValidator = validator
 	field.KeyEncoding = encoding
 	return nil
-	// return SetKeyEncoding(field, encoding)
-	// field.KeyEncoding = encoding
-	// return nil
 }
 
 func parseValidatorAndEncoding(field *musgen.FieldDesc, value string) (
@@ -435,20 +417,13 @@ func parseValidatorAndEncoding(field *musgen.FieldDesc, value string) (
 		return "", "", nil
 	}
 	if strings.HasPrefix(value, EncodingSep) {
-		// encoding = value[1:]
-		// if SupportEncoding(field.Type, encoding) {
 		return "", value[1:], nil
-		// }
-		// return "", "", ErrUnsupportedEncoding
 	}
 	vals := strings.Split(value, EncodingSep)
 	if len(vals) > 2 {
 		return "", "", fmt.Errorf(InvalidTagPartFormatErrMsg, value)
 	}
 	if len(vals) == 2 {
-		// if !SupportEncoding(field.Type, vals[1]) {
-		// return "", "", ErrUnsupportedEncoding
-		// }
 		return vals[0], vals[1], nil
 	}
 	return value, "", nil

@@ -374,6 +374,20 @@ package musgo
 // 				}
 // 			}
 // 		}
+// 		// string, too small buf
+// 		{
+// 			defer func() {
+// 				if r := recover(); r != nil {
+// 					if r != errs.ErrSmallBuf {
+// 						t.Error("unexpected panic msg")
+// 					}
+// 				}
+// 			}()
+// 			val := mgtd.StringAlias("Hello world")
+// 			buf := make([]byte, 6)
+// 			val.Marshal(buf)
+// 			t.Error("expected to panic")
+// 		}
 // 		// string, length is too big
 // 		{
 // 			arr := []byte{12, 1, 1}
