@@ -20,15 +20,4 @@ func TestParseRawAlias(t *testing.T) {
 			t.Error("RawStructType")
 		}
 	}
-
-	// {
-	// 	var v mgtd.ByteAlias
-	// 	td, err := parser.Parse(reflect.TypeOf(v))
-	// 	if err != nil {
-	// 		t.Error(err)
-	// 	}
-	// 	if !reflect.DeepEqual(td, mgtd.ByteAliasTypeDesc) {
-	// 		t.Error("ByteAlias")
-	// 	}
-	// }
 }
