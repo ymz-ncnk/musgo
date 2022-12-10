@@ -277,18 +277,20 @@ It will intercept every panic, so use it with careful.
 
 # Supported Types
 Supports following types:
-  - `uint64`
-  - `uint32`
-  - `uint18`
-  - `uint8`
-  - `uint`
-  - `int64`
-  - `int32`
-  - `int18`
-  - `int8`
-  - `int`
   - `bool`
   - `byte`
+  - `int`
+  - `int8`
+  - `int16`
+  - `int32`
+  - `int64`
+  - `uint`
+  - `uint8`
+  - `uint16`
+  - `uint32`
+  - `uint64`
+  - `float32`
+  - `float64`
   - `string`
   - `array`
   - `slice`
