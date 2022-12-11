@@ -410,3 +410,21 @@ type Foo struct {
 For an alias type, you can set up encoding with help of the 
 `MusGo.GenerateAlias()` method.
 
+# DotMusGo
+By default generated files create a mess in your folder. If you don't like this
+try [github.com/ymz-ncnk/dotmusgo](https://github.com/ymz-ncnk/dotmusgo).
+
+# Single number serialization
+If all you want is to serialize a single number you can use:
+- [github.com/ymz-ncnk/musgo_int](https://github.com/ymz-ncnk/musgo_int)
+- [github.com/ymz-ncnk/musgo_int8](https://github.com/ymz-ncnk/musgo_int8)
+- [github.com/ymz-ncnk/musgo_int16](https://github.com/ymz-ncnk/musgo_int16)
+- [github.com/ymz-ncnk/musgo_int32](https://github.com/ymz-ncnk/musgo_int32)
+- [github.com/ymz-ncnk/musgo_int64](https://github.com/ymz-ncnk/musgo_int64)
+- [github.com/ymz-ncnk/musgo_uint](https://github.com/ymz-ncnk/musgo_uint)
+- [github.com/ymz-ncnk/musgo_uint8](https://github.com/ymz-ncnk/musgo_uint8)
+- [github.com/ymz-ncnk/musgo_uint16](https://github.com/ymz-ncnk/musgo_uint16)
+- [github.com/ymz-ncnk/musgo_uint32](https://github.com/ymz-ncnk/musgo_uint32)
+- [github.com/ymz-ncnk/musgo_uint64](https://github.com/ymz-ncnk/musgo_uint64)
+- [github.com/ymz-ncnk/musgo_float32](https://github.com/ymz-ncnk/musgo_float32)
+- [github.com/ymz-ncnk/musgo_float64](https://github.com/ymz-ncnk/musgo_float64)
