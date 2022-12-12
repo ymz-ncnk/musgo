@@ -102,7 +102,7 @@ func main() {
 }
 ```
 
-Run from the comamnd line:
+Run from the command line:
 ```bash
 $ cd ~/foo
 $ go mod init foo
