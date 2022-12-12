@@ -410,10 +410,6 @@ type Foo struct {
 For an alias type, you can set up encoding with help of the 
 `MusGo.GenerateAlias()` method.
 
-# DotMusGo
-By default generated files create a mess in your folder. If you don't like this
-try [github.com/ymz-ncnk/dotmusgo](https://github.com/ymz-ncnk/dotmusgo).
-
 # Single number serialization
 If all you want is to serialize a single number you can use:
 - [github.com/ymz-ncnk/musgo_int](https://github.com/ymz-ncnk/musgo_int)
