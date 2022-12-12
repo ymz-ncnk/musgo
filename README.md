@@ -6,8 +6,8 @@ validation, different encodings, aliases, pointers, and private fields.
 1. With MusGo you can encode/decode your data really fast.
 2. Encoded values take up so little space because the serialization format is 
   very simple.
-3. Moreover, with MusGo invalid data decodes almost instantly, see the 
-  Validation section.
+3. You can set up validators for structure fields. This will save time when
+  deconding invalid structures, see the [Validation](#validation) section.
 
 # Binary serialization format
 [github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
@@ -39,9 +39,9 @@ package foo
 
 type Foo struct {
   num int `mus:"validators.Positive"` // private fields are supported
-  // too, will be checked with BiggerThanTen validator while unmarshalling 
+  // too, will be checked with Positive validator while unmarshalling 
   arr []int `mus:",,validators.Positive"` // every element will be checked
-  // with BiggerThanTen validator
+  // with Positive validator
   Alias StringAlias // alias types are supported too
   Bool bool     `mus:"-"` // this field will be skiped
 }
