@@ -341,7 +341,7 @@ type Foo struct {
   Field string `mus:"StrValidator"`
 }
 
-func StrValidator(str string) errorr {...}
+func StrValidator(str string) error {...}
 
 // ElemValidator for the slice field.
 type Bar struct {
@@ -350,7 +350,7 @@ type Bar struct {
 
 // KeyValidator for the map field.
 type Zoo struct {
-  Field map[int]string `mus:",,,StrValidator"`
+  Field map[string]int `mus:",,,StrValidator"`
 }
 
 // Validator for the field of a custom pointer type.
