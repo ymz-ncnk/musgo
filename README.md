@@ -7,7 +7,7 @@ validation, different encodings, aliases, pointers, and private fields.
 2. Encoded values take up so little space because the serialization format is 
   very simple.
 3. You can set up validators for structure fields. This will save time when
-  deconding invalid structures, see the [Validation](#validation) section.
+  decoding invalid data, see the [Validation](#validation) section.
 
 # Binary serialization format
 [github.com/ymz-ncnk/musgen](https://github.com/ymz-ncnk/musgen)
