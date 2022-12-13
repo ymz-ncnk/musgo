@@ -68,7 +68,6 @@ func Positive(n int) error {
 __make/musable.go__
 ```go
 //go:build ignore
-
 package main
 
 import (
