@@ -3,6 +3,13 @@ package musgen
 import "errors"
 
 var ErrBiggerThanTen = errors.New("bigger then 10")
+var ErrNotEmptyString = errors.New("string is not empty")
+var ErrNegative = errors.New("negative")
+var ErrSliceSumBiggerThanTen = errors.New("slice sum bigger than ten")
+var ErrArraySumBiggerThanTen = errors.New("array sum is bigger than ten")
+var ErrMapSumBiggerThanTen = errors.New("map sum is bigger than 10")
+var ErrStrIsHello = errors.New("string is hello")
+var ErrSimpleStructType = errors.New("invalid SimpleStructType")
 
 func BiggerThanTenUint64(n uint64) error {
 	if n > 10 {
@@ -17,10 +24,6 @@ func BiggerThanTenInt8(n int8) error {
 	}
 	return nil
 }
-
-var ErrNotEmptyString = errors.New("string is not empty")
-
-var ErrNegative = errors.New("negative")
 
 func NotEmptyString(str string) error {
 	if str != "" {
@@ -59,8 +62,6 @@ func PositiveBool(b bool) error {
 	return nil
 }
 
-var ErrSliceSumBiggerThanTen = errors.New("slice sum bigger than ten")
-
 func ValidUintSliceAliasSumBiggerThanTen(s *ValidUintSliceAlias) error {
 	return UintSliceSumBiggerThanTen([]uint(*s))
 }
@@ -93,8 +94,6 @@ func Uint16SlicePtrSumBiggerThanTen(s *[]uint16) error {
 	}
 	return nil
 }
-
-var ErrArraySumBiggerThanTen = errors.New("array sum is bigger than ten")
 
 func ValidIntArrayAliasSumBiggerThanTen(s *ValidIntArrayAlias) error {
 	return IntArraySumBiggerThanTen([2]int(*s))
@@ -143,8 +142,6 @@ func PositiveValidInt32AliasRaw(n *ValidInt32RawAlias) error {
 	return nil
 }
 
-var ErrMapSumBiggerThanTen = errors.New("map sum is bigger than 10")
-
 func ValidStringIntMapAliasSumBiggerThanTen(m *ValidStringIntMapAlias) error {
 	return MapSumBiggerThanTen(map[string]int(*m))
 }
@@ -171,16 +168,12 @@ func MapPtrSumBiggerThanTen(m *map[string]int) error {
 	return nil
 }
 
-var ErrStrIsHello = errors.New("string is hello")
-
 func StrIsHello(str string) error {
 	if str == "hello" {
 		return ErrStrIsHello
 	}
 	return nil
 }
-
-var ErrSimpleStructType = errors.New("invalid SimpleStructType")
 
 func ValidSimpleStructType(s SimpleStructType) error {
 	if s.Int > 10 {

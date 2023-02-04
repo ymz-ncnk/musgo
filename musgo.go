@@ -1,83 +1,22 @@
 package musgo
 
 import (
-	"errors"
 	"os"
 	"reflect"
 
-	"github.com/ymz-ncnk/musgo/parser"
-
-	"github.com/ymz-ncnk/musgen"
+	"github.com/ymz-ncnk/serialization/musgen"
+	"github.com/ymz-ncnk/serialization/musgo/tdesc_builder"
 	"golang.org/x/tools/imports"
 )
 
-// ErrNotAliasType happens on GenerateAlias if type is not an alias.
-var ErrNotAliasType = errors.New("not alias type")
-
-// DefaultSuffix for Marshal, Unmarsha, Size methods.
-const DefaultSuffix = "MUS"
-
 // FilenameExtenstion of the generated files.
-const FilenameExtenstion = "musgen.go"
-
-// NewConf creates a Conf for the MusGo.
-func NewConf() Conf {
-	return Conf{
-		Suffix: DefaultSuffix,
-	}
-}
+const FilenameExtenstion = "mus.go"
 
 // Conf configures the generation process.
 type Conf struct {
-	T        reflect.Type // generate code for this type
-	Unsafe   bool         // generate unsafe code or not
-	Path     string       // folder of the generated file
-	Filename string       // name of the generated file
-	Suffix   string       // suffix for Marshal, Unmarshal, Size methods
-}
-
-// New returns a new MusGo.
-func New() (MusGo, error) {
-	musGen, err := musgen.New()
-	if err != nil {
-		return MusGo{}, err
-	}
-	return MusGo{musGen: musGen, FilenameBuilder: DefaultFilenameBuilder}, nil
-}
-
-// MusGo is a Go code generator for the MUS format.
-type MusGo struct {
-	musGen          musgen.MusGen
-	FilenameBuilder func(td musgen.TypeDesc) string
-}
-
-// Generate generates Marshal, Unmarshal, and Size methods for the specified
-// type. Generated file with 'name of the type'.musgen.go name is placed to the
-// current directory.
-// If type is an alias to a pointer type returns error.
-func (musGo MusGo) Generate(t reflect.Type, unsafe bool) error {
-	conf := NewConf()
-	conf.T = t
-	conf.Unsafe = unsafe
-	return musGo.GenerateAs(conf)
-}
-
-// GenerateAs performs like Generate.
-func (musGo MusGo) GenerateAs(conf Conf) error {
-	td, err := parser.Parse(conf.T)
-	td.Unsafe = conf.Unsafe
-	td.Suffix = conf.Suffix
-	if err != nil {
-		return err
-	}
-	return musGo.generate(td, conf.Path, conf.Filename)
-}
-
-// NewAliasConf creates an AliasConf for the MusGo.
-func NewAliasConf() AliasConf {
-	return AliasConf{
-		Conf: NewConf(),
-	}
+	Unsafe bool   // generate unsafe code or not
+	Suffix string // suffix for Marshal, Unmarshal, Size methods
+	Path   string // folder of the generated file
 }
 
 // AliasConf configures the generation process for an alias type.
@@ -93,68 +32,95 @@ type AliasConf struct {
 	KeyEncoding   string // if alias to map, sets encoding
 }
 
-// GenerateAlias performs like the Generate method. Use it if you want to
-// provide validation for an alias type.
-func (musGo MusGo) GenerateAlias(t reflect.Type, unsafe bool, validator string,
-	encoding string, maxLength int, elemValidator, elemEncoding, keyValidator,
-	keyEncoding string) error {
-	conf := NewAliasConf()
-	conf.Conf.T = t
-	conf.Conf.Unsafe = unsafe
-	conf.Validator = validator
-	conf.Encoding = encoding
-	conf.MaxLength = maxLength
-	conf.ElemValidator = elemValidator
-	conf.ElemEncoding = elemEncoding
-	conf.KeyValidator = keyValidator
-	conf.KeyEncoding = keyEncoding
-	return musGo.GenerateAliasAs(conf)
+type FilenameBuilder func(tdesc musgen.TypeDesc) string
+
+func DefaultFilenameBuilder(td musgen.TypeDesc) string {
+	return td.Name + "." + FilenameExtenstion
 }
 
-// GenerateAliasAs performs like the GenerateAlias method.
-func (musGo MusGo) GenerateAliasAs(conf AliasConf) error {
-	td, err := parser.Parse(conf.T)
-	if err != nil {
-		return err
-	}
-	if !musgen.Alias(td) {
-		return ErrNotAliasType
-	}
-	td.Unsafe = conf.Unsafe
-	td.Suffix = conf.Suffix
-	td.Fields[0].Validator = conf.Validator
-	td.Fields[0].Encoding = conf.Encoding
-	td.Fields[0].MaxLength = conf.MaxLength
-	td.Fields[0].ElemValidator = conf.ElemValidator
-	td.Fields[0].ElemEncoding = conf.ElemEncoding
-	td.Fields[0].KeyValidator = conf.KeyValidator
-	td.Fields[0].KeyEncoding = conf.KeyEncoding
-	return musGo.generate(td, conf.Path, conf.Filename)
-}
-
-func (musGo MusGo) generate(td musgen.TypeDesc, path, filename string) error {
+// New returns a new MusGo.
+func New() (musGo MusGo, err error) {
 	musGen, err := musgen.New()
 	if err != nil {
-		return err
+		return
 	}
-	var bs []byte
-	bs, err = musGen.Generate(td, musgen.GoLang)
+	return MusGo{musGen, DefaultFilenameBuilder}, nil
+}
+
+// MusGo is a Go code generator for the MUS format.
+type MusGo struct {
+	musGen          musgen.MusGen
+	FilenameBuilder FilenameBuilder
+}
+
+// Generate accepts a struct or alias type. Returns an error if receives an
+// alias to the pointer type. It generates Marshal, Unmarshal, and Size methods
+// for the specified type. Generated file with 'name of the type'.mus.go name
+// is placed to the current directory.
+// Each of the struct field can have a tag:
+// mus:"Validator#raw,MaxLength,ElemValidator#raw,KeyValidator#raw"
+func (musGo MusGo) Generate(tp reflect.Type, unsafe bool) error {
+	conf := Conf{}
+	conf.Unsafe = unsafe
+	return musGo.GenerateAs(tp, conf)
+}
+
+// GenerateAs performs like Generate. With help of this method you can configure
+// generation process.
+func (musGo MusGo) GenerateAs(tp reflect.Type, conf Conf) (err error) {
+	tdesc, err := tdesc_builder.Build(tp, tdesc_builder.Conf{
+		Unsafe: conf.Unsafe,
+		Suffix: conf.Suffix,
+	})
 	if err != nil {
-		return err
+		return
 	}
-	bs, err = imports.Process("", bs, nil)
+	return musGo.generate(tdesc, conf.Path)
+}
+
+// GenerateAliasAs performs like Generate. With help of this method Validators
+// and Encodings can be set for an alias type.
+func (musGo MusGo) GenerateAliasAs(tp reflect.Type, conf AliasConf) (
+	err error) {
+	tdesc, err := tdesc_builder.BuildForAlias(tp, tdesc_builder.AliasConf{
+		Conf: tdesc_builder.Conf{
+			Unsafe: conf.Unsafe,
+			Suffix: conf.Suffix,
+		},
+		Validator:     conf.Validator,
+		Encoding:      conf.Encoding,
+		MaxLength:     conf.MaxLength,
+		ElemValidator: conf.ElemValidator,
+		ElemEncoding:  conf.ElemEncoding,
+		KeyValidator:  conf.KeyValidator,
+		KeyEncoding:   conf.KeyEncoding,
+	})
 	if err != nil {
-		return err
+		return
 	}
-	if filename == "" {
-		filename = musGo.FilenameBuilder(td)
+	return musGo.generate(tdesc, conf.Path)
+}
+
+func (musGo MusGo) generate(tdesc musgen.TypeDesc, path string) (err error) {
+	b, err := musGo.musGen.Generate(tdesc, musgen.GoLang)
+	if err != nil {
+		return
 	}
 	if path == "" {
 		path = "."
 	}
-	return os.WriteFile(path+"/"+filename, bs, os.ModePerm)
+	return musGo.persist(tdesc, b, path)
 }
 
-func DefaultFilenameBuilder(td musgen.TypeDesc) string {
-	return td.Name + "." + FilenameExtenstion
+func (musGo MusGo) persist(tdesc musgen.TypeDesc, b []byte, path string) (
+	err error) {
+	b, err = imports.Process("", b, nil)
+	if err != nil {
+		return
+	}
+	filename := musGo.FilenameBuilder(tdesc)
+	if path == "" {
+		path = "."
+	}
+	return os.WriteFile(path+string(os.PathSeparator)+filename, b, os.ModePerm)
 }

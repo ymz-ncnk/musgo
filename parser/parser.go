@@ -1,79 +1,17 @@
 package parser
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
-	"regexp"
 	"strconv"
-	"strings"
-
-	"github.com/ymz-ncnk/musgen"
 )
 
-// TagKey represents a key of a tag, which marks field validators and
-// encodings.
-const TagKey = "mus"
+type TagParser func(tp reflect.Type, field reflect.StructField,
+	tag reflect.StructTag) (arr []any, err error)
 
-// EncodingSep devides validator and encoding.
-const EncodingSep = "#"
-
-// InvalidTagFormatErrMsg happens if a tag has an invalid format.
-const InvalidTagFormatErrMsg = `%v field has invalid tag, it should be: ` +
-	`"-" or "validator#raw,maxLength,elemValidator#raw,keyValidator#raw"`
-
-// InvalidTagMaxLengthErrMsg happens if a maxLength is invalid, for example is
-// negative.
-const InvalidTagMaxLengthErrMsg = "%v field has invalid tag, because of " +
-	"maxLength"
-
-// InvalidTagOwnMaxLengthErrMsg happens if a maxLength is set for not the
-// supported type.
-const InvalidTagOwnMaxLengthErrMsg = "%v field has invalid tag, " +
-	"only strings, slices or maps could have maxLength"
-
-// InvalidTagOwnElemValidatorErrMsg happens if an elemValidator is set for the
-// not supported type.
-const InvalidTagOwnElemValidatorErrMsg = "%v field has invalid tag, " +
-	"only arrays, slices or maps could have elemValidator or elemEncoding"
-
-// InvalidTagOwnKeyValidatorErrMsg happens if a keyValidator is set for the not
-// supported type.
-const InvalidTagOwnKeyValidatorErrMsg = "%v field has invalid tag, " +
-	"only maps could have keyValidator or keyEncoding"
-
-// InvalidTagArrayMaxLengthErrMsg happens when a maxLength is speccified for an
-// array.
-const InvalidTagArrayMaxLengthErrMsg = "%v field has invalid tag, maxLength " +
-	"is specified for an array"
-
-const InvalidTagPartFormatErrMsg = "invalid format of the %s"
-
-var ErrUndefinedEncoding = errors.New("undefined encoding")
-var ErrUnsupportedEncoding = errors.New("unsupported encoding")
-var ErrUnsupportedElemEncoding = errors.New("unsupported elem encoding")
-var ErrUnsupportedKeyEncoding = errors.New("unsupported key encoding")
-
-var ErrOnlyUintAndIntMayHaveRawEncoding = errors.New("only uint and int " +
-	"types may have #raw encoding")
-
-// NotSupportedTypeError happens when the parser tries to parse the not
-// supported type.
-type NotSupportedTypeError struct {
-	t string
-}
-
-// Type returns the not supported type.
-func (err NotSupportedTypeError) Type() string {
-	return err.t
-}
-
-func (err NotSupportedTypeError) Error() string {
-	return fmt.Sprintf("%v type is not supported", err.Type())
-}
-
-// Parse creates a TypeDesc from the specified type. It handles and public, and
-// private fields. If the type is not an alias or struct returns an error.
+// TODO
+// Parse creates a gen4type.TypeDesc from the specified type. It handles and
+// public, and private fields. If the type is not an alias or struct returns an
+// error.
 // If type is an alias to a pointer type returns an error.
 //
 // Adds to each map type a "map number". For example, map[string]int becomes
@@ -87,372 +25,237 @@ func (err NotSupportedTypeError) Error() string {
 // Only array, slice, map fields could have an elemValidator.
 // And only map fields could have a keyValidator.
 // Otherwise returns an error.
-func Parse(t reflect.Type) (musgen.TypeDesc, error) {
-	if t == nil {
-		return musgen.TypeDesc{}, errors.New("type is nil")
+
+// Parse accepts alias or sturct types. For other types returns
+// UnsupportedTypeError.
+// For alias type creates string representation of the underlying type and
+// returns it as aliasOf value.
+// For struct type (alias to struct is also a sturct) - for each struct field
+// creates string representation of its type, puts all this in fieldsTypes
+// value.
+// Adds to each map type a "map number". For example, map[string]int becomes
+// map-0[string]-0int. With help of map numbers we could parse map types
+// correctly in situations like map[*map[string]int]int.
+func Parse(tp reflect.Type) (aliasOf string, fieldsTypes []string, err error) {
+	if tp == nil {
+		err = NewUnsupportedTypeError("nil")
+		return
 	}
-	if t.PkgPath() == "" {
-		// if not an alias or struct
-		return musgen.TypeDesc{}, NotSupportedTypeError{t.String()}
-	} else if t.Kind() == reflect.Ptr {
-		// if alias of the pointer type
-		return musgen.TypeDesc{}, NotSupportedTypeError{t.String()}
+	if aliasType(tp) {
+		aliasOf, fieldsTypes, err = parseAlias(tp)
+		return
 	}
-	td, ok, err := ParseAlias(t)
-	if ok {
-		return td, nil
+	// TODO Should check hasPkg()?
+	if structType(tp) {
+		aliasOf, fieldsTypes, _, err = parseStruct(tp, nil)
+		return
 	}
-	if err != nil {
-		return musgen.TypeDesc{}, err
-	}
-	td, err = ParseStruct(t)
-	if err != nil {
-		return musgen.TypeDesc{}, err
-	}
-	return td, nil
+	err = NewUnsupportedTypeError(tp.String())
+	return
 }
 
-// ParseAlias tries to parse an alias type(not an alias to a struct).
+// ParseStructWithTags accepts struct type (alias to struct is also a sturct).
+// For each struct field creates string representation of its type (fieldsTypes)
+// + with help of the TagParser cretes its properties (fieldsProps value).
+func ParseStructWithTags(tp reflect.Type, tagParser TagParser) (
+	fieldsTypes []string,
+	fieldsProps [][]any, err error,
+) {
+	if tp == nil {
+		err = NewUnsupportedTypeError("nil")
+		return
+	}
+	if !structType(tp) {
+		err = NewUnsupportedTypeError(tp.String())
+		return
+	}
+	_, fieldsTypes, fieldsProps, err = parseStruct(tp, tagParser)
+	return
+}
+
+// parseAlias tries to parse an alias type(not an alias to a struct).
 // Returns true on success.
-func ParseAlias(t reflect.Type) (musgen.TypeDesc, bool, error) {
-	var ft string
-	var err error
-	k := t.Kind()
-	if primitive(k) {
-		ft = k.String()
-	} else if k == reflect.Array {
-		ft, _, err = ParseArrayType("", t, t.PkgPath(), 0)
-		if err != nil {
-			return musgen.TypeDesc{}, false, err
-		}
-	} else if k == reflect.Slice {
-		ft, _, err = ParseSliceType("", t, t.PkgPath(), 0)
-		if err != nil {
-			return musgen.TypeDesc{}, false, err
-		}
-	} else if k == reflect.Map {
-		ft, _, err = ParseMapType("", t, t.PkgPath(), 0)
-		if err != nil {
-			return musgen.TypeDesc{}, false, err
-		}
-	} else {
-		return musgen.TypeDesc{}, false, nil
-	}
-	return musgen.TypeDesc{
-		Package: pkg(t),
-		Name:    t.Name(),
-		Fields: []musgen.FieldDesc{{
-			Alias: t.Name(),
-			Type:  ft,
-		}},
-	}, true, nil
-}
-
-// ParseStruct tries to parse a struct type or an alias to struct type.
-func ParseStruct(t reflect.Type) (musgen.TypeDesc, error) {
-	var f reflect.StructField
-	var ft string
-	var err error
-	fields := make([]musgen.FieldDesc, 0)
-	k := t.Kind()
-	if k == reflect.Struct {
-		for i := 0; i < t.NumField(); i++ {
-			f = t.Field(i)
-			ft, _, err = ParseType(f.Type, t.PkgPath(), 0)
-			if err != nil {
-				return musgen.TypeDesc{}, err
-			}
-			field := musgen.FieldDesc{
-				Name: f.Name,
-				Type: ft,
-			}
-			skip, err := ParseFieldTag(f, &field)
-			if err != nil {
-				return musgen.TypeDesc{}, err
-			}
-			if skip {
-				continue
-			}
-			fields = append(fields, field)
-		}
-	}
-	return musgen.TypeDesc{
-		Package: pkg(t),
-		Name:    t.Name(),
-		Fields:  fields,
-	}, nil
-}
-
-// ParseFieldTag tries to parse a field tag. Returns true, if the field should
-// be skipped.
-func ParseFieldTag(f reflect.StructField, field *musgen.FieldDesc) (skip bool,
+func parseAlias(tp reflect.Type) (aliasOf string, fieldsTypes []string,
 	err error) {
-	tag, pst := f.Tag.Lookup(TagKey)
-	if pst {
-		_, st, _ := ParseStars(f.Type)
-		k := st.Kind()
-		vals := strings.Split(tag, ",")
-		if len(vals) > 4 {
-			return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
-		}
-		if vals[0] == "-" {
-			if len(vals) > 1 {
-				return false, fmt.Errorf(InvalidTagFormatErrMsg, field.Name)
-			}
-			return true, nil
-		}
-		if len(vals) >= 1 {
-			err = setUpValidatorAndEncoding(field, vals[0])
-			if err != nil {
-				return false, err
-			}
-		}
-		if len(vals) >= 2 {
-			if vals[1] != "" {
-				if (k == reflect.String || k == reflect.Slice || k == reflect.Map) &&
-					f.Type.PkgPath() == "" {
-					err := setUpMaxLength(field, vals[1])
-					if err != nil {
-						return false, fmt.Errorf(InvalidTagMaxLengthErrMsg, field.Name)
-					}
-				} else {
-					return false, fmt.Errorf(InvalidTagOwnMaxLengthErrMsg, field.Name)
-				}
-			}
-		}
-		if len(vals) >= 3 {
-			if vals[2] != "" {
-				if (k == reflect.Array || k == reflect.Slice || k == reflect.Map) &&
-					f.Type.PkgPath() == "" {
-					err = setUpElemValidatorAndEncoding(field, vals[2])
-					if err != nil {
-						return false, err
-					}
-				} else {
-					return false, fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, field.Name)
-				}
-			}
-		}
-		if len(vals) == 4 {
-			if vals[3] != "" {
-				if k == reflect.Map && f.Type.PkgPath() == "" {
-					err = setUpKeyValidatorAndEncoding(field, vals[3])
-					if err != nil {
-						return false, err
-					}
-				} else {
-					return false, fmt.Errorf(InvalidTagOwnKeyValidatorErrMsg, field.Name)
-				}
-			}
+	if primitiveType(tp) {
+		aliasOf = tp.Kind().String()
+	} else {
+		switch tp.Kind() {
+		case reflect.Array:
+			aliasOf, _, err = parseArrayType("", tp, tp.PkgPath(), 0)
+		case reflect.Slice:
+			aliasOf, _, err = parseSliceType("", tp, tp.PkgPath(), 0)
+		case reflect.Map:
+			aliasOf, _, err = parseMapType("", tp, tp.PkgPath(), 0)
+		default:
+			err = NewUnsupportedTypeError(tp.String())
 		}
 	}
-	return false, nil
+	return
 }
 
-// ParseType parses a type into the string representation. Complex types are
+// parseStruct tries to parse a struct type or an alias to struct type.
+func parseStruct(tp reflect.Type, tagParser TagParser) (aliasOf string,
+	fieldsTypes []string,
+	fieldsProps [][]any,
+	err error,
+) {
+	var (
+		field     reflect.StructField
+		fieldType string
+	)
+	fieldsTypes = []string{}
+	if tagParser != nil {
+		fieldsProps = make([][]any, tp.NumField())
+	}
+	for i := 0; i < tp.NumField(); i++ {
+		field = tp.Field(i)
+		fieldType, _, err = parseType(field.Type, tp.PkgPath(), 0)
+		if err != nil {
+			return
+		}
+		if tagParser != nil {
+			fieldsProps[i], err = tagParser(tp, field, field.Tag)
+		}
+		fieldsTypes = append(fieldsTypes, fieldType)
+	}
+	return
+}
+
+// parseType parses a type into the string representation. Complex types are
 // parsed recursively.
 // Translates a custom type to its name or package + name(if it's from
 // another package).
 // Adds a map number to the map type. In this case returns an incremented
 // mapsCount.
 // All other types leaves untouched.
-func ParseType(t reflect.Type, pkgPath string,
-	mapsCount int) (string, int, error) {
-	stars, st, err := ParseStars(t)
+func parseType(tp reflect.Type, currPkg string, mapsCount int) (tpStr string,
+	mapsCountOut int, err error) {
+	stars, tp, err := parsePtrType(tp)
 	if err != nil {
-		return "", mapsCount, err
+		return
 	}
-	k := st.Kind()
-	if st.PkgPath() != "" {
-		// alias of a simple type or struct
-		if primitive(k) ||
-			k == reflect.Array ||
-			k == reflect.Slice ||
-			k == reflect.Map ||
-			k == reflect.Struct {
-			if pkgPath == st.PkgPath() {
-				// if type from the same package
-				return stars + st.Name(), mapsCount, nil
-			}
-			return stars + st.String(), mapsCount, nil
+	mapsCountOut = mapsCount
+	// TODO Do not types like struct{}{}?
+	if aliasType(tp) || structType(tp) {
+		if currPkg == tp.PkgPath() {
+			tpStr = stars + tp.Name()
+			return
 		}
-		// here could be an alias of an interface type
-		return "", mapsCount, NotSupportedTypeError{st.String()}
+		tpStr = stars + tp.String()
+		return
 	}
-	if primitive(k) {
-		return t.String(), mapsCount, nil
+	if primitiveType(tp) {
+		tpStr = stars + tp.String()
+		return
 	}
-	if k == reflect.Array {
-		return ParseArrayType(stars, st, pkgPath, mapsCount)
+	if tp.Kind() == reflect.Array {
+		return parseArrayType(stars, tp, currPkg, mapsCount)
 	}
-	if k == reflect.Slice {
-		return ParseSliceType(stars, st, pkgPath, mapsCount)
+	if tp.Kind() == reflect.Slice {
+		return parseSliceType(stars, tp, currPkg, mapsCount)
 	}
-	if k == reflect.Map {
-		return ParseMapType(stars, st, pkgPath, mapsCount)
+	if tp.Kind() == reflect.Map {
+		return parseMapType(stars, tp, currPkg, mapsCount)
 	}
-	return "", mapsCount, NotSupportedTypeError{st.String()}
-}
-
-// ParseStars returns pointer signs and real type. If real type is an alias
-// to the pointer type returns an error.
-func ParseStars(t reflect.Type) (stars string, st reflect.Type, err error) {
-	st = t
-	k := st.Kind()
-	for {
-		if k == reflect.Ptr {
-			if st.PkgPath() != "" {
-				// alias to pointer type for cases like **MyInt *int
-				return stars, st, NotSupportedTypeError{st.String()}
-			}
-			st = st.Elem()
-			k = st.Kind()
-			stars += "*"
-			continue
-		}
-		break
-	}
+	err = NewUnsupportedTypeError(tp.String())
 	return
 }
 
-// ParseArrayType returns a string representation of the array type.
-func ParseArrayType(stars string, t reflect.Type, pkgPath string,
-	mapsCount int) (string, int, error) {
-	var aelt string
-	var err error
-	aelt, mapsCount, err = ParseType(t.Elem(), pkgPath, mapsCount)
-	if err != nil {
-		return "", mapsCount, err
+// parsePtrType returns pointer signs and an underlying type. If the underlying
+// type is an alias to the pointer type returns an error.
+func parsePtrType(tp reflect.Type) (stars string, atp reflect.Type, err error) {
+	atp = tp
+	for {
+		if !ptrType(atp) {
+			return
+		}
+		atp = atp.Elem()
+		stars += "*"
+		continue
 	}
-	return stars + "[" + strconv.Itoa(t.Len()) + "]" + aelt, mapsCount, nil
 }
 
-// ParseSliceType returns a string representation of the slice type.
-func ParseSliceType(stars string, t reflect.Type, pkgPath string,
-	mapsCount int) (string, int, error) {
-	var selt string
-	var err error
-	selt, mapsCount, err = ParseType(t.Elem(), pkgPath, mapsCount)
+// parseArrayType returns a string representation of the array type.
+func parseArrayType(stars string, tp reflect.Type, pkgPath string,
+	mapsCount int) (tpStr string, mapsCountOut int, err error) {
+	elemTpStr, mapsCount, err := parseType(tp.Elem(), pkgPath, mapsCount)
 	if err != nil {
 		return "", mapsCount, err
 	}
-	return stars + "[]" + selt, mapsCount, nil
+	tpStr = stars + "[" + strconv.Itoa(tp.Len()) + "]" + elemTpStr
+	mapsCountOut = mapsCount
+	return
 }
 
-// ParseMapType returns a string representation of the map type.
-func ParseMapType(stars string, t reflect.Type, pkgPath string,
-	mapsCount int) (string, int, error) {
-	var mkt string
-	var mvt string
-	var err error
-	mkt, mapsCount, err = ParseType(t.Key(), pkgPath, mapsCount)
+// parseSliceType returns a string representation of the slice type.
+func parseSliceType(stars string, tp reflect.Type, pkgPath string,
+	mapsCount int) (tpStr string, mapsCountOut int, err error) {
+	elemTpStr, mapsCount, err := parseType(tp.Elem(), pkgPath, mapsCount)
 	if err != nil {
 		return "", mapsCount, err
 	}
-	mvt, mapsCount, err = ParseType(t.Elem(), pkgPath, mapsCount)
+	tpStr = stars + "[]" + elemTpStr
+	mapsCountOut = mapsCount
+	return
+}
+
+// parseMapType returns a string representation of the map type.
+func parseMapType(stars string, tp reflect.Type, pkgPath string,
+	mapsCount int) (tpStr string, mapsCountOut int, err error) {
+	keyTpStr, mapsCount, err := parseType(tp.Key(), pkgPath, mapsCount)
+	if err != nil {
+		return "", mapsCount, err
+	}
+	elemTpStr, mapsCount, err := parseType(tp.Elem(), pkgPath, mapsCount)
 	if err != nil {
 		return "", mapsCount, err
 	}
 	strMapsCount := strconv.Itoa(mapsCount)
-	ft := stars + "map-" + strMapsCount + "[" + mkt + "]-" + strMapsCount + mvt
-	mapsCount++
-	return ft, mapsCount, nil
+	tpStr = stars + "map-" + strMapsCount + "[" + keyTpStr + "]-" + strMapsCount +
+		elemTpStr
+	mapsCountOut = mapsCount + 1
+	return
 }
 
-func setUpValidatorAndEncoding(field *musgen.FieldDesc, value string) error {
-	validator, encoding, err := parseValidatorAndEncoding(field, value)
-	if err != nil {
-		return err
-	}
-	field.Validator = validator
-	field.Encoding = encoding
-	return nil
-	// return SetEncoding(field, encoding)
+func hasPkg(tp reflect.Type) bool {
+	return tp.PkgPath() != ""
 }
 
-func setUpMaxLength(field *musgen.FieldDesc, value string) error {
-	if value != "" {
-		maxLength, err := strconv.Atoi(value)
-		if err != nil {
-			return err
-		}
-		if maxLength < 0 {
-			return errors.New("negative length")
-		}
-		field.MaxLength = maxLength
-	}
-	return nil
+// struct or alias to struct, also returns true for struct{}{}
+func structType(tp reflect.Type) bool {
+	return tp.Kind() == reflect.Struct
 }
 
-// func setUpElemValidator(field *musgen.FieldDesc, value string) {
-// 	if value != "" {
-// 		field.ElemValidator = value
-// 	}
-// }
-
-func setUpElemValidatorAndEncoding(field *musgen.FieldDesc,
-	value string) error {
-	validator, encoding, err := parseValidatorAndEncoding(field, value)
-	if err != nil {
-		return err
-	}
-	field.ElemValidator = validator
-	field.ElemEncoding = encoding
-	return nil
+func interfaceType(tp reflect.Type) bool {
+	return tp.Kind() == reflect.Interface
 }
 
-func setUpKeyValidatorAndEncoding(field *musgen.FieldDesc, value string) error {
-	validator, encoding, err := parseValidatorAndEncoding(field, value)
-	if err != nil {
-		return err
-	}
-	field.KeyValidator = validator
-	field.KeyEncoding = encoding
-	return nil
+// alias to primitive type, array, slice or map
+func aliasType(tp reflect.Type) bool {
+	return hasPkg(tp) && !structType(tp) && !interfaceType(tp)
 }
 
-func parseValidatorAndEncoding(field *musgen.FieldDesc, value string) (
-	validator, encoding string, err error) {
-	if value == "" {
-		return "", "", nil
-	}
-	if strings.HasPrefix(value, EncodingSep) {
-		return "", value[1:], nil
-	}
-	vals := strings.Split(value, EncodingSep)
-	if len(vals) > 2 {
-		return "", "", fmt.Errorf(InvalidTagPartFormatErrMsg, value)
-	}
-	if len(vals) == 2 {
-		return vals[0], vals[1], nil
-	}
-	return value, "", nil
+func primitiveType(tp reflect.Type) bool {
+	kind := tp.Kind()
+	return kind == reflect.Bool ||
+		kind == reflect.Int ||
+		kind == reflect.Int8 ||
+		kind == reflect.Int16 ||
+		kind == reflect.Int32 ||
+		kind == reflect.Int64 ||
+		kind == reflect.Uint ||
+		kind == reflect.Uint8 ||
+		kind == reflect.Uint16 ||
+		kind == reflect.Uint32 ||
+		kind == reflect.Uint64 ||
+		kind == reflect.Float32 ||
+		kind == reflect.Float64 ||
+		// kind == reflect.Complex64 ||
+		// kind == reflect.Complex128 ||
+		kind == reflect.String
 }
 
-func primitive(k reflect.Kind) bool {
-	return k == reflect.Bool ||
-		k == reflect.Int ||
-		k == reflect.Int8 ||
-		k == reflect.Int16 ||
-		k == reflect.Int32 ||
-		k == reflect.Int64 ||
-		k == reflect.Uint ||
-		k == reflect.Uint8 ||
-		k == reflect.Uint16 ||
-		k == reflect.Uint32 ||
-		k == reflect.Uint64 ||
-		k == reflect.Float32 ||
-		k == reflect.Float64 ||
-		// k == reflect.Complex64 ||
-		// k == reflect.Complex128 ||
-		k == reflect.String
-}
-
-func pkg(t reflect.Type) string {
-	re := regexp.MustCompile(`^(.*)\.`)
-	match := re.FindStringSubmatch(t.String())
-	if len(match) != 2 {
-		return ""
-	}
-	return match[1]
+func ptrType(tp reflect.Type) bool {
+	return tp.Kind() == reflect.Pointer
 }

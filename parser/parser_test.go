@@ -1,275 +1,208 @@
 package parser
 
 import (
-	"fmt"
 	"io"
 	"math/big"
 	"reflect"
 	"testing"
-
-	"github.com/ymz-ncnk/musgen"
 )
 
-var currPkg = "parser"
-
-func TestParseSimpleType(t *testing.T) {
-	var v int
-	_, err := Parse(reflect.TypeOf(v))
-	if shouldFail(err) {
-		t.Error("required to fail")
+func TestParsePrimitiveType(t *testing.T) {
+	var (
+		v    int
+		want = NewUnsupportedTypeError("int")
+	)
+	_, _, err := Parse(reflect.TypeOf(v))
+	if err == nil || err.Error() != want.Error() {
+		t.Errorf("want '%v', actual '%v'", want, err)
 	}
 }
 
-func TestParsePtrTypeAlias(t *testing.T) {
-	var vp *int
-	_, err := Parse(reflect.TypeOf(vp))
-	if shouldFail(err) {
-		t.Error("required to fail")
-	}
+func TestParsePtrType(t *testing.T) {
 
-	type IntPtrAlias *int
-	var v IntPtrAlias
-	_, err = Parse(reflect.TypeOf(v))
-	if shouldFail(err) {
-		t.Error("required to fail")
-	}
+	t.Run("Unsupported simple pointer type", func(t *testing.T) {
+		var (
+			v    *int
+			want = NewUnsupportedTypeError("*int")
+		)
+		_, _, err := Parse(reflect.TypeOf(v))
+		if err == nil || err.Error() != want.Error() {
+			t.Errorf("want '%v', actual '%v'", want, err)
+		}
+	})
 
-	type Struct struct{}
-	type StructAlias *Struct
-	var sap StructAlias
-	_, err = Parse(reflect.TypeOf(sap))
-	if shouldFail(err) {
-		t.Error("required to fail")
-	}
+	t.Run("Unsupported simple pointer type alias", func(t *testing.T) {
+		type IntPtrAlias *int
+		var (
+			v    IntPtrAlias
+			want = NewUnsupportedTypeError("parser.IntPtrAlias")
+		)
+		_, _, err := Parse(reflect.TypeOf(v))
+		if err == nil || err.Error() != want.Error() {
+			t.Errorf("want '%v', actual '%v'", want, err)
+		}
+	})
 
-	var sp *Struct
-	_, err = Parse(reflect.TypeOf(sp))
-	if shouldFail(err) {
-		t.Error("required to fail")
-	}
+	t.Run("Unsupported atruct pointer", func(t *testing.T) {
+		type Struct struct{}
+		var (
+			v    *Struct
+			want = NewUnsupportedTypeError("*parser.Struct")
+		)
+		_, _, err := Parse(reflect.TypeOf(v))
+		if err == nil || err.Error() != want.Error() {
+			t.Errorf("want '%v', actual '%v'", want, err)
+		}
+	})
+
+	t.Run("Unsupported struct pointer alias", func(t *testing.T) {
+		type Struct struct{}
+		type StructAlias *Struct
+		var (
+			v    StructAlias
+			want = NewUnsupportedTypeError("parser.StructAlias")
+		)
+		_, _, err := Parse(reflect.TypeOf(v))
+		if err == nil || err.Error() != want.Error() {
+			t.Errorf("want '%v', actual '%v'", want, err)
+		}
+	})
+
 }
 
-func TestParseInterfaceTypeAlias(t *testing.T) {
-	type InterfaceAlias io.Reader
-	var v InterfaceAlias
-	_, err := Parse(reflect.TypeOf(v))
-	if err == nil {
-		t.Error("required to fail")
-	}
-	if err.Error() != "type is nil" {
-		t.Error("wrong error")
-	}
+func TestParseInterfaceAlias(t *testing.T) {
 
-	type InterfacePtrAlias **io.Reader
-	var vp InterfacePtrAlias
-	_, err = Parse(reflect.TypeOf(vp))
-	if shouldFail(err) {
-		t.Error("required to fail")
-	}
+	t.Run("Interface alias as nil type", func(t *testing.T) {
+		type InterfaceAlias io.Reader
+		var (
+			v    InterfaceAlias
+			want = NewUnsupportedTypeError("nil")
+		)
+		_, _, err := Parse(reflect.TypeOf(v))
+		if err == nil || err.Error() != want.Error() {
+			t.Errorf("want '%v', actual '%v'", want, err)
+		}
+	})
+
+	t.Run("Unsupported interface pointer alias", func(t *testing.T) {
+		type InterfacePtrAlias **io.Reader
+		var (
+			v    InterfacePtrAlias
+			want = NewUnsupportedTypeError("parser.InterfacePtrAlias")
+		)
+		_, _, err := Parse(reflect.TypeOf(v))
+		if err == nil || err.Error() != want.Error() {
+			t.Errorf("want '%v', actual '%v'", want, err)
+		}
+	})
+
 }
 
-func TestParseFromAnotherPkg(t *testing.T) {
+func TestParseTypeFromAnotherPkg(t *testing.T) {
 	type MyStruct struct {
 		big **big.Int
 	}
-	var v MyStruct
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "MyStruct",
-		Fields: []musgen.FieldDesc{{
-			Name: "big",
-			Type: "**big.Int",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           MyStruct
+		wantAliasOf = ""
+		wantFields  = []string{"**big.Int"}
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	_ = v.big
 }
 
 func TestParsePrimitiveTypeAlias(t *testing.T) {
-	type BoolAlias bool
-	var v BoolAlias
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "BoolAlias",
-		Fields: []musgen.FieldDesc{{
-			Name:      "",
-			Type:      "bool",
-			MaxLength: 0,
-			Alias:     "BoolAlias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Error("BoolAlias")
-	}
 
-	type Uint64Alias uint64
-	var vu64 Uint64Alias
-	td, err = Parse(reflect.TypeOf(vu64))
-	if err != nil {
-		t.Error(err)
-	}
-	etd = musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "Uint64Alias",
-		Fields: []musgen.FieldDesc{{
-			Name:  "",
-			Type:  "uint64",
-			Alias: "Uint64Alias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Error("Uint64Alias")
-	}
+	t.Run("Bool alias", func(t *testing.T) {
+		type BoolAlias bool
+		var (
+			v           BoolAlias
+			wantAliasOf          = "bool"
+			wantFields  []string = nil
+		)
+		test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	})
 
-	type Uint32Alias uint32
-	var vu32 Uint32Alias
-	td, err = Parse(reflect.TypeOf(vu32))
-	if err != nil {
-		t.Error(err)
-	}
-	etd = musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "Uint32Alias",
-		Fields: []musgen.FieldDesc{{
-			Name:  "",
-			Type:  "uint32",
-			Alias: "Uint32Alias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Error("Uint32Alias")
-	}
+	t.Run("Uint64 alias", func(t *testing.T) {
+		type Uint64Alias uint64
+		var (
+			v           Uint64Alias
+			wantAliasOf          = "uint64"
+			wantFields  []string = nil
+		)
+		test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	})
 
-	type Uint16Alias uint16
-	var vu16 Uint16Alias
-	td, err = Parse(reflect.TypeOf(vu16))
-	if err != nil {
-		t.Error(err)
-	}
-	etd = musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "Uint16Alias",
-		Fields: []musgen.FieldDesc{{
-			Name:  "",
-			Type:  "uint16",
-			Alias: "Uint16Alias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Error("Uint16Alias")
-	}
+	t.Run("Uint32 alias", func(t *testing.T) {
+		type Uint32Alias uint32
+		var (
+			v           Uint32Alias
+			wantAliasOf          = "uint32"
+			wantFields  []string = nil
+		)
+		test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	})
 
-	type Uint8Alias uint8
-	var vu8 Uint8Alias
-	td, err = Parse(reflect.TypeOf(vu8))
-	if err != nil {
-		t.Error(err)
-	}
-	etd = musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "Uint8Alias",
-		Fields: []musgen.FieldDesc{{
-			Name:  "",
-			Type:  "uint8",
-			Alias: "Uint8Alias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Error("Uint8Alias")
-	}
+	t.Run("Uint16 alias", func(t *testing.T) {
+		type Uint16Alias uint16
+		var (
+			v           Uint16Alias
+			wantAliasOf          = "uint16"
+			wantFields  []string = nil
+		)
+		test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	})
 
-	type UintAlias uint
-	var vu UintAlias
-	td, err = Parse(reflect.TypeOf(vu))
-	if err != nil {
-		t.Error(err)
-	}
-	etd = musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "UintAlias",
-		Fields: []musgen.FieldDesc{{
-			Name:  "",
-			Type:  "uint",
-			Alias: "UintAlias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Error("UintAlias")
-	}
+	t.Run("Uint8 alias", func(t *testing.T) {
+		type Uint8Alias uint8
+		var (
+			v           Uint8Alias
+			wantAliasOf          = "uint8"
+			wantFields  []string = nil
+		)
+		test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	})
+
+	t.Run("Uint alias", func(t *testing.T) {
+		type UintAlias uint
+		var (
+			v           UintAlias
+			wantAliasOf          = "uint"
+			wantFields  []string = nil
+		)
+		test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	})
+
 }
 
 func TestParseArrayAlias(t *testing.T) {
 	type ArrayAlias [3]int
-	var v ArrayAlias
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "ArrayAlias",
-		Fields: []musgen.FieldDesc{{
-			Name:      "",
-			Type:      "[3]int",
-			MaxLength: 0,
-			Alias:     "ArrayAlias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           ArrayAlias
+		wantAliasOf          = "[3]int"
+		wantFields  []string = nil
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
 }
 
 func TestParseSliceAlias(t *testing.T) {
 	type SliceAlias []string
-	var v SliceAlias
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "SliceAlias",
-		Fields: []musgen.FieldDesc{{
-			Name:      "",
-			Type:      "[]string",
-			MaxLength: 0,
-			Alias:     "SliceAlias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           SliceAlias
+		wantAliasOf          = "[]string"
+		wantFields  []string = nil
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
 }
+
 func TestParseMapAlias(t *testing.T) {
 	type MapAlias map[int32]float64
-	var v MapAlias
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "MapAlias",
-		Fields: []musgen.FieldDesc{{
-			Name:      "",
-			Type:      "map-0[int32]-0float64",
-			MaxLength: 0,
-			Alias:     "MapAlias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           MapAlias
+		wantAliasOf          = "map-0[int32]-0float64"
+		wantFields  []string = nil
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
 }
 
 func TestParseStruct(t *testing.T) {
@@ -277,554 +210,537 @@ func TestParseStruct(t *testing.T) {
 		R int
 		T float64
 	}
-	var v Struct
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "Struct",
-		Fields: []musgen.FieldDesc{
-			{
-				Name:      "R",
-				Type:      "int",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "T",
-				Type:      "float64",
-				MaxLength: 0,
-				Alias:     "",
-			},
-		},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           Struct
+		wantAliasOf          = ""
+		wantFields  []string = []string{"int", "float64"}
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
 }
 
 func TestParseStructAlias(t *testing.T) {
 	type Struct struct {
-		ui uint8
-		F  float32
+		uint8Field uint8
+		F          float32
 	}
 	type StructAlias Struct
-	var v StructAlias
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "StructAlias",
-		Fields: []musgen.FieldDesc{
-			{
-				Name:      "ui",
-				Type:      "uint8",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "F",
-				Type:      "float32",
-				MaxLength: 0,
-				Alias:     "",
-			},
-		},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           StructAlias
+		wantAliasOf          = ""
+		wantFields  []string = []string{"uint8", "float32"}
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	_ = v.uint8Field
 }
 
 func TestParseNestedMapAlias(t *testing.T) {
 	type NestedMapAlias map[*map[int64]map[uint8]uint32]**map[string]map[int]**string
-	var v NestedMapAlias
-	td, err := Parse(reflect.TypeOf(v))
-	if err != nil {
-		t.Error(err)
-	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "NestedMapAlias",
-		Fields: []musgen.FieldDesc{{
-			Name:      "",
-			Type:      "map-4[*map-1[int64]-1map-0[uint8]-0uint32]-4**map-3[string]-3map-2[int]-2**string",
-			MaxLength: 0,
-			Alias:     "NestedMapAlias",
-		}},
-	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
-	}
+	var (
+		v           NestedMapAlias
+		wantAliasOf          = "map-4[*map-1[int64]-1map-0[uint8]-0uint32]-4**map-3[string]-3map-2[int]-2**string"
+		wantFields  []string = nil
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
 }
 
 func TestParseTrickyStructAlias(t *testing.T) {
-	type St struct {
-		ui uint8
+	type AnotherStruct struct {
+		uint8Field uint8
 	}
 	type ArrayAlias [2]int
 	type Struct struct {
-		b     bool
-		Array [3]*[]**[3]map[int]string
-		St    St
-		Stp   *St
-		MSt   map[St]map[ArrayAlias][]*St
-		Aa    ArrayAlias
+		boolField       bool
+		ArrayField      [3]*[]**[3]map[int]string
+		StructField     AnotherStruct
+		StructPtrField  *AnotherStruct
+		MapField        map[AnotherStruct]map[ArrayAlias][]*AnotherStruct
+		ArrayAliasField ArrayAlias
 	}
 	type FirstStructAlias Struct
 	type SecondStructAlias FirstStructAlias
-	var v SecondStructAlias
-	td, err := Parse(reflect.TypeOf(v))
+	var (
+		v           SecondStructAlias
+		wantAliasOf          = ""
+		wantFields  []string = []string{
+			"bool",
+			"[3]*[]**[3]map-0[int]-0string",
+			"AnotherStruct",
+			"*AnotherStruct",
+			"map-1[AnotherStruct]-1map-0[ArrayAlias]-0[]*AnotherStruct",
+			"ArrayAlias",
+		}
+	)
+	test(reflect.TypeOf(v), wantAliasOf, wantFields, t)
+	_ = v.boolField
+	_ = v.StructField.uint8Field
+}
+
+// TODO move to tdesc_builder
+// func TestParseStructWithTags(t *testing.T) {
+
+// 	// t.Run("Skip flag", func(t *testing.T) {
+// 	// 	// Note, we can't set skip flag on alias.
+// 	// 	type Struct struct {
+// 	// 		myUint uint8 `mus:"-"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields:  []gen4type.FieldDesc{},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("want '%v', actual '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.myUint
+// 	// })
+
+// 	// t.Run("Invalid skip flag", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		uintField uint8 `mus:"-,validator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewInvalidTagFormatError("uintField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.uintField
+// 	// })
+
+// 	// t.Run("Validator of string field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		strField string `mus:"validator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name: "strField",
+// 	// 					Type: "string",
+// 	// 					// Validator: "validator",
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("want '%v', actual '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.strField
+// 	// })
+// 	// TODO test validator for other types
+
+// 	// t.Run("MaxLength of string field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		strField string `mus:",5"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:      "strField",
+// 	// 					Type:      "string",
+// 	// 					MaxLength: 5,
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("want '%v', actual '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.strField
+// 	// })
+
+// 	// t.Run("MaxLength of array field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		arrField [2]string `mus:",5"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedMaxLengthTagError("arrField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.arrField
+// 	// })
+
+// 	// t.Run("MaxLength of slice field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		sliceField []string `mus:",10"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:      "sliceField",
+// 	// 					Type:      "[]string",
+// 	// 					MaxLength: 10,
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("actual '%v', want '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.sliceField
+// 	// })
+
+// 	// t.Run("Invalid MaxLength of map field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		mapField map[string]int `mus:",-1"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewInvalidMaxLengthTagError("mapField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.mapField
+// 	// })
+
+// 	// t.Run("Unsupported ElemValidator of string field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		strField string `mus:",,elemValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedElemValidatorTagError("strField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.strField
+// 	// })
+
+// 	// t.Run("ElemValidator of array field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		arrField [2]string `mus:",,elemValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:          "arrField",
+// 	// 					Type:          "[2]string",
+// 	// 					ElemValidator: "elemValidator",
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("actual '%v', want '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.arrField
+// 	// })
+
+// 	// t.Run("ElemValidator of slice field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		sliceField []string `mus:",,elemValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:          "sliceField",
+// 	// 					Type:          "[]string",
+// 	// 					ElemValidator: "elemValidator",
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("actual '%v', want '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.sliceField
+// 	// })
+
+// 	// t.Run("ElemValidator of map field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		mapField map[string]int `mus:",,elemValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:          "mapField",
+// 	// 					Type:          "map-0[string]-0int",
+// 	// 					ElemValidator: "elemValidator",
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("actual '%v', want '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.mapField
+// 	// })
+
+// 	// t.Run("Unsupported KeyValidator of string field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		strField string `mus:",,,keyValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedKeyValidatorTagError("strField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.strField
+// 	// })
+
+// 	// t.Run("Unsupported KeyValidator of array field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		arrField [2]string `mus:",,,keyValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedKeyValidatorTagError("arrField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.arrField
+// 	// })
+
+// 	// t.Run("Unsupported KeyValidator of slice field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		sliceFiedl []string `mus:",,,keyValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedKeyValidatorTagError("sliceFiedl")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.sliceFiedl
+// 	// })
+
+// 	// t.Run("KeyValidator of map field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		mapField map[string]int `mus:",,,keyValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:         "mapField",
+// 	// 					Type:         "map-0[string]-0int",
+// 	// 					KeyValidator: "keyValidator",
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("actual '%v', want '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.mapField
+// 	// })
+
+// 	// t.Run("Encoding", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		field map[bool]string `mus:"valid#enc,5,valid1#enc1,valid2#enc2"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = gen4type.TypeDesc{
+// 	// 			Package: "parser",
+// 	// 			Name:    "Struct",
+// 	// 			Fields: []gen4type.FieldDesc{
+// 	// 				{
+// 	// 					Name:          "field",
+// 	// 					Type:          "map-0[bool]-0string",
+// 	// 					Validator:     "valid",
+// 	// 					Encoding:      "enc",
+// 	// 					MaxLength:     5,
+// 	// 					ElemValidator: "valid1",
+// 	// 					ElemEncoding:  "enc1",
+// 	// 					KeyValidator:  "valid2",
+// 	// 					KeyEncoding:   "enc2",
+// 	// 				},
+// 	// 			},
+// 	// 		}
+// 	// 	)
+// 	// 	td, err := Parse(reflect.TypeOf(v))
+// 	// 	if err != nil {
+// 	// 		t.Error(err)
+// 	// 	}
+// 	// 	if !reflect.DeepEqual(td, want) {
+// 	// 		t.Errorf("actual '%v', want '%v'", td, want)
+// 	// 	}
+// 	// 	_ = v.field
+// 	// })
+
+// 	// t.Run("Unsupported ElemEncoding of int field", func(t *testing.T) {
+// 	// 	type Struct struct {
+// 	// 		field int `mus:",,#enc1"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedElemValidatorTagError("field")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.field
+// 	// })
+
+// 	// t.Run("Unsupported MaxLength of string alias field", func(t *testing.T) {
+// 	// 	type MyString string
+// 	// 	type Struct struct {
+// 	// 		aliasField MyString `mus:",3"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedMaxLengthTagError("aliasField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.aliasField
+// 	// })
+
+// 	// t.Run("Unsupported ElemValidator of array alias field", func(t *testing.T) {
+// 	// 	type MyArray [2]int
+// 	// 	type Struct struct {
+// 	// 		aliasField MyArray `mus:",,elemValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedElemValidatorTagError("aliasField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.aliasField
+// 	// })
+
+// 	// t.Run("Unsupported KeyValidator of map alias field", func(t *testing.T) {
+// 	// 	type MyMap map[int]int
+// 	// 	type Struct struct {
+// 	// 		aliasField MyMap `mus:",,,keyValidator"`
+// 	// 	}
+// 	// 	var (
+// 	// 		v    Struct
+// 	// 		want = NewUnsupportedKeyValidatorTagError("aliasField")
+// 	// 	)
+// 	// 	_, err := Parse(reflect.TypeOf(v))
+// 	// 	if err == nil {
+// 	// 		t.Error("invalid tag is ok")
+// 	// 	}
+// 	// 	if err == nil || err.Error() != want.Error() {
+// 	// 		t.Errorf("actual '%v', want '%v'", err, want)
+// 	// 	}
+// 	// 	_ = v.aliasField
+// 	// })
+// }
+
+func test(tp reflect.Type, wantAliasOf string, wantFields []string,
+	t *testing.T) {
+	aliasOf, fields, err := Parse(tp)
 	if err != nil {
 		t.Error(err)
 	}
-	etd := musgen.TypeDesc{
-		Package: currPkg,
-		Name:    "SecondStructAlias",
-		Fields: []musgen.FieldDesc{
-			{
-				Name:      "b",
-				Type:      "bool",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "Array",
-				Type:      "[3]*[]**[3]map-0[int]-0string",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "St",
-				Type:      "St",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "Stp",
-				Type:      "*St",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "MSt",
-				Type:      "map-1[St]-1map-0[ArrayAlias]-0[]*St",
-				MaxLength: 0,
-				Alias:     "",
-			},
-			{
-				Name:      "Aa",
-				Type:      "ArrayAlias",
-				MaxLength: 0,
-				Alias:     "",
-			},
-		},
+	if aliasOf != wantAliasOf {
+		t.Errorf("want '%v', actual '%v'", wantAliasOf, aliasOf)
 	}
-	if !reflect.DeepEqual(td, etd) {
-		t.Fail()
+	if !reflect.DeepEqual(fields, wantFields) {
+		t.Errorf("want '%v', actual '%v'", wantFields, fields)
 	}
-}
-
-func TestParseStructWithTags(t *testing.T) {
-	// test skip
-	{
-		// Note, we can't set skip flag on alias.
-		type Struct struct {
-			myUint uint8 `mus:"-"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields:  []musgen.FieldDesc{},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse skip tag failed")
-		}
-	}
-	// test invalid skip
-	{
-		type Struct struct {
-			myUint uint8 `mus:"-,validator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagFormatErrMsg, "myUint") {
-			t.Error("wrong error")
-		}
-	}
-	// test validator string
-	{
-		type Struct struct {
-			myStr string `mus:"validator"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:      "myStr",
-					Type:      "string",
-					Validator: "validator",
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse skip tag failed")
-		}
-	}
-	// TODO test validator for other types
-	// test maxLength string
-	{
-		type Struct struct {
-			myStr string `mus:",5"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:      "myStr",
-					Type:      "string",
-					MaxLength: 5,
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse skip tag failed")
-		}
-	}
-	// test maxLength array
-	{
-		type Struct struct {
-			myStrArr [2]string `mus:",5"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagOwnMaxLengthErrMsg, "myStrArr") {
-			t.Error("wrong error")
-		}
-	}
-	// test maxLength slice
-	{
-		type Struct struct {
-			myStrSlice []string `mus:",10"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:      "myStrSlice",
-					Type:      "[]string",
-					MaxLength: 10,
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse tag with maxLength failed")
-		}
-	}
-	// test maxLength map
-	{
-		type Struct struct {
-			myMap map[string]int `mus:",-1"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagMaxLengthErrMsg, "myMap") {
-			t.Error("wrong error")
-		}
-	}
-	// test elemValidator string
-	{
-		type Struct struct {
-			myStr string `mus:",,elemValidator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagOwnElemValidatorErrMsg, "myStr") {
-			t.Error("wrong error")
-		}
-	}
-	// test elemValidator array
-	{
-		type Struct struct {
-			myStrArr [2]string `mus:",,elemValidator"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:          "myStrArr",
-					Type:          "[2]string",
-					ElemValidator: "elemValidator",
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse tag with elemValidator failed")
-		}
-	}
-	// test elemValidator array
-	{
-		type Struct struct {
-			myStrSlice []string `mus:",,elemValidator"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:          "myStrSlice",
-					Type:          "[]string",
-					ElemValidator: "elemValidator",
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse tag with elemValidator failed")
-		}
-	}
-	// test elemValidator map
-	{
-		type Struct struct {
-			myStrMap map[string]int `mus:",,elemValidator"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:          "myStrMap",
-					Type:          "map-0[string]-0int",
-					ElemValidator: "elemValidator",
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse tag with elemValidator failed")
-		}
-	}
-	// test keyValidator string
-	{
-		type Struct struct {
-			myStr string `mus:",,,keyValidator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagOwnKeyValidatorErrMsg, "myStr") {
-			t.Error("wrong error")
-		}
-	}
-	// test keyValidator array
-	{
-		type Struct struct {
-			myStrArr [2]string `mus:",,,keyValidator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagOwnKeyValidatorErrMsg, "myStrArr") {
-			t.Error("wrong error")
-		}
-	}
-	// test keyValidator slice
-	{
-		type Struct struct {
-			myStrSlice []string `mus:",,,keyValidator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("invalid tag is ok")
-		}
-		if err.Error() != fmt.Sprintf(InvalidTagOwnKeyValidatorErrMsg, "myStrSlice") {
-			t.Error("wrong error")
-		}
-	}
-	// test keyValidator map
-	{
-		type Struct struct {
-			myStrMap map[string]int `mus:",,,keyValidator"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:         "myStrMap",
-					Type:         "map-0[string]-0int",
-					KeyValidator: "keyValidator",
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse tag with elemValidator failed")
-		}
-	}
-	// encoding
-	{
-		type Struct struct {
-			i map[bool]string `mus:"valid#enc,5,valid1#enc1,valid2#enc2"`
-		}
-		var v Struct
-		td, err := Parse(reflect.TypeOf(v))
-		if err != nil {
-			t.Error(err)
-		}
-		etd := musgen.TypeDesc{
-			Package: "parser",
-			Name:    "Struct",
-			Fields: []musgen.FieldDesc{
-				{
-					Name:          "i",
-					Type:          "map-0[bool]-0string",
-					Validator:     "valid",
-					Encoding:      "enc",
-					MaxLength:     5,
-					ElemValidator: "valid1",
-					ElemEncoding:  "enc1",
-					KeyValidator:  "valid2",
-					KeyEncoding:   "enc2",
-				},
-			},
-		}
-		if !reflect.DeepEqual(td, etd) {
-			t.Error("parse tag with encoding failed")
-		}
-	}
-	// encoding not valid
-	{
-		type Struct struct {
-			i int `mus:",,#enc1"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("nil error")
-		} else {
-			if err.Error() !=
-				fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, "i").Error() {
-				t.Error("wrong error")
-			}
-		}
-	}
-
-	// test maxLenght on string alias
-	{
-		type MyString string
-		type Struct struct {
-			myStr MyString `mus:",3"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("maxLength for string alias is ok")
-		}
-		if err.Error() != fmt.Errorf(InvalidTagOwnMaxLengthErrMsg, "myStr").Error() {
-			t.Error("wrong error")
-		}
-	}
-	// test elemValidator on array alias
-	{
-		type MyArray [2]int
-		type Struct struct {
-			myArr MyArray `mus:",,elemValidator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("elemValidator for array alias is ok")
-		}
-		if err.Error() != fmt.Errorf(InvalidTagOwnElemValidatorErrMsg, "myArr").Error() {
-			t.Error("wrong error")
-		}
-	}
-	// test keyValidator on map alias
-	{
-		type MyMap map[int]int
-		type Struct struct {
-			myMap MyMap `mus:",,,keyValidator"`
-		}
-		var v Struct
-		_, err := Parse(reflect.TypeOf(v))
-		if err == nil {
-			t.Error("keyValidator for map alias is ok")
-		}
-		if err.Error() != fmt.Errorf(InvalidTagOwnKeyValidatorErrMsg, "myMap").Error() {
-			t.Error("wrong error")
-		}
-	}
-}
-
-func shouldFail(err error) bool {
-	if err == nil {
-		return true
-	}
-	if _, ok := err.(NotSupportedTypeError); !ok {
-		return true
-	}
-	return false
 }
