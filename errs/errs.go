@@ -23,6 +23,7 @@ var ErrWrongByte = errors.New("wrong byte")
 // ErrMaxLengthExceeded is a MaxLength validator error.
 var ErrMaxLengthExceeded = errors.New("max length exceeded")
 
+// -----------------------------------------------------------------------------
 // NewArrayError returns a new ArrayError.
 func NewArrayError(i int, cause error) error {
 	return &ArrayError{i, cause}
@@ -48,6 +49,7 @@ func (err *ArrayError) Error() string {
 	return fmt.Sprintf("%d element failed, cause: %s", err.i, err.cause)
 }
 
+// -----------------------------------------------------------------------------
 // NewSliceError returns a new SliceError.
 func NewSliceError(i int, cause error) error {
 	return &SliceError{i, cause}
@@ -56,6 +58,7 @@ func NewSliceError(i int, cause error) error {
 // SliceError occurs while Unmarshalling a slice, if some element is not valid.
 type SliceError = ArrayError
 
+// -----------------------------------------------------------------------------
 // NewMapKeyError returns a new MapKeyError.
 func NewMapKeyError(key any, cause error) error {
 	return &MapKeyError{key, cause}
@@ -82,6 +85,7 @@ func (err *MapKeyError) Error() string {
 	return fmt.Sprintf("%v key failed, cause: %s", err.key, err.cause)
 }
 
+// -----------------------------------------------------------------------------
 // NewMapValueError occurs while Unmarshalling one of the map's value, if it's
 // not valid.
 func NewMapValueError(key any, value any, cause error) error {
@@ -114,6 +118,7 @@ func (err *MapValueError) Error() string {
 	return fmt.Sprintf("%v value failed, cause: %s", err.value, err.cause)
 }
 
+// -----------------------------------------------------------------------------
 // NewFieldError returns a new FieldError.
 func NewFieldError(fieldName string, cause error) error {
 	return &FieldError{fieldName, cause}

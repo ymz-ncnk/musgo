@@ -1,7 +1,7 @@
 package musgen
 
 import (
-	musgenmod "github.com/ymz-ncnk/serialization/musgen"
+	musgenmod "github.com/ymz-ncnk/musgen"
 )
 
 type StrArrayAlias [3]string

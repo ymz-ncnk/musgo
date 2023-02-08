@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/serialization/musgo/errs"
+	"github.com/ymz-ncnk/musgo/errs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -75,7 +75,6 @@ func (v Float64RawAlias) Size() int {
 			_ = v
 			size += 8
 		}
-
 	}
 	return size
 }

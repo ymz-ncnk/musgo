@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/serialization/musgo/errs"
+	"github.com/ymz-ncnk/musgo/errs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -413,7 +413,6 @@ func (v RawStructType) Size() int {
 			_ = v.Float32Raw
 			size += 4
 		}
-
 	}
 	{
 		{
@@ -439,7 +438,6 @@ func (v RawStructType) Size() int {
 					_ = (*ke)
 					size += 8
 				}
-
 			}
 			{
 				{

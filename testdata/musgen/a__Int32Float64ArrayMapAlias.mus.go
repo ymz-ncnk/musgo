@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/serialization/musgo/errs"
+	"github.com/ymz-ncnk/musgo/errs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -241,7 +241,6 @@ func (v Int32Float64ArrayMapAlias) Size() int {
 							}
 							size++
 						}
-
 					}
 				}
 			}

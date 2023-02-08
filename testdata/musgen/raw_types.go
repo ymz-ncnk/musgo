@@ -1,6 +1,6 @@
 package musgen
 
-import musgenmod "github.com/ymz-ncnk/serialization/musgen"
+import musgenmod "github.com/ymz-ncnk/musgen"
 
 type Uint64RawAlias uint64
 

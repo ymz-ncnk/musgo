@@ -1,16 +1,13 @@
 package musgo
 
 import (
-	"os"
 	"reflect"
 
-	"github.com/ymz-ncnk/serialization/musgen"
-	"github.com/ymz-ncnk/serialization/musgo/tdesc_builder"
-	"golang.org/x/tools/imports"
+	"github.com/ymz-ncnk/musgen"
+	musgen_textmpl "github.com/ymz-ncnk/musgen/text_template"
+	"github.com/ymz-ncnk/musgo/parser"
+	"github.com/ymz-ncnk/musgo/tdesc_builder"
 )
-
-// FilenameExtenstion of the generated files.
-const FilenameExtenstion = "mus.go"
 
 // Conf configures the generation process.
 type Conf struct {
@@ -32,25 +29,25 @@ type AliasConf struct {
 	KeyEncoding   string // if alias to map, sets encoding
 }
 
-type FilenameBuilder func(tdesc musgen.TypeDesc) string
-
-func DefaultFilenameBuilder(td musgen.TypeDesc) string {
-	return td.Name + "." + FilenameExtenstion
-}
-
-// New returns a new MusGo.
+// New creates a new MusGo.
 func New() (musGo MusGo, err error) {
-	musGen, err := musgen.New()
+	musGen, err := musgen_textmpl.New()
 	if err != nil {
 		return
 	}
-	return MusGo{musGen, DefaultFilenameBuilder}, nil
+	return NewWith(musGen, NewHarDrivePersistor())
+}
+
+// NewWith creates a configurable MusGo.
+func NewWith(musGen musgen.MusGen, persistor Persistor) (musGo MusGo,
+	err error) {
+	return MusGo{musGen, persistor}, nil
 }
 
 // MusGo is a Go code generator for the MUS format.
 type MusGo struct {
-	musGen          musgen.MusGen
-	FilenameBuilder FilenameBuilder
+	musGen    musgen.MusGen
+	persistor Persistor
 }
 
 // Generate accepts a struct or alias type. Returns an error if receives an
@@ -82,18 +79,26 @@ func (musGo MusGo) GenerateAs(tp reflect.Type, conf Conf) (err error) {
 // and Encodings can be set for an alias type.
 func (musGo MusGo) GenerateAliasAs(tp reflect.Type, conf AliasConf) (
 	err error) {
-	tdesc, err := tdesc_builder.BuildForAlias(tp, tdesc_builder.AliasConf{
-		Conf: tdesc_builder.Conf{
-			Unsafe: conf.Unsafe,
-			Suffix: conf.Suffix,
-		},
-		Validator:     conf.Validator,
-		Encoding:      conf.Encoding,
-		MaxLength:     conf.MaxLength,
-		ElemValidator: conf.ElemValidator,
-		ElemEncoding:  conf.ElemEncoding,
-		KeyValidator:  conf.KeyValidator,
-		KeyEncoding:   conf.KeyEncoding,
+	aliasOf, _, _, err := parser.Parse(tp, nil)
+	if err != nil {
+		return
+	}
+	if aliasOf == "" {
+		return ErrNotAlias
+	}
+	tdesc, err := tdesc_builder.BuildForAlias(tp, aliasOf, 
+		tdesc_builder.AliasConf{
+			Conf: tdesc_builder.Conf{
+				Unsafe: conf.Unsafe,
+				Suffix: conf.Suffix,
+			},
+			Validator:     conf.Validator,
+			Encoding:      conf.Encoding,
+			MaxLength:     conf.MaxLength,
+			ElemValidator: conf.ElemValidator,
+			ElemEncoding:  conf.ElemEncoding,
+			KeyValidator:  conf.KeyValidator,
+			KeyEncoding:   conf.KeyEncoding,
 	})
 	if err != nil {
 		return
@@ -106,21 +111,5 @@ func (musGo MusGo) generate(tdesc musgen.TypeDesc, path string) (err error) {
 	if err != nil {
 		return
 	}
-	if path == "" {
-		path = "."
-	}
-	return musGo.persist(tdesc, b, path)
-}
-
-func (musGo MusGo) persist(tdesc musgen.TypeDesc, b []byte, path string) (
-	err error) {
-	b, err = imports.Process("", b, nil)
-	if err != nil {
-		return
-	}
-	filename := musGo.FilenameBuilder(tdesc)
-	if path == "" {
-		path = "."
-	}
-	return os.WriteFile(path+string(os.PathSeparator)+filename, b, os.ModePerm)
+	return musGo.persistor.Persist(tdesc, b, path)
 }

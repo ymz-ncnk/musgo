@@ -5,9 +5,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ymz-ncnk/serialization/musgo/errs"
-	"github.com/ymz-ncnk/serialization/musgo/testdata"
-	tdmg "github.com/ymz-ncnk/serialization/musgo/testdata/musgen"
+	"github.com/ymz-ncnk/musgo/errs"
+	"github.com/ymz-ncnk/musgo/testdata"
+	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
 )
 
 // Can't do this. Can't generate methods for such type, error - invalid receiver

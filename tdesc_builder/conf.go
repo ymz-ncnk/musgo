@@ -6,6 +6,7 @@ type Conf struct {
 	Suffix string // suffix for Marshal, Unmarshal, Size methods
 }
 
+// -----------------------------------------------------------------------------
 // AliasConf configuration with validators and encodings for an alias type.
 type AliasConf struct {
 	Conf

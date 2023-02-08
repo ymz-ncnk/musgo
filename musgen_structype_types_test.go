@@ -4,13 +4,12 @@ package musgo
 import (
 	"testing"
 
-	"github.com/ymz-ncnk/serialization/musgo/errs"
-	"github.com/ymz-ncnk/serialization/musgo/testdata"
-	tdmg "github.com/ymz-ncnk/serialization/musgo/testdata/musgen"
+	"github.com/ymz-ncnk/musgo/errs"
+	"github.com/ymz-ncnk/musgo/testdata"
+	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
 )
 
 func TestGeneratedStructCode(t *testing.T) {
-	// 	var err error
 
 	t.Run("Struct", func(t *testing.T) {
 		var (

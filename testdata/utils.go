@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/serialization/musgo/errs"
+	"github.com/ymz-ncnk/musgo/errs"
 )
 
 type MUSMarshalType interface {

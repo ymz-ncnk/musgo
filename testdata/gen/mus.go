@@ -8,8 +8,9 @@ import (
 	"io/ioutil"
 	"runtime"
 
-	"github.com/ymz-ncnk/serialization/musgen"
-	tdmg "github.com/ymz-ncnk/serialization/musgo/testdata/musgen"
+	"github.com/ymz-ncnk/musgen"
+	musgen_textmpl "github.com/ymz-ncnk/musgen/text_template"
+	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
 	"golang.org/x/tools/imports"
 )
 
@@ -196,7 +197,7 @@ func generate(tds []musgen.TypeDesc, folder string, unsafe bool) error {
 		_, filename, _, _ = runtime.Caller(1)
 		b                 []byte
 	)
-	musGen, err := musgen.New()
+	musGen, err := musgen_textmpl.New()
 	if err != nil {
 		return err
 	}

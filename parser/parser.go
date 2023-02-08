@@ -5,78 +5,43 @@ import (
 	"strconv"
 )
 
+// TagParser parses tags, used by Parse() function.
 type TagParser func(tp reflect.Type, field reflect.StructField,
 	tag reflect.StructTag) (arr []any, err error)
 
-// TODO
-// Parse creates a gen4type.TypeDesc from the specified type. It handles and
-// public, and private fields. If the type is not an alias or struct returns an
-// error.
-// If type is an alias to a pointer type returns an error.
-//
-// Adds to each map type a "map number". For example, map[string]int becomes
-// map-0[string]-0int. With help of map numbers we could parse map types
-// correctly in situations like map[*map[string]int]int.
-//
-// Each field of the struct type could have a tag: `mus:-` or
-// `mus:validator,maxLength,elemValidator,keyValidator`
-// Only string, array, slice, map fields could have a maxLenght validator.
-// The maxLength should be positive number.
-// Only array, slice, map fields could have an elemValidator.
-// And only map fields could have a keyValidator.
-// Otherwise returns an error.
-
-// Parse accepts alias or sturct types. For other types returns
-// UnsupportedTypeError.
+// Parse can accepts alias or sturct type, for other types returns
+// ErrUnsupportedType.
 // For alias type creates string representation of the underlying type and
-// returns it as aliasOf value.
-// For struct type (alias to struct is also a sturct) - for each struct field
-// creates string representation of its type, puts all this in fieldsTypes
-// value.
+// returns it as the aliasOf value.
+// For struct type (alias to struct is also a sturct) - for each struct 
+// field creates a string representation of its type, puts all this in 
+// the fieldsTypes value.
 // Adds to each map type a "map number". For example, map[string]int becomes
 // map-0[string]-0int. With help of map numbers we could parse map types
 // correctly in situations like map[*map[string]int]int.
-func Parse(tp reflect.Type) (aliasOf string, fieldsTypes []string, err error) {
-	if tp == nil {
-		err = NewUnsupportedTypeError("nil")
+func Parse(tp reflect.Type, tagParser TagParser) (aliasOf string, 
+	fieldsTypes []string, 
+	fieldsProps [][]any, 
+	err error,
+	) {
+		if tp == nil {
+			err = ErrUnsupportedType
+			return
+		}
+		if aliasType(tp) {
+			aliasOf, err = parseAlias(tp)
+			return
+		}
+		if definedStrucType(tp) {
+			fieldsTypes, fieldsProps, err = parseStruct(tp, tagParser)
+			return
+		}
+		err = ErrUnsupportedType
 		return
 	}
-	if aliasType(tp) {
-		aliasOf, fieldsTypes, err = parseAlias(tp)
-		return
-	}
-	// TODO Should check hasPkg()?
-	if structType(tp) {
-		aliasOf, fieldsTypes, _, err = parseStruct(tp, nil)
-		return
-	}
-	err = NewUnsupportedTypeError(tp.String())
-	return
-}
 
-// ParseStructWithTags accepts struct type (alias to struct is also a sturct).
-// For each struct field creates string representation of its type (fieldsTypes)
-// + with help of the TagParser cretes its properties (fieldsProps value).
-func ParseStructWithTags(tp reflect.Type, tagParser TagParser) (
-	fieldsTypes []string,
-	fieldsProps [][]any, err error,
-) {
-	if tp == nil {
-		err = NewUnsupportedTypeError("nil")
-		return
-	}
-	if !structType(tp) {
-		err = NewUnsupportedTypeError(tp.String())
-		return
-	}
-	_, fieldsTypes, fieldsProps, err = parseStruct(tp, tagParser)
-	return
-}
-
-// parseAlias tries to parse an alias type(not an alias to a struct).
-// Returns true on success.
-func parseAlias(tp reflect.Type) (aliasOf string, fieldsTypes []string,
-	err error) {
+	// parseAlias tries to parse an alias type(not an alias to a struct).
+func parseAlias(tp reflect.Type) (aliasOf string, err error) {
 	if primitiveType(tp) {
 		aliasOf = tp.Kind().String()
 	} else {
@@ -88,15 +53,14 @@ func parseAlias(tp reflect.Type) (aliasOf string, fieldsTypes []string,
 		case reflect.Map:
 			aliasOf, _, err = parseMapType("", tp, tp.PkgPath(), 0)
 		default:
-			err = NewUnsupportedTypeError(tp.String())
+			err = ErrUnsupportedType
 		}
 	}
 	return
 }
 
 // parseStruct tries to parse a struct type or an alias to struct type.
-func parseStruct(tp reflect.Type, tagParser TagParser) (aliasOf string,
-	fieldsTypes []string,
+func parseStruct(tp reflect.Type, tagParser TagParser) (fieldsTypes []string,
 	fieldsProps [][]any,
 	err error,
 ) {
@@ -116,6 +80,9 @@ func parseStruct(tp reflect.Type, tagParser TagParser) (aliasOf string,
 		}
 		if tagParser != nil {
 			fieldsProps[i], err = tagParser(tp, field, field.Tag)
+			if err != nil {
+				return
+			}
 		}
 		fieldsTypes = append(fieldsTypes, fieldType)
 	}
@@ -126,18 +93,14 @@ func parseStruct(tp reflect.Type, tagParser TagParser) (aliasOf string,
 // parsed recursively.
 // Translates a custom type to its name or package + name(if it's from
 // another package).
-// Adds a map number to the map type. In this case returns an incremented
+// Adds a "map number" to the map type. In this case returns an incremented
 // mapsCount.
 // All other types leaves untouched.
 func parseType(tp reflect.Type, currPkg string, mapsCount int) (tpStr string,
 	mapsCountOut int, err error) {
-	stars, tp, err := parsePtrType(tp)
-	if err != nil {
-		return
-	}
+	stars, tp := ParsePtrType(tp)
 	mapsCountOut = mapsCount
-	// TODO Do not types like struct{}{}?
-	if aliasType(tp) || structType(tp) {
+	if aliasType(tp) || definedStrucType(tp) {
 		if currPkg == tp.PkgPath() {
 			tpStr = stars + tp.Name()
 			return
@@ -158,13 +121,13 @@ func parseType(tp reflect.Type, currPkg string, mapsCount int) (tpStr string,
 	if tp.Kind() == reflect.Map {
 		return parseMapType(stars, tp, currPkg, mapsCount)
 	}
-	err = NewUnsupportedTypeError(tp.String())
+	err = ErrUnsupportedType
 	return
 }
 
-// parsePtrType returns pointer signs and an underlying type. If the underlying
+// ParsePtrType returns pointer signs and an underlying type. If the underlying
 // type is an alias to the pointer type returns an error.
-func parsePtrType(tp reflect.Type) (stars string, atp reflect.Type, err error) {
+func ParsePtrType(tp reflect.Type) (stars string, atp reflect.Type) {
 	atp = tp
 	for {
 		if !ptrType(atp) {
@@ -211,8 +174,8 @@ func parseMapType(stars string, tp reflect.Type, pkgPath string,
 	if err != nil {
 		return "", mapsCount, err
 	}
-	strMapsCount := strconv.Itoa(mapsCount)
-	tpStr = stars + "map-" + strMapsCount + "[" + keyTpStr + "]-" + strMapsCount +
+	mapsCountStr := strconv.Itoa(mapsCount)
+	tpStr = stars + "map-" + mapsCountStr + "[" + keyTpStr + "]-" + mapsCountStr +
 		elemTpStr
 	mapsCountOut = mapsCount + 1
 	return
@@ -222,8 +185,12 @@ func hasPkg(tp reflect.Type) bool {
 	return tp.PkgPath() != ""
 }
 
+func definedStrucType(tp reflect.Type) bool {
+	return hasPkg(tp) && strucType(tp)
+}
+
 // struct or alias to struct, also returns true for struct{}{}
-func structType(tp reflect.Type) bool {
+func strucType(tp reflect.Type) bool {
 	return tp.Kind() == reflect.Struct
 }
 
@@ -233,7 +200,7 @@ func interfaceType(tp reflect.Type) bool {
 
 // alias to primitive type, array, slice or map
 func aliasType(tp reflect.Type) bool {
-	return hasPkg(tp) && !structType(tp) && !interfaceType(tp)
+	return hasPkg(tp) && !strucType(tp) && !interfaceType(tp)
 }
 
 func primitiveType(tp reflect.Type) bool {
