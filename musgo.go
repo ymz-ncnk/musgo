@@ -30,7 +30,7 @@ type AliasConf struct {
 	KeyEncoding   string // if alias to map, sets encoding
 }
 
-var DefConf = Conf {Path: "."}
+var DefConf = Conf{Path: "."}
 
 // New creates a new MusGo.
 func New() (musGo MusGo, err error) {
@@ -89,7 +89,7 @@ func (musGo MusGo) GenerateAliasAs(tp reflect.Type, conf AliasConf) (
 	if aliasOf == "" {
 		return ErrNotAlias
 	}
-	tdesc, err := tdesc_builder.BuildForAlias(tp, aliasOf, 
+	tdesc, err := tdesc_builder.BuildForAlias(tp, aliasOf,
 		tdesc_builder.AliasConf{
 			Conf: tdesc_builder.Conf{
 				Unsafe: conf.Unsafe,
@@ -102,7 +102,7 @@ func (musGo MusGo) GenerateAliasAs(tp reflect.Type, conf AliasConf) (
 			ElemEncoding:  conf.ElemEncoding,
 			KeyValidator:  conf.KeyValidator,
 			KeyEncoding:   conf.KeyEncoding,
-	})
+		})
 	if err != nil {
 		return
 	}
