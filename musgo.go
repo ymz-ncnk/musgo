@@ -6,6 +6,7 @@ import (
 	"github.com/ymz-ncnk/musgen"
 	musgen_textmpl "github.com/ymz-ncnk/musgen/text_template"
 	"github.com/ymz-ncnk/musgo/parser"
+	persist "github.com/ymz-ncnk/musgo/persistor"
 	"github.com/ymz-ncnk/musgo/tdesc_builder"
 )
 
@@ -29,17 +30,19 @@ type AliasConf struct {
 	KeyEncoding   string // if alias to map, sets encoding
 }
 
+var DefConf = Conf {Path: "."}
+
 // New creates a new MusGo.
 func New() (musGo MusGo, err error) {
 	musGen, err := musgen_textmpl.New()
 	if err != nil {
 		return
 	}
-	return NewWith(musGen, NewHarDrivePersistor())
+	return NewWith(musGen, persist.NewHarDrivePersistor())
 }
 
 // NewWith creates a configurable MusGo.
-func NewWith(musGen musgen.MusGen, persistor Persistor) (musGo MusGo,
+func NewWith(musGen musgen.MusGen, persistor persist.Persistor) (musGo MusGo,
 	err error) {
 	return MusGo{musGen, persistor}, nil
 }
@@ -47,7 +50,7 @@ func NewWith(musGen musgen.MusGen, persistor Persistor) (musGo MusGo,
 // MusGo is a Go code generator for the MUS format.
 type MusGo struct {
 	musGen    musgen.MusGen
-	persistor Persistor
+	persistor persist.Persistor
 }
 
 // Generate accepts a struct or alias type. Returns an error if receives an
@@ -57,7 +60,7 @@ type MusGo struct {
 // Each of the struct field can have a tag:
 // mus:"Validator#raw,MaxLength,ElemValidator#raw,KeyValidator#raw"
 func (musGo MusGo) Generate(tp reflect.Type, unsafe bool) error {
-	conf := Conf{}
+	conf := DefConf
 	conf.Unsafe = unsafe
 	return musGo.GenerateAs(tp, conf)
 }

@@ -5,21 +5,29 @@ import (
 	"reflect"
 	"testing"
 
-	tdmg "github.com/ymz-ncnk/musgo/testdata/musgo"
+	"github.com/ymz-ncnk/musgo/persistor"
 )
 
 func TestMusGoIntegration(t *testing.T) {
+	type IntAlias int
+	dname, err := os.MkdirTemp("", "musgo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dname)
+
 	musGo, err := New()
 	if err != nil {
 		t.Fatal(err)
 	}
 	conf := Conf{}
-	conf.Path = "testdata/musgo"
-	err = musGo.GenerateAs(reflect.TypeOf((*tdmg.IntAlias)(nil)).Elem(), conf)
+	conf.Path = dname
+	err = musGo.GenerateAs(reflect.TypeOf((*IntAlias)(nil)).Elem(), conf)
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantPath := conf.Path
+	wantPath := conf.Path + string(os.PathSeparator) + "IntAlias" + "." +
+		persistor.FilenameExtenstion
 	if _, err := os.Stat(wantPath); err != nil {
 		t.Error("file was not generated")
 	}

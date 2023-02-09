@@ -1,5 +1,7 @@
-github.com/ymz-ncnk/musgen v1.0.1-0.20230207203502-0e9e91350b44 h1:BA9HFFE3lKaDVd262WEyJJ4755iSoB4cmE5dvUXuInI=
-github.com/ymz-ncnk/musgen v1.0.1-0.20230207203502-0e9e91350b44/go.mod h1:JYvz9lG+P1VZXaPtQV7RXqlgkiKEcWUbBDC2F4PNfBA=
+github.com/ymz-ncnk/amock v0.1.0 h1:OkH/ydxNf6ioO9r/YwohyBY+VBUwZ/cEleYUBhyhHQU=
+github.com/ymz-ncnk/amock v0.1.0/go.mod h1:JG4igTCkNaGDgTdnao/+pV6c3M1h0QVLdkQDHgE5Uhg=
+github.com/ymz-ncnk/musgen v1.0.1-0.20230209151842-7ffb11dfdd24 h1:KKqESMnhldEcIuigj/1gPO6KA2brG3Lwcj/gZinR5SE=
+github.com/ymz-ncnk/musgen v1.0.1-0.20230209151842-7ffb11dfdd24/go.mod h1:WE/gq5rhXcl/GxbMkYACfAW85jc2xYy7owT1kmfY7gU=
 golang.org/x/mod v0.7.0 h1:LapD9S96VoQRhi/GrNTqeBJFrUjs5UHCAtTlgwA5oZA=
 golang.org/x/mod v0.7.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/sys v0.4.0 h1:Zr2JFtRQNX3BCZ8YtxRE9hNJYC8J6I1MVbMg6owUp18=
