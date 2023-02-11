@@ -158,3 +158,15 @@ var ValidStringIntMapAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 		KeyValidator:  "StrIsHello",
 		Alias:         "ValidStringIntMapAlias"}},
 }
+
+type ValidPtrIntPtrIntMapAlias map[*int]*int
+
+var ValidPtrIntPtrIntMapAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+	Package: "musgen",
+	Name:    "ValidPtrIntPtrIntMapAlias",
+	Fields: []musgenmod.FieldDesc{{
+		Type:          "map-0[*int]-0*int",
+		ElemValidator: "NotNilInt",
+		KeyValidator:  "NotNilInt",
+		Alias:         "ValidPtrIntPtrIntMapAlias"}},
+}

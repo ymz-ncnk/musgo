@@ -10,6 +10,7 @@ var ErrArraySumBiggerThanTen = errors.New("array sum is bigger than ten")
 var ErrMapSumBiggerThanTen = errors.New("map sum is bigger than 10")
 var ErrStrIsHello = errors.New("string is hello")
 var ErrSimpleStructType = errors.New("invalid SimpleStructType")
+var ErrNil = errors.New("nil")
 
 func BiggerThanTenUint64(n uint64) error {
 	if n > 10 {
@@ -185,6 +186,20 @@ func ValidSimpleStructType(s SimpleStructType) error {
 func ValidSimpleStructPtrType(s *SimpleStructType) error {
 	if s.Int > 10 {
 		return ErrSimpleStructType
+	}
+	return nil
+}
+
+func NotNilInt(n *int) error {
+	if n == nil {
+		return ErrNil
+	}
+	return nil
+}
+
+func NotNilString(s *string) error {
+	if s == nil {
+		return ErrNil
 	}
 	return nil
 }

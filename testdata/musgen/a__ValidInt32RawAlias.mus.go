@@ -40,6 +40,8 @@ func (v *ValidInt32RawAlias) Unmarshal(buf []byte) (int, error) {
 			(*v) |= ValidInt32RawAlias(buf[i]) << 24
 			i++
 		}
+	}
+	if err == nil {
 		err = PositiveValidInt32AliasRaw(v)
 	}
 	return i, err

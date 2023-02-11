@@ -10,10 +10,6 @@ import (
 	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
 )
 
-// Can't do this. Can't generate methods for such type, error - invalid receiver
-//  'typename' (pointer or interface type).
-// type Uint64PtrAlias *uint64
-
 func TestPrimAlias(t *testing.T) {
 
 	t.Run("Uint64", func(t *testing.T) {

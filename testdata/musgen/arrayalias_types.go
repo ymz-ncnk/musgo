@@ -178,3 +178,14 @@ var ValidIntArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 		ElemValidator: "BiggerThanTenInt", Alias: "ValidIntArrayAlias",
 	}},
 }
+
+type ValidPtrIntArrayAlias [2]*int
+
+var ValidPtrIntArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+	Package: "musgen",
+	Name:    "ValidPtrIntArrayAlias",
+	Fields: []musgenmod.FieldDesc{{
+		Type:          "[2]*int",
+		ElemValidator: "NotNilInt", Alias: "ValidPtrIntArrayAlias",
+	}},
+}

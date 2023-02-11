@@ -55,29 +55,36 @@ func (v TrickyMapAlias) Marshal(buf []byte) int {
 					}
 				}
 				for ke, vl := range vl {
-					{
-						length := len((*ke))
+					if ke == nil {
+						buf[i] = 0
+						i++
+					} else {
+						buf[i] = 1
+						i++
 						{
-							uv := uint64(length)
-							if length < 0 {
-								uv = ^(uv << 1)
-							} else {
-								uv = uv << 1
-							}
+							length := len((*ke))
 							{
-								for uv >= 0x80 {
-									buf[i] = byte(uv) | 0x80
-									uv >>= 7
+								uv := uint64(length)
+								if length < 0 {
+									uv = ^(uv << 1)
+								} else {
+									uv = uv << 1
+								}
+								{
+									for uv >= 0x80 {
+										buf[i] = byte(uv) | 0x80
+										uv >>= 7
+										i++
+									}
+									buf[i] = byte(uv)
 									i++
 								}
-								buf[i] = byte(uv)
-								i++
 							}
-						}
-						for _, el := range *ke {
-							{
-								si := el.Marshal(buf[i:])
-								i += si
+							for _, el := range *ke {
+								{
+									si := el.Marshal(buf[i:])
+									i += si
+								}
 							}
 						}
 					}
@@ -101,29 +108,17 @@ func (v TrickyMapAlias) Marshal(buf []byte) int {
 							}
 						}
 						for ke, vl := range vl {
-							{
-								length := len((*ke))
+							if ke == nil {
+								buf[i] = 0
+								i++
+							} else {
+								buf[i] = 1
+								i++
 								{
-									uv := uint64(length)
-									if length < 0 {
-										uv = ^(uv << 1)
-									} else {
-										uv = uv << 1
-									}
+									length := len((*ke))
 									{
-										for uv >= 0x80 {
-											buf[i] = byte(uv) | 0x80
-											uv >>= 7
-											i++
-										}
-										buf[i] = byte(uv)
-										i++
-									}
-								}
-								for ke, vl := range *ke {
-									{
-										uv := uint64(ke)
-										if ke < 0 {
+										uv := uint64(length)
+										if length < 0 {
 											uv = ^(uv << 1)
 										} else {
 											uv = uv << 1
@@ -138,11 +133,10 @@ func (v TrickyMapAlias) Marshal(buf []byte) int {
 											i++
 										}
 									}
-									{
-										length := len(vl)
+									for ke, vl := range *ke {
 										{
-											uv := uint64(length)
-											if length < 0 {
+											uv := uint64(ke)
+											if ke < 0 {
 												uv = ^(uv << 1)
 											} else {
 												uv = uv << 1
@@ -157,10 +151,30 @@ func (v TrickyMapAlias) Marshal(buf []byte) int {
 												i++
 											}
 										}
-										if len(buf[i:]) < length {
-											panic(errs.ErrSmallBuf)
+										{
+											length := len(vl)
+											{
+												uv := uint64(length)
+												if length < 0 {
+													uv = ^(uv << 1)
+												} else {
+													uv = uv << 1
+												}
+												{
+													for uv >= 0x80 {
+														buf[i] = byte(uv) | 0x80
+														uv >>= 7
+														i++
+													}
+													buf[i] = byte(uv)
+													i++
+												}
+											}
+											if len(buf[i:]) < length {
+												panic(errs.ErrSmallBuf)
+											}
+											i += copy(buf[i:], vl)
 										}
-										i += copy(buf[i:], vl)
 									}
 								}
 							}
@@ -301,57 +315,66 @@ func (v *TrickyMapAlias) Unmarshal(buf []byte) (int, error) {
 				for ; length > 0; length-- {
 					kemm := new([]SimpleStructType)
 					var vlmm map[*map[int]string][2]int
-					{
-						var length int
+					if buf[i] == 0 {
+						i++
+						kemm = nil
+					} else if buf[i] != 1 {
+						i++
+						return i, errs.ErrWrongByte
+					} else {
+						i++
 						{
-							var uv uint64
+							var length int
 							{
-								if i > len(buf)-1 {
-									return i, errs.ErrSmallBuf
-								}
-								shift := 0
-								done := false
-								for l, b := range buf[i:] {
-									if l == 9 && b > 1 {
-										return i, errs.ErrOverflow
+								var uv uint64
+								{
+									if i > len(buf)-1 {
+										return i, errs.ErrSmallBuf
 									}
-									if b < 0x80 {
-										uv = uv | uint64(b)<<shift
-										done = true
-										i += l + 1
-										break
+									shift := 0
+									done := false
+									for l, b := range buf[i:] {
+										if l == 9 && b > 1 {
+											return i, errs.ErrOverflow
+										}
+										if b < 0x80 {
+											uv = uv | uint64(b)<<shift
+											done = true
+											i += l + 1
+											break
+										}
+										uv = uv | uint64(b&0x7F)<<shift
+										shift += 7
 									}
-									uv = uv | uint64(b&0x7F)<<shift
-									shift += 7
+									if !done {
+										return i, errs.ErrSmallBuf
+									}
 								}
-								if !done {
-									return i, errs.ErrSmallBuf
+								if uv&1 == 1 {
+									uv = ^(uv >> 1)
+								} else {
+									uv = uv >> 1
 								}
+								length = int(uv)
 							}
-							if uv&1 == 1 {
-								uv = ^(uv >> 1)
-							} else {
-								uv = uv >> 1
+							if length < 0 {
+								return i, errs.ErrNegativeLength
 							}
-							length = int(uv)
-						}
-						if length < 0 {
-							return i, errs.ErrNegativeLength
-						}
-						(*kemm) = make([]SimpleStructType, length)
-						for j := 0; j < length; j++ {
-							{
-								var sv SimpleStructType
-								si := 0
-								si, err = sv.Unmarshal(buf[i:])
-								if err == nil {
-									(*kemm)[j] = sv
-									i += si
+							(*kemm) = make([]SimpleStructType, length)
+							for j := 0; j < length; j++ {
+								{
+									var sv SimpleStructType
+									si := 0
+									si, err = sv.Unmarshal(buf[i:])
+									if err == nil {
+										(*kemm)[j] = sv
+										i += si
+									}
 								}
-							}
-							if err != nil {
-								err = errs.NewSliceError(j, err)
-								break
+								if err != nil {
+									err = errs.NewSliceError(j, err)
+									break
+								}
 							}
 						}
 					}
@@ -400,47 +423,16 @@ func (v *TrickyMapAlias) Unmarshal(buf []byte) (int, error) {
 						for ; length > 0; length-- {
 							kemmm := new(map[int]string)
 							var vlmmm [2]int
-							{
-								var length int
+							if buf[i] == 0 {
+								i++
+								kemmm = nil
+							} else if buf[i] != 1 {
+								i++
+								return i, errs.ErrWrongByte
+							} else {
+								i++
 								{
-									var uv uint64
-									{
-										if i > len(buf)-1 {
-											return i, errs.ErrSmallBuf
-										}
-										shift := 0
-										done := false
-										for l, b := range buf[i:] {
-											if l == 9 && b > 1 {
-												return i, errs.ErrOverflow
-											}
-											if b < 0x80 {
-												uv = uv | uint64(b)<<shift
-												done = true
-												i += l + 1
-												break
-											}
-											uv = uv | uint64(b&0x7F)<<shift
-											shift += 7
-										}
-										if !done {
-											return i, errs.ErrSmallBuf
-										}
-									}
-									if uv&1 == 1 {
-										uv = ^(uv >> 1)
-									} else {
-										uv = uv >> 1
-									}
-									length = int(uv)
-								}
-								if length < 0 {
-									return i, errs.ErrNegativeLength
-								}
-								(*kemmm) = make(map[int]string)
-								for ; length > 0; length-- {
-									var kemmmm int
-									var vlmmmm string
+									var length int
 									{
 										var uv uint64
 										{
@@ -471,14 +463,15 @@ func (v *TrickyMapAlias) Unmarshal(buf []byte) (int, error) {
 										} else {
 											uv = uv >> 1
 										}
-										kemmmm = int(uv)
+										length = int(uv)
 									}
-									if err != nil {
-										err = errs.NewMapKeyError(kemmmm, err)
-										break
+									if length < 0 {
+										return i, errs.ErrNegativeLength
 									}
-									{
-										var length int
+									(*kemmm) = make(map[int]string)
+									for ; length > 0; length-- {
+										var kemmmm int
+										var vlmmmm string
 										{
 											var uv uint64
 											{
@@ -509,22 +502,61 @@ func (v *TrickyMapAlias) Unmarshal(buf []byte) (int, error) {
 											} else {
 												uv = uv >> 1
 											}
-											length = int(uv)
+											kemmmm = int(uv)
 										}
-										if length < 0 {
-											return i, errs.ErrNegativeLength
+										if err != nil {
+											err = errs.NewMapKeyError(kemmmm, err)
+											break
 										}
-										if len(buf) < i+length {
-											return i, errs.ErrSmallBuf
+										{
+											var length int
+											{
+												var uv uint64
+												{
+													if i > len(buf)-1 {
+														return i, errs.ErrSmallBuf
+													}
+													shift := 0
+													done := false
+													for l, b := range buf[i:] {
+														if l == 9 && b > 1 {
+															return i, errs.ErrOverflow
+														}
+														if b < 0x80 {
+															uv = uv | uint64(b)<<shift
+															done = true
+															i += l + 1
+															break
+														}
+														uv = uv | uint64(b&0x7F)<<shift
+														shift += 7
+													}
+													if !done {
+														return i, errs.ErrSmallBuf
+													}
+												}
+												if uv&1 == 1 {
+													uv = ^(uv >> 1)
+												} else {
+													uv = uv >> 1
+												}
+												length = int(uv)
+											}
+											if length < 0 {
+												return i, errs.ErrNegativeLength
+											}
+											if len(buf) < i+length {
+												return i, errs.ErrSmallBuf
+											}
+											vlmmmm = string(buf[i : i+length])
+											i += length
 										}
-										vlmmmm = string(buf[i : i+length])
-										i += length
+										if err != nil {
+											err = errs.NewMapValueError(kemmmm, vlmmmm, err)
+											break
+										}
+										(*kemmm)[kemmmm] = vlmmmm
 									}
-									if err != nil {
-										err = errs.NewMapValueError(kemmmm, vlmmmm, err)
-										break
-									}
-									(*kemmm)[kemmmm] = vlmmmm
 								}
 							}
 							if err != nil {
@@ -632,22 +664,25 @@ func (v TrickyMapAlias) Size() int {
 					}
 				}
 				for ke, vl := range vl {
-					{
-						length := len((*ke))
+					size++
+					if ke != nil {
 						{
-							uv := uint64(length<<1) ^ uint64(length>>63)
+							length := len((*ke))
 							{
-								for uv >= 0x80 {
-									uv >>= 7
+								uv := uint64(length<<1) ^ uint64(length>>63)
+								{
+									for uv >= 0x80 {
+										uv >>= 7
+										size++
+									}
 									size++
 								}
-								size++
 							}
-						}
-						for _, el := range *ke {
-							{
-								ss := el.Size()
-								size += ss
+							for _, el := range *ke {
+								{
+									ss := el.Size()
+									size += ss
+								}
 							}
 						}
 					}
@@ -664,21 +699,12 @@ func (v TrickyMapAlias) Size() int {
 							}
 						}
 						for ke, vl := range vl {
-							{
-								length := len((*ke))
+							size++
+							if ke != nil {
 								{
-									uv := uint64(length<<1) ^ uint64(length>>63)
+									length := len((*ke))
 									{
-										for uv >= 0x80 {
-											uv >>= 7
-											size++
-										}
-										size++
-									}
-								}
-								for ke, vl := range *ke {
-									{
-										uv := uint64(ke<<1) ^ uint64(ke>>63)
+										uv := uint64(length<<1) ^ uint64(length>>63)
 										{
 											for uv >= 0x80 {
 												uv >>= 7
@@ -687,10 +713,9 @@ func (v TrickyMapAlias) Size() int {
 											size++
 										}
 									}
-									{
-										length := len(vl)
+									for ke, vl := range *ke {
 										{
-											uv := uint64(length<<1) ^ uint64(length>>63)
+											uv := uint64(ke<<1) ^ uint64(ke>>63)
 											{
 												for uv >= 0x80 {
 													uv >>= 7
@@ -699,7 +724,20 @@ func (v TrickyMapAlias) Size() int {
 												size++
 											}
 										}
-										size += len(vl)
+										{
+											length := len(vl)
+											{
+												uv := uint64(length<<1) ^ uint64(length>>63)
+												{
+													for uv >= 0x80 {
+														uv >>= 7
+														size++
+													}
+													size++
+												}
+											}
+											size += len(vl)
+										}
 									}
 								}
 							}

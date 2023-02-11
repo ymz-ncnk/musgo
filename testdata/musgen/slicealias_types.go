@@ -126,3 +126,14 @@ var ValidUintSliceAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 		ElemValidator: "BiggerThanTenUint",
 		Alias:         "ValidUintSliceAlias"}},
 }
+
+type ValidPtrStringSliceAlias []*string
+
+var ValidPtrStringSliceAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+	Package: "musgen",
+	Name:    "ValidPtrStringSliceAlias",
+	Fields: []musgenmod.FieldDesc{{
+		Type:          "[]*string",
+		ElemValidator: "NotNilString",
+		Alias:         "ValidPtrStringSliceAlias"}},
+}

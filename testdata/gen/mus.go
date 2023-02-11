@@ -104,6 +104,7 @@ func generateArrayAlias(unsafe bool) error {
 	allTypes = append(allTypes, tdmg.StrZeroLengthArrayAliasTypeDesc)
 	allTypes = append(allTypes, tdmg.IntPtrPtrPtrAliasArrayAliasTypeDesc)
 	allTypes = append(allTypes, tdmg.ValidIntArrayAliasTypeDesc)
+	allTypes = append(allTypes, tdmg.ValidPtrIntArrayAliasTypeDesc)
 
 	return generate(allTypes, folderName, unsafe)
 }
@@ -128,6 +129,7 @@ func generateSliceAlias(unsafe bool) error {
 	allTypes = append(allTypes, tdmg.StringAliasTypeDesc)
 	allTypes = append(allTypes, tdmg.TrickySliceAliasTypeDesc)
 	allTypes = append(allTypes, tdmg.ValidUintSliceAliasTypeDesc)
+	allTypes = append(allTypes, tdmg.ValidPtrStringSliceAliasTypeDesc)
 
 	return generate(allTypes, folderName, unsafe)
 }
@@ -151,6 +153,7 @@ func generateMapAlias(unsafe bool) error {
 	allTypes = append(allTypes, tdmg.StructTypePtrStructTypePtrMapAliasTypeDesc)
 	allTypes = append(allTypes, tdmg.TrickyMapAliasTypeDesc)
 	allTypes = append(allTypes, tdmg.ValidStringIntMapAliasTypeDesc)
+	allTypes = append(allTypes, tdmg.ValidPtrIntPtrIntMapAliasTypeDesc)
 
 	return generate(allTypes, folderName, unsafe)
 }

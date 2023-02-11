@@ -2,14 +2,10 @@
 
 package musgen
 
-import (
-	"math"
-
-	"github.com/ymz-ncnk/musgo/errs"
-)
+import "github.com/ymz-ncnk/musgo/errs"
 
 // Marshal fills buf with the MUS encoding of v.
-func (v FloatPtrArrayAlias) Marshal(buf []byte) int {
+func (v ValidPtrIntArrayAlias) Marshal(buf []byte) int {
 	i := 0
 	{
 		for _, item := range v {
@@ -20,10 +16,12 @@ func (v FloatPtrArrayAlias) Marshal(buf []byte) int {
 				buf[i] = 1
 				i++
 				{
-					uv := math.Float64bits(float64((*item)))
-					uv = (uv << 32) | (uv >> 32)
-					uv = ((uv << 16) & 0xFFFF0000FFFF0000) | ((uv >> 16) & 0x0000FFFF0000FFFF)
-					uv = ((uv << 8) & 0xFF00FF00FF00FF00) | ((uv >> 8) & 0x00FF00FF00FF00FF)
+					uv := uint64((*item))
+					if (*item) < 0 {
+						uv = ^(uv << 1)
+					} else {
+						uv = uv << 1
+					}
 					{
 						for uv >= 0x80 {
 							buf[i] = byte(uv) | 0x80
@@ -41,12 +39,12 @@ func (v FloatPtrArrayAlias) Marshal(buf []byte) int {
 }
 
 // Unmarshal parses the MUS-encoded buf, and sets the result to *v.
-func (v *FloatPtrArrayAlias) Unmarshal(buf []byte) (int, error) {
+func (v *ValidPtrIntArrayAlias) Unmarshal(buf []byte) (int, error) {
 	i := 0
 	var err error
 	{
-		for j := 0; j < 3; j++ {
-			(*v)[j] = new(float64)
+		for j := 0; j < 2; j++ {
+			(*v)[j] = new(int)
 			if buf[i] == 0 {
 				i++
 				(*v)[j] = nil
@@ -80,11 +78,16 @@ func (v *FloatPtrArrayAlias) Unmarshal(buf []byte) (int, error) {
 							return i, errs.ErrSmallBuf
 						}
 					}
-					uv = (uv << 32) | (uv >> 32)
-					uv = ((uv << 16) & 0xFFFF0000FFFF0000) | ((uv >> 16) & 0x0000FFFF0000FFFF)
-					uv = ((uv << 8) & 0xFF00FF00FF00FF00) | ((uv >> 8) & 0x00FF00FF00FF00FF)
-					(*(*v)[j]) = float64(math.Float64frombits(uv))
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
+					}
+					(*(*v)[j]) = int(uv)
 				}
+			}
+			if err == nil {
+				err = NotNilInt((*v)[j])
 			}
 			if err != nil {
 				err = errs.NewArrayError(j, err)
@@ -96,17 +99,14 @@ func (v *FloatPtrArrayAlias) Unmarshal(buf []byte) (int, error) {
 }
 
 // Size returns the size of the MUS-encoded v.
-func (v FloatPtrArrayAlias) Size() int {
+func (v ValidPtrIntArrayAlias) Size() int {
 	size := 0
 	{
 		for _, item := range v {
 			size++
 			if item != nil {
 				{
-					uv := math.Float64bits(float64((*item)))
-					uv = (uv << 32) | (uv >> 32)
-					uv = ((uv << 16) & 0xFFFF0000FFFF0000) | ((uv >> 16) & 0x0000FFFF0000FFFF)
-					uv = ((uv << 8) & 0xFF00FF00FF00FF00) | ((uv >> 8) & 0x00FF00FF00FF00FF)
+					uv := uint64((*item)<<1) ^ uint64((*item)>>63)
 					{
 						for uv >= 0x80 {
 							uv >>= 7

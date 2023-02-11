@@ -43,25 +43,39 @@ func (v StructType) Marshal(buf []byte) int {
 		buf[i] = byte(v.Uint64)
 		i++
 	}
-	{
-		tmp := (*v.UintPtr)
-		for tmp >= 0x80 {
-			buf[i] = byte(tmp) | 0x80
-			tmp >>= 7
+	if v.UintPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			tmp := (*v.UintPtr)
+			for tmp >= 0x80 {
+				buf[i] = byte(tmp) | 0x80
+				tmp >>= 7
+				i++
+			}
+			buf[i] = byte(tmp)
 			i++
 		}
-		buf[i] = byte(tmp)
-		i++
 	}
-	{
-		tmp := (***v.UintPtrPtrPtr)
-		for tmp >= 0x80 {
-			buf[i] = byte(tmp) | 0x80
-			tmp >>= 7
+	if v.UintPtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			tmp := (***v.UintPtrPtrPtr)
+			for tmp >= 0x80 {
+				buf[i] = byte(tmp) | 0x80
+				tmp >>= 7
+				i++
+			}
+			buf[i] = byte(tmp)
 			i++
 		}
-		buf[i] = byte(tmp)
-		i++
 	}
 	{
 		uv := uint64(v.Int)
@@ -135,38 +149,63 @@ func (v StructType) Marshal(buf []byte) int {
 			i++
 		}
 	}
-	{
-		uv := uint64((*v.IntPtr))
-		if (*v.IntPtr) < 0 {
-			uv = ^(uv << 1)
-		} else {
-			uv = uv << 1
-		}
+	if v.IntPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			for uv >= 0x80 {
-				buf[i] = byte(uv) | 0x80
-				uv >>= 7
+			uv := uint64((*v.IntPtr))
+			if (*v.IntPtr) < 0 {
+				uv = ^(uv << 1)
+			} else {
+				uv = uv << 1
+			}
+			{
+				for uv >= 0x80 {
+					buf[i] = byte(uv) | 0x80
+					uv >>= 7
+					i++
+				}
+				buf[i] = byte(uv)
 				i++
 			}
-			buf[i] = byte(uv)
-			i++
 		}
 	}
-	{
-		uv := uint64((***v.IntPtrPtrPtr))
-		if (***v.IntPtrPtrPtr) < 0 {
-			uv = ^(uv << 1)
-		} else {
-			uv = uv << 1
-		}
+	if v.IntPtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			for uv >= 0x80 {
-				buf[i] = byte(uv) | 0x80
-				uv >>= 7
+			uv := uint64((***v.IntPtrPtrPtr))
+			if (***v.IntPtrPtrPtr) < 0 {
+				uv = ^(uv << 1)
+			} else {
+				uv = uv << 1
+			}
+			{
+				for uv >= 0x80 {
+					buf[i] = byte(uv) | 0x80
+					uv >>= 7
+					i++
+				}
+				buf[i] = byte(uv)
 				i++
 			}
-			buf[i] = byte(uv)
-			i++
+		}
+	}
+	if v.IntAliasPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			si := (*v.IntAliasPtr).Marshal(buf[i:])
+			i += si
 		}
 	}
 	{
@@ -193,65 +232,93 @@ func (v StructType) Marshal(buf []byte) int {
 		}
 		i += copy(buf[i:], v.String)
 	}
-	{
-		length := len((*v.StringPtr))
+	if v.StringPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
+			length := len((*v.StringPtr))
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
+				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
+					buf[i] = byte(uv)
 					i++
 				}
-				buf[i] = byte(uv)
-				i++
 			}
+			if len(buf[i:]) < length {
+				panic(errs.ErrSmallBuf)
+			}
+			i += copy(buf[i:], (*v.StringPtr))
 		}
-		if len(buf[i:]) < length {
-			panic(errs.ErrSmallBuf)
-		}
-		i += copy(buf[i:], (*v.StringPtr))
 	}
-	{
-		length := len((***v.StringPtrPtrPtr))
+	if v.StringPtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
+			length := len((***v.StringPtrPtrPtr))
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
+				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
+					buf[i] = byte(uv)
 					i++
 				}
-				buf[i] = byte(uv)
-				i++
 			}
+			if len(buf[i:]) < length {
+				panic(errs.ErrSmallBuf)
+			}
+			i += copy(buf[i:], (***v.StringPtrPtrPtr))
 		}
-		if len(buf[i:]) < length {
-			panic(errs.ErrSmallBuf)
-		}
-		i += copy(buf[i:], (***v.StringPtrPtrPtr))
 	}
 	{
 		buf[i] = byte(v.Byte)
 		i++
 	}
-	{
-		buf[i] = byte((*v.BytePtr))
+	if v.BytePtr == nil {
+		buf[i] = 0
 		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			buf[i] = byte((*v.BytePtr))
+			i++
+		}
 	}
-	{
-		buf[i] = byte((***v.BytePtrPtrPtr))
+	if v.BytePtrPtrPtr == nil {
+		buf[i] = 0
 		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			buf[i] = byte((***v.BytePtrPtrPtr))
+			i++
+		}
 	}
 	{
 		if v.Bool {
@@ -261,21 +328,35 @@ func (v StructType) Marshal(buf []byte) int {
 		}
 		i++
 	}
-	{
-		if *v.BoolPtr {
-			buf[i] = 0x01
-		} else {
-			buf[i] = 0x00
-		}
+	if v.BoolPtr == nil {
+		buf[i] = 0
 		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			if *v.BoolPtr {
+				buf[i] = 0x01
+			} else {
+				buf[i] = 0x00
+			}
+			i++
+		}
 	}
-	{
-		if ***v.BoolPtrPtrPtr {
-			buf[i] = 0x01
-		} else {
-			buf[i] = 0x00
-		}
+	if v.BoolPtrPtrPtr == nil {
+		buf[i] = 0
 		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			if ***v.BoolPtrPtrPtr {
+				buf[i] = 0x01
+			} else {
+				buf[i] = 0x00
+			}
+			i++
+		}
 	}
 	{
 		length := len(v.Slice)
@@ -308,65 +389,79 @@ func (v StructType) Marshal(buf []byte) int {
 			}
 		}
 	}
-	{
-		length := len((*v.SlicePtr))
+	if v.SlicePtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
+			length := len((*v.SlicePtr))
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
+				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
+					buf[i] = byte(uv)
 					i++
 				}
-				buf[i] = byte(uv)
-				i++
 			}
-		}
-		for _, el := range *v.SlicePtr {
-			{
-				for el >= 0x80 {
-					buf[i] = byte(el) | 0x80
-					el >>= 7
+			for _, el := range *v.SlicePtr {
+				{
+					for el >= 0x80 {
+						buf[i] = byte(el) | 0x80
+						el >>= 7
+						i++
+					}
+					buf[i] = byte(el)
 					i++
 				}
-				buf[i] = byte(el)
-				i++
 			}
 		}
 	}
-	{
-		length := len((***v.SlicePtrPtrPtr))
+	if v.SlicePtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
+			length := len((***v.SlicePtrPtrPtr))
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
+				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
+					buf[i] = byte(uv)
 					i++
 				}
-				buf[i] = byte(uv)
-				i++
 			}
-		}
-		for _, el := range ***v.SlicePtrPtrPtr {
-			{
-				for el >= 0x80 {
-					buf[i] = byte(el) | 0x80
-					el >>= 7
+			for _, el := range ***v.SlicePtrPtrPtr {
+				{
+					for el >= 0x80 {
+						buf[i] = byte(el) | 0x80
+						el >>= 7
+						i++
+					}
+					buf[i] = byte(el)
 					i++
 				}
-				buf[i] = byte(el)
-				i++
 			}
 		}
 	}
@@ -391,44 +486,58 @@ func (v StructType) Marshal(buf []byte) int {
 			}
 		}
 	}
-	{
-		for _, item := range *v.ArrayPtr {
-			{
-				uv := uint32(item)
-				if item < 0 {
-					uv = ^(uv << 1)
-				} else {
-					uv = uv << 1
-				}
+	if v.ArrayPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			for _, item := range *v.ArrayPtr {
 				{
-					for uv >= 0x80 {
-						buf[i] = byte(uv) | 0x80
-						uv >>= 7
+					uv := uint32(item)
+					if item < 0 {
+						uv = ^(uv << 1)
+					} else {
+						uv = uv << 1
+					}
+					{
+						for uv >= 0x80 {
+							buf[i] = byte(uv) | 0x80
+							uv >>= 7
+							i++
+						}
+						buf[i] = byte(uv)
 						i++
 					}
-					buf[i] = byte(uv)
-					i++
 				}
 			}
 		}
 	}
-	{
-		for _, item := range ***v.ArrayPtrPtrPtr {
-			{
-				uv := uint32(item)
-				if item < 0 {
-					uv = ^(uv << 1)
-				} else {
-					uv = uv << 1
-				}
+	if v.ArrayPtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			for _, item := range ***v.ArrayPtrPtrPtr {
 				{
-					for uv >= 0x80 {
-						buf[i] = byte(uv) | 0x80
-						uv >>= 7
+					uv := uint32(item)
+					if item < 0 {
+						uv = ^(uv << 1)
+					} else {
+						uv = uv << 1
+					}
+					{
+						for uv >= 0x80 {
+							buf[i] = byte(uv) | 0x80
+							uv >>= 7
+							i++
+						}
+						buf[i] = byte(uv)
 						i++
 					}
-					buf[i] = byte(uv)
-					i++
 				}
 			}
 		}
@@ -496,31 +605,59 @@ func (v StructType) Marshal(buf []byte) int {
 			}
 		}
 	}
-	{
-		length := len((*v.MapPtr))
+	if v.MapPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
+			length := len((*v.MapPtr))
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
+				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
+					buf[i] = byte(uv)
 					i++
 				}
-				buf[i] = byte(uv)
-				i++
 			}
-		}
-		for ke, vl := range *v.MapPtr {
-			{
-				length := len(ke)
+			for ke, vl := range *v.MapPtr {
 				{
-					uv := uint64(length)
-					if length < 0 {
+					length := len(ke)
+					{
+						uv := uint64(length)
+						if length < 0 {
+							uv = ^(uv << 1)
+						} else {
+							uv = uv << 1
+						}
+						{
+							for uv >= 0x80 {
+								buf[i] = byte(uv) | 0x80
+								uv >>= 7
+								i++
+							}
+							buf[i] = byte(uv)
+							i++
+						}
+					}
+					if len(buf[i:]) < length {
+						panic(errs.ErrSmallBuf)
+					}
+					i += copy(buf[i:], ke)
+				}
+				{
+					uv := uint64(vl)
+					if vl < 0 {
 						uv = ^(uv << 1)
 					} else {
 						uv = uv << 1
@@ -534,56 +671,63 @@ func (v StructType) Marshal(buf []byte) int {
 						buf[i] = byte(uv)
 						i++
 					}
-				}
-				if len(buf[i:]) < length {
-					panic(errs.ErrSmallBuf)
-				}
-				i += copy(buf[i:], ke)
-			}
-			{
-				uv := uint64(vl)
-				if vl < 0 {
-					uv = ^(uv << 1)
-				} else {
-					uv = uv << 1
-				}
-				{
-					for uv >= 0x80 {
-						buf[i] = byte(uv) | 0x80
-						uv >>= 7
-						i++
-					}
-					buf[i] = byte(uv)
-					i++
 				}
 			}
 		}
 	}
-	{
-		length := len((***v.MapPtrPtrPtr))
+	if v.MapPtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
+			length := len((***v.MapPtrPtrPtr))
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
+				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
+					buf[i] = byte(uv)
 					i++
 				}
-				buf[i] = byte(uv)
-				i++
 			}
-		}
-		for ke, vl := range ***v.MapPtrPtrPtr {
-			{
-				length := len(ke)
+			for ke, vl := range ***v.MapPtrPtrPtr {
 				{
-					uv := uint64(length)
-					if length < 0 {
+					length := len(ke)
+					{
+						uv := uint64(length)
+						if length < 0 {
+							uv = ^(uv << 1)
+						} else {
+							uv = uv << 1
+						}
+						{
+							for uv >= 0x80 {
+								buf[i] = byte(uv) | 0x80
+								uv >>= 7
+								i++
+							}
+							buf[i] = byte(uv)
+							i++
+						}
+					}
+					if len(buf[i:]) < length {
+						panic(errs.ErrSmallBuf)
+					}
+					i += copy(buf[i:], ke)
+				}
+				{
+					uv := uint64(vl)
+					if vl < 0 {
 						uv = ^(uv << 1)
 					} else {
 						uv = uv << 1
@@ -597,27 +741,6 @@ func (v StructType) Marshal(buf []byte) int {
 						buf[i] = byte(uv)
 						i++
 					}
-				}
-				if len(buf[i:]) < length {
-					panic(errs.ErrSmallBuf)
-				}
-				i += copy(buf[i:], ke)
-			}
-			{
-				uv := uint64(vl)
-				if vl < 0 {
-					uv = ^(uv << 1)
-				} else {
-					uv = uv << 1
-				}
-				{
-					for uv >= 0x80 {
-						buf[i] = byte(uv) | 0x80
-						uv >>= 7
-						i++
-					}
-					buf[i] = byte(uv)
-					i++
 				}
 			}
 		}
@@ -626,13 +749,27 @@ func (v StructType) Marshal(buf []byte) int {
 		si := v.Struct.Marshal(buf[i:])
 		i += si
 	}
-	{
-		si := (*v.StructPtr).Marshal(buf[i:])
-		i += si
+	if v.StructPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			si := (*v.StructPtr).Marshal(buf[i:])
+			i += si
+		}
 	}
-	{
-		si := (***v.StructPtrPtrPtr).Marshal(buf[i:])
-		i += si
+	if v.StructPtrPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			si := (***v.StructPtrPtrPtr).Marshal(buf[i:])
+			i += si
+		}
 	}
 	{
 		for _, item := range v.Tricky {
@@ -834,27 +971,36 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Uint64", err)
 	}
 	v.UintPtr = new(uint)
-	{
-		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
-		}
-		shift := 0
-		done := false
-		for l, b := range buf[i:] {
-			if l == 9 && b > 1 {
-				return i, errs.ErrOverflow
+	if buf[i] == 0 {
+		i++
+		v.UintPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			if i > len(buf)-1 {
+				return i, errs.ErrSmallBuf
 			}
-			if b < 0x80 {
-				(*v.UintPtr) = (*v.UintPtr) | uint(b)<<shift
-				done = true
-				i += l + 1
-				break
+			shift := 0
+			done := false
+			for l, b := range buf[i:] {
+				if l == 9 && b > 1 {
+					return i, errs.ErrOverflow
+				}
+				if b < 0x80 {
+					(*v.UintPtr) = (*v.UintPtr) | uint(b)<<shift
+					done = true
+					i += l + 1
+					break
+				}
+				(*v.UintPtr) = (*v.UintPtr) | uint(b&0x7F)<<shift
+				shift += 7
 			}
-			(*v.UintPtr) = (*v.UintPtr) | uint(b&0x7F)<<shift
-			shift += 7
-		}
-		if !done {
-			return i, errs.ErrSmallBuf
+			if !done {
+				return i, errs.ErrSmallBuf
+			}
 		}
 	}
 	if err != nil {
@@ -865,27 +1011,36 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.UintPtrPtrPtr = &tmp1
 	}
-	{
-		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
-		}
-		shift := 0
-		done := false
-		for l, b := range buf[i:] {
-			if l == 9 && b > 1 {
-				return i, errs.ErrOverflow
+	if buf[i] == 0 {
+		i++
+		v.UintPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			if i > len(buf)-1 {
+				return i, errs.ErrSmallBuf
 			}
-			if b < 0x80 {
-				(***v.UintPtrPtrPtr) = (***v.UintPtrPtrPtr) | uint(b)<<shift
-				done = true
-				i += l + 1
-				break
+			shift := 0
+			done := false
+			for l, b := range buf[i:] {
+				if l == 9 && b > 1 {
+					return i, errs.ErrOverflow
+				}
+				if b < 0x80 {
+					(***v.UintPtrPtrPtr) = (***v.UintPtrPtrPtr) | uint(b)<<shift
+					done = true
+					i += l + 1
+					break
+				}
+				(***v.UintPtrPtrPtr) = (***v.UintPtrPtrPtr) | uint(b&0x7F)<<shift
+				shift += 7
 			}
-			(***v.UintPtrPtrPtr) = (***v.UintPtrPtrPtr) | uint(b&0x7F)<<shift
-			shift += 7
-		}
-		if !done {
-			return i, errs.ErrSmallBuf
+			if !done {
+				return i, errs.ErrSmallBuf
+			}
 		}
 	}
 	if err != nil {
@@ -1042,37 +1197,46 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Int64", err)
 	}
 	v.IntPtr = new(int)
-	{
-		var uv uint64
+	if buf[i] == 0 {
+		i++
+		v.IntPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
-			}
-			shift := 0
-			done := false
-			for l, b := range buf[i:] {
-				if l == 9 && b > 1 {
-					return i, errs.ErrOverflow
+			var uv uint64
+			{
+				if i > len(buf)-1 {
+					return i, errs.ErrSmallBuf
 				}
-				if b < 0x80 {
-					uv = uv | uint64(b)<<shift
-					done = true
-					i += l + 1
-					break
+				shift := 0
+				done := false
+				for l, b := range buf[i:] {
+					if l == 9 && b > 1 {
+						return i, errs.ErrOverflow
+					}
+					if b < 0x80 {
+						uv = uv | uint64(b)<<shift
+						done = true
+						i += l + 1
+						break
+					}
+					uv = uv | uint64(b&0x7F)<<shift
+					shift += 7
 				}
-				uv = uv | uint64(b&0x7F)<<shift
-				shift += 7
+				if !done {
+					return i, errs.ErrSmallBuf
+				}
 			}
-			if !done {
-				return i, errs.ErrSmallBuf
+			if uv&1 == 1 {
+				uv = ^(uv >> 1)
+			} else {
+				uv = uv >> 1
 			}
+			(*v.IntPtr) = int(uv)
 		}
-		if uv&1 == 1 {
-			uv = ^(uv >> 1)
-		} else {
-			uv = uv >> 1
-		}
-		(*v.IntPtr) = int(uv)
 	}
 	if err != nil {
 		return i, errs.NewFieldError("IntPtr", err)
@@ -1082,40 +1246,71 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.IntPtrPtrPtr = &tmp1
 	}
-	{
-		var uv uint64
+	if buf[i] == 0 {
+		i++
+		v.IntPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
-			}
-			shift := 0
-			done := false
-			for l, b := range buf[i:] {
-				if l == 9 && b > 1 {
-					return i, errs.ErrOverflow
+			var uv uint64
+			{
+				if i > len(buf)-1 {
+					return i, errs.ErrSmallBuf
 				}
-				if b < 0x80 {
-					uv = uv | uint64(b)<<shift
-					done = true
-					i += l + 1
-					break
+				shift := 0
+				done := false
+				for l, b := range buf[i:] {
+					if l == 9 && b > 1 {
+						return i, errs.ErrOverflow
+					}
+					if b < 0x80 {
+						uv = uv | uint64(b)<<shift
+						done = true
+						i += l + 1
+						break
+					}
+					uv = uv | uint64(b&0x7F)<<shift
+					shift += 7
 				}
-				uv = uv | uint64(b&0x7F)<<shift
-				shift += 7
+				if !done {
+					return i, errs.ErrSmallBuf
+				}
 			}
-			if !done {
-				return i, errs.ErrSmallBuf
+			if uv&1 == 1 {
+				uv = ^(uv >> 1)
+			} else {
+				uv = uv >> 1
 			}
+			(***v.IntPtrPtrPtr) = int(uv)
 		}
-		if uv&1 == 1 {
-			uv = ^(uv >> 1)
-		} else {
-			uv = uv >> 1
-		}
-		(***v.IntPtrPtrPtr) = int(uv)
 	}
 	if err != nil {
 		return i, errs.NewFieldError("IntPtrPtrPtr", err)
+	}
+	v.IntAliasPtr = new(IntAlias)
+	if buf[i] == 0 {
+		i++
+		v.IntAliasPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			var sv IntAlias
+			si := 0
+			si, err = sv.Unmarshal(buf[i:])
+			if err == nil {
+				(*v.IntAliasPtr) = sv
+				i += si
+			}
+		}
+	}
+	if err != nil {
+		return i, errs.NewFieldError("IntAliasPtr", err)
 	}
 	{
 		var length int
@@ -1164,48 +1359,57 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("String", err)
 	}
 	v.StringPtr = new(string)
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.StringPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
+			var length int
 			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+				var uv uint64
+				{
+					if i > len(buf)-1 {
+						return i, errs.ErrSmallBuf
 					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 9 && b > 1 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							uv = uv | uint64(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						uv = uv | uint64(b&0x7F)<<shift
+						shift += 7
 					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
+					if !done {
+						return i, errs.ErrSmallBuf
+					}
 				}
-				if !done {
-					return i, errs.ErrSmallBuf
+				if uv&1 == 1 {
+					uv = ^(uv >> 1)
+				} else {
+					uv = uv >> 1
 				}
+				length = int(uv)
 			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			length = int(uv)
+			if len(buf) < i+length {
+				return i, errs.ErrSmallBuf
+			}
+			(*v.StringPtr) = string(buf[i : i+length])
+			i += length
 		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		if len(buf) < i+length {
-			return i, errs.ErrSmallBuf
-		}
-		(*v.StringPtr) = string(buf[i : i+length])
-		i += length
 	}
 	if err != nil {
 		return i, errs.NewFieldError("StringPtr", err)
@@ -1215,48 +1419,57 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.StringPtrPtrPtr = &tmp1
 	}
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.StringPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
+			var length int
 			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+				var uv uint64
+				{
+					if i > len(buf)-1 {
+						return i, errs.ErrSmallBuf
 					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 9 && b > 1 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							uv = uv | uint64(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						uv = uv | uint64(b&0x7F)<<shift
+						shift += 7
 					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
+					if !done {
+						return i, errs.ErrSmallBuf
+					}
 				}
-				if !done {
-					return i, errs.ErrSmallBuf
+				if uv&1 == 1 {
+					uv = ^(uv >> 1)
+				} else {
+					uv = uv >> 1
 				}
+				length = int(uv)
 			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			length = int(uv)
+			if len(buf) < i+length {
+				return i, errs.ErrSmallBuf
+			}
+			(***v.StringPtrPtrPtr) = string(buf[i : i+length])
+			i += length
 		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		if len(buf) < i+length {
-			return i, errs.ErrSmallBuf
-		}
-		(***v.StringPtrPtrPtr) = string(buf[i : i+length])
-		i += length
 	}
 	if err != nil {
 		return i, errs.NewFieldError("StringPtrPtrPtr", err)
@@ -1272,12 +1485,21 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Byte", err)
 	}
 	v.BytePtr = new(uint8)
-	{
-		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
-		}
-		(*v.BytePtr) = uint8(buf[i])
+	if buf[i] == 0 {
 		i++
+		v.BytePtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			if i > len(buf)-1 {
+				return i, errs.ErrSmallBuf
+			}
+			(*v.BytePtr) = uint8(buf[i])
+			i++
+		}
 	}
 	if err != nil {
 		return i, errs.NewFieldError("BytePtr", err)
@@ -1287,12 +1509,21 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.BytePtrPtrPtr = &tmp1
 	}
-	{
-		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
-		}
-		(***v.BytePtrPtrPtr) = uint8(buf[i])
+	if buf[i] == 0 {
 		i++
+		v.BytePtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			if i > len(buf)-1 {
+				return i, errs.ErrSmallBuf
+			}
+			(***v.BytePtrPtrPtr) = uint8(buf[i])
+			i++
+		}
 	}
 	if err != nil {
 		return i, errs.NewFieldError("BytePtrPtrPtr", err)
@@ -1315,18 +1546,27 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Bool", err)
 	}
 	v.BoolPtr = new(bool)
-	{
-		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
-		}
-		if buf[i] == 0x01 {
-			(*v.BoolPtr) = true
-			i++
-		} else if buf[i] == 0x00 {
-			(*v.BoolPtr) = false
-			i++
-		} else {
-			err = errs.ErrWrongByte
+	if buf[i] == 0 {
+		i++
+		v.BoolPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			if i > len(buf)-1 {
+				return i, errs.ErrSmallBuf
+			}
+			if buf[i] == 0x01 {
+				(*v.BoolPtr) = true
+				i++
+			} else if buf[i] == 0x00 {
+				(*v.BoolPtr) = false
+				i++
+			} else {
+				err = errs.ErrWrongByte
+			}
 		}
 	}
 	if err != nil {
@@ -1337,18 +1577,27 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.BoolPtrPtrPtr = &tmp1
 	}
-	{
-		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
-		}
-		if buf[i] == 0x01 {
-			(***v.BoolPtrPtrPtr) = true
-			i++
-		} else if buf[i] == 0x00 {
-			(***v.BoolPtrPtrPtr) = false
-			i++
-		} else {
-			err = errs.ErrWrongByte
+	if buf[i] == 0 {
+		i++
+		v.BoolPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			if i > len(buf)-1 {
+				return i, errs.ErrSmallBuf
+			}
+			if buf[i] == 0x01 {
+				(***v.BoolPtrPtrPtr) = true
+				i++
+			} else if buf[i] == 0x00 {
+				(***v.BoolPtrPtrPtr) = false
+				i++
+			} else {
+				err = errs.ErrWrongByte
+			}
 		}
 	}
 	if err != nil {
@@ -1426,71 +1675,80 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Slice", err)
 	}
 	v.SlicePtr = new([]uint16)
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.SlicePtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
+			var length int
 			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+				var uv uint64
+				{
+					if i > len(buf)-1 {
+						return i, errs.ErrSmallBuf
 					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 9 && b > 1 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							uv = uv | uint64(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						uv = uv | uint64(b&0x7F)<<shift
+						shift += 7
 					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
+					if !done {
+						return i, errs.ErrSmallBuf
+					}
 				}
-				if !done {
-					return i, errs.ErrSmallBuf
+				if uv&1 == 1 {
+					uv = ^(uv >> 1)
+				} else {
+					uv = uv >> 1
 				}
+				length = int(uv)
 			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			length = int(uv)
-		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		(*v.SlicePtr) = make([]uint16, length)
-		for j := 0; j < length; j++ {
-			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 2 && b > 3 {
-						return i, errs.ErrOverflow
+			(*v.SlicePtr) = make([]uint16, length)
+			for j := 0; j < length; j++ {
+				{
+					if i > len(buf)-1 {
+						return i, errs.ErrSmallBuf
 					}
-					if b < 0x80 {
-						(*v.SlicePtr)[j] = (*v.SlicePtr)[j] | uint16(b)<<shift
-						done = true
-						i += l + 1
-						break
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 2 && b > 3 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							(*v.SlicePtr)[j] = (*v.SlicePtr)[j] | uint16(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						(*v.SlicePtr)[j] = (*v.SlicePtr)[j] | uint16(b&0x7F)<<shift
+						shift += 7
 					}
-					(*v.SlicePtr)[j] = (*v.SlicePtr)[j] | uint16(b&0x7F)<<shift
-					shift += 7
+					if !done {
+						return i, errs.ErrSmallBuf
+					}
 				}
-				if !done {
-					return i, errs.ErrSmallBuf
+				if err != nil {
+					err = errs.NewSliceError(j, err)
+					break
 				}
-			}
-			if err != nil {
-				err = errs.NewSliceError(j, err)
-				break
 			}
 		}
 	}
@@ -1502,71 +1760,80 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.SlicePtrPtrPtr = &tmp1
 	}
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.SlicePtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
+			var length int
 			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+				var uv uint64
+				{
+					if i > len(buf)-1 {
+						return i, errs.ErrSmallBuf
 					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 9 && b > 1 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							uv = uv | uint64(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						uv = uv | uint64(b&0x7F)<<shift
+						shift += 7
 					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
+					if !done {
+						return i, errs.ErrSmallBuf
+					}
 				}
-				if !done {
-					return i, errs.ErrSmallBuf
+				if uv&1 == 1 {
+					uv = ^(uv >> 1)
+				} else {
+					uv = uv >> 1
 				}
+				length = int(uv)
 			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			length = int(uv)
-		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		(***v.SlicePtrPtrPtr) = make([]uint16, length)
-		for j := 0; j < length; j++ {
-			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 2 && b > 3 {
-						return i, errs.ErrOverflow
+			(***v.SlicePtrPtrPtr) = make([]uint16, length)
+			for j := 0; j < length; j++ {
+				{
+					if i > len(buf)-1 {
+						return i, errs.ErrSmallBuf
 					}
-					if b < 0x80 {
-						(***v.SlicePtrPtrPtr)[j] = (***v.SlicePtrPtrPtr)[j] | uint16(b)<<shift
-						done = true
-						i += l + 1
-						break
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 2 && b > 3 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							(***v.SlicePtrPtrPtr)[j] = (***v.SlicePtrPtrPtr)[j] | uint16(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						(***v.SlicePtrPtrPtr)[j] = (***v.SlicePtrPtrPtr)[j] | uint16(b&0x7F)<<shift
+						shift += 7
 					}
-					(***v.SlicePtrPtrPtr)[j] = (***v.SlicePtrPtrPtr)[j] | uint16(b&0x7F)<<shift
-					shift += 7
+					if !done {
+						return i, errs.ErrSmallBuf
+					}
 				}
-				if !done {
-					return i, errs.ErrSmallBuf
+				if err != nil {
+					err = errs.NewSliceError(j, err)
+					break
 				}
-			}
-			if err != nil {
-				err = errs.NewSliceError(j, err)
-				break
 			}
 		}
 	}
@@ -1617,43 +1884,52 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Array", err)
 	}
 	v.ArrayPtr = new([2]int32)
-	{
-		for j := 0; j < 2; j++ {
-			{
-				var uv uint32
+	if buf[i] == 0 {
+		i++
+		v.ArrayPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			for j := 0; j < 2; j++ {
 				{
-					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
-					}
-					shift := 0
-					done := false
-					for l, b := range buf[i:] {
-						if l == 4 && b > 15 {
-							return i, errs.ErrOverflow
+					var uv uint32
+					{
+						if i > len(buf)-1 {
+							return i, errs.ErrSmallBuf
 						}
-						if b < 0x80 {
-							uv = uv | uint32(b)<<shift
-							done = true
-							i += l + 1
-							break
+						shift := 0
+						done := false
+						for l, b := range buf[i:] {
+							if l == 4 && b > 15 {
+								return i, errs.ErrOverflow
+							}
+							if b < 0x80 {
+								uv = uv | uint32(b)<<shift
+								done = true
+								i += l + 1
+								break
+							}
+							uv = uv | uint32(b&0x7F)<<shift
+							shift += 7
 						}
-						uv = uv | uint32(b&0x7F)<<shift
-						shift += 7
+						if !done {
+							return i, errs.ErrSmallBuf
+						}
 					}
-					if !done {
-						return i, errs.ErrSmallBuf
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
 					}
+					(*v.ArrayPtr)[j] = int32(uv)
 				}
-				if uv&1 == 1 {
-					uv = ^(uv >> 1)
-				} else {
-					uv = uv >> 1
+				if err != nil {
+					err = errs.NewArrayError(j, err)
+					break
 				}
-				(*v.ArrayPtr)[j] = int32(uv)
-			}
-			if err != nil {
-				err = errs.NewArrayError(j, err)
-				break
 			}
 		}
 	}
@@ -1665,43 +1941,52 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.ArrayPtrPtrPtr = &tmp1
 	}
-	{
-		for j := 0; j < 2; j++ {
-			{
-				var uv uint32
+	if buf[i] == 0 {
+		i++
+		v.ArrayPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			for j := 0; j < 2; j++ {
 				{
-					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
-					}
-					shift := 0
-					done := false
-					for l, b := range buf[i:] {
-						if l == 4 && b > 15 {
-							return i, errs.ErrOverflow
+					var uv uint32
+					{
+						if i > len(buf)-1 {
+							return i, errs.ErrSmallBuf
 						}
-						if b < 0x80 {
-							uv = uv | uint32(b)<<shift
-							done = true
-							i += l + 1
-							break
+						shift := 0
+						done := false
+						for l, b := range buf[i:] {
+							if l == 4 && b > 15 {
+								return i, errs.ErrOverflow
+							}
+							if b < 0x80 {
+								uv = uv | uint32(b)<<shift
+								done = true
+								i += l + 1
+								break
+							}
+							uv = uv | uint32(b&0x7F)<<shift
+							shift += 7
 						}
-						uv = uv | uint32(b&0x7F)<<shift
-						shift += 7
+						if !done {
+							return i, errs.ErrSmallBuf
+						}
 					}
-					if !done {
-						return i, errs.ErrSmallBuf
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
 					}
+					(***v.ArrayPtrPtrPtr)[j] = int32(uv)
 				}
-				if uv&1 == 1 {
-					uv = ^(uv >> 1)
-				} else {
-					uv = uv >> 1
+				if err != nil {
+					err = errs.NewArrayError(j, err)
+					break
 				}
-				(***v.ArrayPtrPtrPtr)[j] = int32(uv)
-			}
-			if err != nil {
-				err = errs.NewArrayError(j, err)
-				break
 			}
 		}
 	}
@@ -1839,94 +2124,16 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Map", err)
 	}
 	v.MapPtr = new(map[string]int)
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.MapPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
-			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
-					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
-					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
-				}
-				if !done {
-					return i, errs.ErrSmallBuf
-				}
-			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
-			}
-			length = int(uv)
-		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		(*v.MapPtr) = make(map[string]int)
-		for ; length > 0; length-- {
-			var kem string
-			var vlm int
-			{
-				var length int
-				{
-					var uv uint64
-					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
-						}
-						shift := 0
-						done := false
-						for l, b := range buf[i:] {
-							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
-							}
-							if b < 0x80 {
-								uv = uv | uint64(b)<<shift
-								done = true
-								i += l + 1
-								break
-							}
-							uv = uv | uint64(b&0x7F)<<shift
-							shift += 7
-						}
-						if !done {
-							return i, errs.ErrSmallBuf
-						}
-					}
-					if uv&1 == 1 {
-						uv = ^(uv >> 1)
-					} else {
-						uv = uv >> 1
-					}
-					length = int(uv)
-				}
-				if length < 0 {
-					return i, errs.ErrNegativeLength
-				}
-				if len(buf) < i+length {
-					return i, errs.ErrSmallBuf
-				}
-				kem = string(buf[i : i+length])
-				i += length
-			}
-			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
-				break
-			}
+			var length int
 			{
 				var uv uint64
 				{
@@ -1957,13 +2164,100 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				} else {
 					uv = uv >> 1
 				}
-				vlm = int(uv)
+				length = int(uv)
 			}
-			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
-				break
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			(*v.MapPtr)[kem] = vlm
+			(*v.MapPtr) = make(map[string]int)
+			for ; length > 0; length-- {
+				var kem string
+				var vlm int
+				{
+					var length int
+					{
+						var uv uint64
+						{
+							if i > len(buf)-1 {
+								return i, errs.ErrSmallBuf
+							}
+							shift := 0
+							done := false
+							for l, b := range buf[i:] {
+								if l == 9 && b > 1 {
+									return i, errs.ErrOverflow
+								}
+								if b < 0x80 {
+									uv = uv | uint64(b)<<shift
+									done = true
+									i += l + 1
+									break
+								}
+								uv = uv | uint64(b&0x7F)<<shift
+								shift += 7
+							}
+							if !done {
+								return i, errs.ErrSmallBuf
+							}
+						}
+						if uv&1 == 1 {
+							uv = ^(uv >> 1)
+						} else {
+							uv = uv >> 1
+						}
+						length = int(uv)
+					}
+					if length < 0 {
+						return i, errs.ErrNegativeLength
+					}
+					if len(buf) < i+length {
+						return i, errs.ErrSmallBuf
+					}
+					kem = string(buf[i : i+length])
+					i += length
+				}
+				if err != nil {
+					err = errs.NewMapKeyError(kem, err)
+					break
+				}
+				{
+					var uv uint64
+					{
+						if i > len(buf)-1 {
+							return i, errs.ErrSmallBuf
+						}
+						shift := 0
+						done := false
+						for l, b := range buf[i:] {
+							if l == 9 && b > 1 {
+								return i, errs.ErrOverflow
+							}
+							if b < 0x80 {
+								uv = uv | uint64(b)<<shift
+								done = true
+								i += l + 1
+								break
+							}
+							uv = uv | uint64(b&0x7F)<<shift
+							shift += 7
+						}
+						if !done {
+							return i, errs.ErrSmallBuf
+						}
+					}
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
+					}
+					vlm = int(uv)
+				}
+				if err != nil {
+					err = errs.NewMapValueError(kem, vlm, err)
+					break
+				}
+				(*v.MapPtr)[kem] = vlm
+			}
 		}
 	}
 	if err != nil {
@@ -1974,94 +2268,16 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.MapPtrPtrPtr = &tmp1
 	}
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.MapPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
-			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
-					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
-					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
-				}
-				if !done {
-					return i, errs.ErrSmallBuf
-				}
-			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
-			}
-			length = int(uv)
-		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		(***v.MapPtrPtrPtr) = make(map[string]int)
-		for ; length > 0; length-- {
-			var kem string
-			var vlm int
-			{
-				var length int
-				{
-					var uv uint64
-					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
-						}
-						shift := 0
-						done := false
-						for l, b := range buf[i:] {
-							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
-							}
-							if b < 0x80 {
-								uv = uv | uint64(b)<<shift
-								done = true
-								i += l + 1
-								break
-							}
-							uv = uv | uint64(b&0x7F)<<shift
-							shift += 7
-						}
-						if !done {
-							return i, errs.ErrSmallBuf
-						}
-					}
-					if uv&1 == 1 {
-						uv = ^(uv >> 1)
-					} else {
-						uv = uv >> 1
-					}
-					length = int(uv)
-				}
-				if length < 0 {
-					return i, errs.ErrNegativeLength
-				}
-				if len(buf) < i+length {
-					return i, errs.ErrSmallBuf
-				}
-				kem = string(buf[i : i+length])
-				i += length
-			}
-			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
-				break
-			}
+			var length int
 			{
 				var uv uint64
 				{
@@ -2092,13 +2308,100 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				} else {
 					uv = uv >> 1
 				}
-				vlm = int(uv)
+				length = int(uv)
 			}
-			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
-				break
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			(***v.MapPtrPtrPtr)[kem] = vlm
+			(***v.MapPtrPtrPtr) = make(map[string]int)
+			for ; length > 0; length-- {
+				var kem string
+				var vlm int
+				{
+					var length int
+					{
+						var uv uint64
+						{
+							if i > len(buf)-1 {
+								return i, errs.ErrSmallBuf
+							}
+							shift := 0
+							done := false
+							for l, b := range buf[i:] {
+								if l == 9 && b > 1 {
+									return i, errs.ErrOverflow
+								}
+								if b < 0x80 {
+									uv = uv | uint64(b)<<shift
+									done = true
+									i += l + 1
+									break
+								}
+								uv = uv | uint64(b&0x7F)<<shift
+								shift += 7
+							}
+							if !done {
+								return i, errs.ErrSmallBuf
+							}
+						}
+						if uv&1 == 1 {
+							uv = ^(uv >> 1)
+						} else {
+							uv = uv >> 1
+						}
+						length = int(uv)
+					}
+					if length < 0 {
+						return i, errs.ErrNegativeLength
+					}
+					if len(buf) < i+length {
+						return i, errs.ErrSmallBuf
+					}
+					kem = string(buf[i : i+length])
+					i += length
+				}
+				if err != nil {
+					err = errs.NewMapKeyError(kem, err)
+					break
+				}
+				{
+					var uv uint64
+					{
+						if i > len(buf)-1 {
+							return i, errs.ErrSmallBuf
+						}
+						shift := 0
+						done := false
+						for l, b := range buf[i:] {
+							if l == 9 && b > 1 {
+								return i, errs.ErrOverflow
+							}
+							if b < 0x80 {
+								uv = uv | uint64(b)<<shift
+								done = true
+								i += l + 1
+								break
+							}
+							uv = uv | uint64(b&0x7F)<<shift
+							shift += 7
+						}
+						if !done {
+							return i, errs.ErrSmallBuf
+						}
+					}
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
+					}
+					vlm = int(uv)
+				}
+				if err != nil {
+					err = errs.NewMapValueError(kem, vlm, err)
+					break
+				}
+				(***v.MapPtrPtrPtr)[kem] = vlm
+			}
 		}
 	}
 	if err != nil {
@@ -2117,13 +2420,22 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		return i, errs.NewFieldError("Struct", err)
 	}
 	v.StructPtr = new(SimpleStructType)
-	{
-		var sv SimpleStructType
-		si := 0
-		si, err = sv.Unmarshal(buf[i:])
-		if err == nil {
-			(*v.StructPtr) = sv
-			i += si
+	if buf[i] == 0 {
+		i++
+		v.StructPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			var sv SimpleStructType
+			si := 0
+			si, err = sv.Unmarshal(buf[i:])
+			if err == nil {
+				(*v.StructPtr) = sv
+				i += si
+			}
 		}
 	}
 	if err != nil {
@@ -2134,13 +2446,22 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		tmp1 := &tmp0
 		v.StructPtrPtrPtr = &tmp1
 	}
-	{
-		var sv SimpleStructType
-		si := 0
-		si, err = sv.Unmarshal(buf[i:])
-		if err == nil {
-			(***v.StructPtrPtrPtr) = sv
-			i += si
+	if buf[i] == 0 {
+		i++
+		v.StructPtrPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
+		{
+			var sv SimpleStructType
+			si := 0
+			si, err = sv.Unmarshal(buf[i:])
+			if err == nil {
+				(***v.StructPtrPtrPtr) = sv
+				i += si
+			}
 		}
 	}
 	if err != nil {
@@ -2372,21 +2693,27 @@ func (v StructType) Size() int {
 		}
 		size++
 	}
-	{
-		tmp := (*v.UintPtr)
-		for tmp >= 0x80 {
-			tmp >>= 7
+	size++
+	if v.UintPtr != nil {
+		{
+			tmp := (*v.UintPtr)
+			for tmp >= 0x80 {
+				tmp >>= 7
+				size++
+			}
 			size++
 		}
-		size++
 	}
-	{
-		tmp := (***v.UintPtrPtrPtr)
-		for tmp >= 0x80 {
-			tmp >>= 7
+	size++
+	if v.UintPtrPtrPtr != nil {
+		{
+			tmp := (***v.UintPtrPtrPtr)
+			for tmp >= 0x80 {
+				tmp >>= 7
+				size++
+			}
 			size++
 		}
-		size++
 	}
 	{
 		uv := uint64(v.Int<<1) ^ uint64(v.Int>>63)
@@ -2432,24 +2759,37 @@ func (v StructType) Size() int {
 			size++
 		}
 	}
-	{
-		uv := uint64((*v.IntPtr)<<1) ^ uint64((*v.IntPtr)>>63)
+	size++
+	if v.IntPtr != nil {
 		{
-			for uv >= 0x80 {
-				uv >>= 7
+			uv := uint64((*v.IntPtr)<<1) ^ uint64((*v.IntPtr)>>63)
+			{
+				for uv >= 0x80 {
+					uv >>= 7
+					size++
+				}
 				size++
 			}
-			size++
 		}
 	}
-	{
-		uv := uint64((***v.IntPtrPtrPtr)<<1) ^ uint64((***v.IntPtrPtrPtr)>>63)
+	size++
+	if v.IntPtrPtrPtr != nil {
 		{
-			for uv >= 0x80 {
-				uv >>= 7
+			uv := uint64((***v.IntPtrPtrPtr)<<1) ^ uint64((***v.IntPtrPtrPtr)>>63)
+			{
+				for uv >= 0x80 {
+					uv >>= 7
+					size++
+				}
 				size++
 			}
-			size++
+		}
+	}
+	size++
+	if v.IntAliasPtr != nil {
+		{
+			ss := (*v.IntAliasPtr).Size()
+			size += ss
 		}
 	}
 	{
@@ -2466,57 +2806,75 @@ func (v StructType) Size() int {
 		}
 		size += len(v.String)
 	}
-	{
-		length := len((*v.StringPtr))
+	size++
+	if v.StringPtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((*v.StringPtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
+			size += len((*v.StringPtr))
 		}
-		size += len((*v.StringPtr))
 	}
-	{
-		length := len((***v.StringPtrPtrPtr))
+	size++
+	if v.StringPtrPtrPtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((***v.StringPtrPtrPtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
+			size += len((***v.StringPtrPtrPtr))
 		}
-		size += len((***v.StringPtrPtrPtr))
 	}
 	{
 		_ = v.Byte
 		size++
 	}
-	{
-		_ = v.BytePtr
-		size++
+	size++
+	if v.BytePtr != nil {
+		{
+			_ = v.BytePtr
+			size++
+		}
 	}
-	{
-		_ = v.BytePtrPtrPtr
-		size++
+	size++
+	if v.BytePtrPtrPtr != nil {
+		{
+			_ = v.BytePtrPtrPtr
+			size++
+		}
 	}
 	{
 		_ = v.Bool
 		size++
 	}
-	{
-		_ = v.BoolPtr
-		size++
+	size++
+	if v.BoolPtr != nil {
+		{
+			_ = v.BoolPtr
+			size++
+		}
 	}
-	{
-		_ = v.BoolPtrPtrPtr
-		size++
+	size++
+	if v.BoolPtrPtrPtr != nil {
+		{
+			_ = v.BoolPtrPtrPtr
+			size++
+		}
 	}
 	{
 		length := len(v.Slice)
@@ -2540,47 +2898,53 @@ func (v StructType) Size() int {
 			}
 		}
 	}
-	{
-		length := len((*v.SlicePtr))
+	size++
+	if v.SlicePtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((*v.SlicePtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
-		}
-		for _, el := range *v.SlicePtr {
-			{
-				for el >= 0x80 {
-					el >>= 7
+			for _, el := range *v.SlicePtr {
+				{
+					for el >= 0x80 {
+						el >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
 		}
 	}
-	{
-		length := len((***v.SlicePtrPtrPtr))
+	size++
+	if v.SlicePtrPtrPtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((***v.SlicePtrPtrPtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
-		}
-		for _, el := range ***v.SlicePtrPtrPtr {
-			{
-				for el >= 0x80 {
-					el >>= 7
+			for _, el := range ***v.SlicePtrPtrPtr {
+				{
+					for el >= 0x80 {
+						el >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
 		}
 	}
@@ -2598,30 +2962,36 @@ func (v StructType) Size() int {
 			}
 		}
 	}
-	{
-		for _, item := range *v.ArrayPtr {
-			{
-				uv := uint32(item<<1) ^ uint32(item>>31)
+	size++
+	if v.ArrayPtr != nil {
+		{
+			for _, item := range *v.ArrayPtr {
 				{
-					for uv >= 0x80 {
-						uv >>= 7
+					uv := uint32(item<<1) ^ uint32(item>>31)
+					{
+						for uv >= 0x80 {
+							uv >>= 7
+							size++
+						}
 						size++
 					}
-					size++
 				}
 			}
 		}
 	}
-	{
-		for _, item := range ***v.ArrayPtrPtrPtr {
-			{
-				uv := uint32(item<<1) ^ uint32(item>>31)
+	size++
+	if v.ArrayPtrPtrPtr != nil {
+		{
+			for _, item := range ***v.ArrayPtrPtrPtr {
 				{
-					for uv >= 0x80 {
-						uv >>= 7
+					uv := uint32(item<<1) ^ uint32(item>>31)
+					{
+						for uv >= 0x80 {
+							uv >>= 7
+							size++
+						}
 						size++
 					}
-					size++
 				}
 			}
 		}
@@ -2665,23 +3035,37 @@ func (v StructType) Size() int {
 			}
 		}
 	}
-	{
-		length := len((*v.MapPtr))
+	size++
+	if v.MapPtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((*v.MapPtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
-		}
-		for ke, vl := range *v.MapPtr {
-			{
-				length := len(ke)
+			for ke, vl := range *v.MapPtr {
 				{
-					uv := uint64(length<<1) ^ uint64(length>>63)
+					length := len(ke)
+					{
+						uv := uint64(length<<1) ^ uint64(length>>63)
+						{
+							for uv >= 0x80 {
+								uv >>= 7
+								size++
+							}
+							size++
+						}
+					}
+					size += len(ke)
+				}
+				{
+					uv := uint64(vl<<1) ^ uint64(vl>>63)
 					{
 						for uv >= 0x80 {
 							uv >>= 7
@@ -2689,38 +3073,41 @@ func (v StructType) Size() int {
 						}
 						size++
 					}
-				}
-				size += len(ke)
-			}
-			{
-				uv := uint64(vl<<1) ^ uint64(vl>>63)
-				{
-					for uv >= 0x80 {
-						uv >>= 7
-						size++
-					}
-					size++
 				}
 			}
 		}
 	}
-	{
-		length := len((***v.MapPtrPtrPtr))
+	size++
+	if v.MapPtrPtrPtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((***v.MapPtrPtrPtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
-				size++
 			}
-		}
-		for ke, vl := range ***v.MapPtrPtrPtr {
-			{
-				length := len(ke)
+			for ke, vl := range ***v.MapPtrPtrPtr {
 				{
-					uv := uint64(length<<1) ^ uint64(length>>63)
+					length := len(ke)
+					{
+						uv := uint64(length<<1) ^ uint64(length>>63)
+						{
+							for uv >= 0x80 {
+								uv >>= 7
+								size++
+							}
+							size++
+						}
+					}
+					size += len(ke)
+				}
+				{
+					uv := uint64(vl<<1) ^ uint64(vl>>63)
 					{
 						for uv >= 0x80 {
 							uv >>= 7
@@ -2728,17 +3115,6 @@ func (v StructType) Size() int {
 						}
 						size++
 					}
-				}
-				size += len(ke)
-			}
-			{
-				uv := uint64(vl<<1) ^ uint64(vl>>63)
-				{
-					for uv >= 0x80 {
-						uv >>= 7
-						size++
-					}
-					size++
 				}
 			}
 		}
@@ -2747,13 +3123,19 @@ func (v StructType) Size() int {
 		ss := v.Struct.Size()
 		size += ss
 	}
-	{
-		ss := (*v.StructPtr).Size()
-		size += ss
+	size++
+	if v.StructPtr != nil {
+		{
+			ss := (*v.StructPtr).Size()
+			size += ss
+		}
 	}
-	{
-		ss := (***v.StructPtrPtrPtr).Size()
-		size += ss
+	size++
+	if v.StructPtrPtrPtr != nil {
+		{
+			ss := (***v.StructPtrPtrPtr).Size()
+			size += ss
+		}
 	}
 	{
 		for _, item := range v.Tricky {

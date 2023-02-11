@@ -36,29 +36,17 @@ func (v UintIntStringMapPtrMapAlias) Marshal(buf []byte) int {
 				buf[i] = byte(ke)
 				i++
 			}
-			{
-				length := len((*vl))
+			if vl == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
 				{
-					uv := uint64(length)
-					if length < 0 {
-						uv = ^(uv << 1)
-					} else {
-						uv = uv << 1
-					}
+					length := len((*vl))
 					{
-						for uv >= 0x80 {
-							buf[i] = byte(uv) | 0x80
-							uv >>= 7
-							i++
-						}
-						buf[i] = byte(uv)
-						i++
-					}
-				}
-				for ke, vl := range *vl {
-					{
-						uv := uint64(ke)
-						if ke < 0 {
+						uv := uint64(length)
+						if length < 0 {
 							uv = ^(uv << 1)
 						} else {
 							uv = uv << 1
@@ -73,11 +61,10 @@ func (v UintIntStringMapPtrMapAlias) Marshal(buf []byte) int {
 							i++
 						}
 					}
-					{
-						length := len(vl)
+					for ke, vl := range *vl {
 						{
-							uv := uint64(length)
-							if length < 0 {
+							uv := uint64(ke)
+							if ke < 0 {
 								uv = ^(uv << 1)
 							} else {
 								uv = uv << 1
@@ -92,10 +79,30 @@ func (v UintIntStringMapPtrMapAlias) Marshal(buf []byte) int {
 								i++
 							}
 						}
-						if len(buf[i:]) < length {
-							panic(errs.ErrSmallBuf)
+						{
+							length := len(vl)
+							{
+								uv := uint64(length)
+								if length < 0 {
+									uv = ^(uv << 1)
+								} else {
+									uv = uv << 1
+								}
+								{
+									for uv >= 0x80 {
+										buf[i] = byte(uv) | 0x80
+										uv >>= 7
+										i++
+									}
+									buf[i] = byte(uv)
+									i++
+								}
+							}
+							if len(buf[i:]) < length {
+								panic(errs.ErrSmallBuf)
+							}
+							i += copy(buf[i:], vl)
 						}
-						i += copy(buf[i:], vl)
 					}
 				}
 			}
@@ -176,47 +183,16 @@ func (v *UintIntStringMapPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				err = errs.NewMapKeyError(kem, err)
 				break
 			}
-			{
-				var length int
+			if buf[i] == 0 {
+				i++
+				vlm = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
 				{
-					var uv uint64
-					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
-						}
-						shift := 0
-						done := false
-						for l, b := range buf[i:] {
-							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
-							}
-							if b < 0x80 {
-								uv = uv | uint64(b)<<shift
-								done = true
-								i += l + 1
-								break
-							}
-							uv = uv | uint64(b&0x7F)<<shift
-							shift += 7
-						}
-						if !done {
-							return i, errs.ErrSmallBuf
-						}
-					}
-					if uv&1 == 1 {
-						uv = ^(uv >> 1)
-					} else {
-						uv = uv >> 1
-					}
-					length = int(uv)
-				}
-				if length < 0 {
-					return i, errs.ErrNegativeLength
-				}
-				(*vlm) = make(map[int]string)
-				for ; length > 0; length-- {
-					var kemm int
-					var vlmm string
+					var length int
 					{
 						var uv uint64
 						{
@@ -247,14 +223,15 @@ func (v *UintIntStringMapPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 						} else {
 							uv = uv >> 1
 						}
-						kemm = int(uv)
+						length = int(uv)
 					}
-					if err != nil {
-						err = errs.NewMapKeyError(kemm, err)
-						break
+					if length < 0 {
+						return i, errs.ErrNegativeLength
 					}
-					{
-						var length int
+					(*vlm) = make(map[int]string)
+					for ; length > 0; length-- {
+						var kemm int
+						var vlmm string
 						{
 							var uv uint64
 							{
@@ -285,22 +262,61 @@ func (v *UintIntStringMapPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 							} else {
 								uv = uv >> 1
 							}
-							length = int(uv)
+							kemm = int(uv)
 						}
-						if length < 0 {
-							return i, errs.ErrNegativeLength
+						if err != nil {
+							err = errs.NewMapKeyError(kemm, err)
+							break
 						}
-						if len(buf) < i+length {
-							return i, errs.ErrSmallBuf
+						{
+							var length int
+							{
+								var uv uint64
+								{
+									if i > len(buf)-1 {
+										return i, errs.ErrSmallBuf
+									}
+									shift := 0
+									done := false
+									for l, b := range buf[i:] {
+										if l == 9 && b > 1 {
+											return i, errs.ErrOverflow
+										}
+										if b < 0x80 {
+											uv = uv | uint64(b)<<shift
+											done = true
+											i += l + 1
+											break
+										}
+										uv = uv | uint64(b&0x7F)<<shift
+										shift += 7
+									}
+									if !done {
+										return i, errs.ErrSmallBuf
+									}
+								}
+								if uv&1 == 1 {
+									uv = ^(uv >> 1)
+								} else {
+									uv = uv >> 1
+								}
+								length = int(uv)
+							}
+							if length < 0 {
+								return i, errs.ErrNegativeLength
+							}
+							if len(buf) < i+length {
+								return i, errs.ErrSmallBuf
+							}
+							vlmm = string(buf[i : i+length])
+							i += length
 						}
-						vlmm = string(buf[i : i+length])
-						i += length
+						if err != nil {
+							err = errs.NewMapValueError(kemm, vlmm, err)
+							break
+						}
+						(*vlm)[kemm] = vlmm
 					}
-					if err != nil {
-						err = errs.NewMapValueError(kemm, vlmm, err)
-						break
-					}
-					(*vlm)[kemm] = vlmm
 				}
 			}
 			if err != nil {
@@ -336,21 +352,12 @@ func (v UintIntStringMapPtrMapAlias) Size() int {
 				}
 				size++
 			}
-			{
-				length := len((*vl))
+			size++
+			if vl != nil {
 				{
-					uv := uint64(length<<1) ^ uint64(length>>63)
+					length := len((*vl))
 					{
-						for uv >= 0x80 {
-							uv >>= 7
-							size++
-						}
-						size++
-					}
-				}
-				for ke, vl := range *vl {
-					{
-						uv := uint64(ke<<1) ^ uint64(ke>>63)
+						uv := uint64(length<<1) ^ uint64(length>>63)
 						{
 							for uv >= 0x80 {
 								uv >>= 7
@@ -359,10 +366,9 @@ func (v UintIntStringMapPtrMapAlias) Size() int {
 							size++
 						}
 					}
-					{
-						length := len(vl)
+					for ke, vl := range *vl {
 						{
-							uv := uint64(length<<1) ^ uint64(length>>63)
+							uv := uint64(ke<<1) ^ uint64(ke>>63)
 							{
 								for uv >= 0x80 {
 									uv >>= 7
@@ -371,7 +377,20 @@ func (v UintIntStringMapPtrMapAlias) Size() int {
 								size++
 							}
 						}
-						size += len(vl)
+						{
+							length := len(vl)
+							{
+								uv := uint64(length<<1) ^ uint64(length>>63)
+								{
+									for uv >= 0x80 {
+										uv >>= 7
+										size++
+									}
+									size++
+								}
+							}
+							size += len(vl)
+						}
 					}
 				}
 			}

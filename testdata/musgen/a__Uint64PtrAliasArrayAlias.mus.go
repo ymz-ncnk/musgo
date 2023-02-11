@@ -9,9 +9,16 @@ func (v Uint64PtrAliasArrayAlias) Marshal(buf []byte) int {
 	i := 0
 	{
 		for _, item := range v {
-			{
-				si := (*item).Marshal(buf[i:])
-				i += si
+			if item == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					si := (*item).Marshal(buf[i:])
+					i += si
+				}
 			}
 		}
 	}
@@ -25,13 +32,22 @@ func (v *Uint64PtrAliasArrayAlias) Unmarshal(buf []byte) (int, error) {
 	{
 		for j := 0; j < 3; j++ {
 			(*v)[j] = new(Uint64Alias)
-			{
-				var sv Uint64Alias
-				si := 0
-				si, err = sv.Unmarshal(buf[i:])
-				if err == nil {
-					(*(*v)[j]) = sv
-					i += si
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					var sv Uint64Alias
+					si := 0
+					si, err = sv.Unmarshal(buf[i:])
+					if err == nil {
+						(*(*v)[j]) = sv
+						i += si
+					}
 				}
 			}
 			if err != nil {
@@ -48,9 +64,12 @@ func (v Uint64PtrAliasArrayAlias) Size() int {
 	size := 0
 	{
 		for _, item := range v {
-			{
-				ss := (*item).Size()
-				size += ss
+			size++
+			if item != nil {
+				{
+					ss := (*item).Size()
+					size += ss
+				}
 			}
 		}
 	}

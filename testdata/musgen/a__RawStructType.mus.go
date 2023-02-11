@@ -42,73 +42,101 @@ func (v RawStructType) Marshal(buf []byte) int {
 			i++
 		}
 	}
-	{
+	if v.IntRawPtrPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
 		{
-			buf[i] = byte((**v.IntRawPtrPtr))
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 8)
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 16)
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 24)
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 32)
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 40)
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 48)
-			i++
-			buf[i] = byte((**v.IntRawPtrPtr) >> 56)
-			i++
-		}
-	}
-	{
-		length := len((*v.MapRawPtr))
-		{
-			uv := uint64(length)
-			if length < 0 {
-				uv = ^(uv << 1)
-			} else {
-				uv = uv << 1
-			}
 			{
-				for uv >= 0x80 {
-					buf[i] = byte(uv) | 0x80
-					uv >>= 7
-					i++
-				}
-				buf[i] = byte(uv)
+				buf[i] = byte((**v.IntRawPtrPtr))
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 8)
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 16)
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 24)
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 32)
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 40)
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 48)
+				i++
+				buf[i] = byte((**v.IntRawPtrPtr) >> 56)
 				i++
 			}
 		}
-		for ke, vl := range *v.MapRawPtr {
+	}
+	if v.MapRawPtr == nil {
+		buf[i] = 0
+		i++
+	} else {
+		buf[i] = 1
+		i++
+		{
+			length := len((*v.MapRawPtr))
 			{
-				uv := math.Float64bits(float64((*ke)))
+				uv := uint64(length)
+				if length < 0 {
+					uv = ^(uv << 1)
+				} else {
+					uv = uv << 1
+				}
 				{
+					for uv >= 0x80 {
+						buf[i] = byte(uv) | 0x80
+						uv >>= 7
+						i++
+					}
 					buf[i] = byte(uv)
-					i++
-					buf[i] = byte(uv >> 8)
-					i++
-					buf[i] = byte(uv >> 16)
-					i++
-					buf[i] = byte(uv >> 24)
-					i++
-					buf[i] = byte(uv >> 32)
-					i++
-					buf[i] = byte(uv >> 40)
-					i++
-					buf[i] = byte(uv >> 48)
-					i++
-					buf[i] = byte(uv >> 56)
 					i++
 				}
 			}
-			{
-				{
-					buf[i] = byte((*vl))
+			for ke, vl := range *v.MapRawPtr {
+				if ke == nil {
+					buf[i] = 0
 					i++
-					buf[i] = byte((*vl) >> 8)
+				} else {
+					buf[i] = 1
 					i++
+					{
+						uv := math.Float64bits(float64((*ke)))
+						{
+							buf[i] = byte(uv)
+							i++
+							buf[i] = byte(uv >> 8)
+							i++
+							buf[i] = byte(uv >> 16)
+							i++
+							buf[i] = byte(uv >> 24)
+							i++
+							buf[i] = byte(uv >> 32)
+							i++
+							buf[i] = byte(uv >> 40)
+							i++
+							buf[i] = byte(uv >> 48)
+							i++
+							buf[i] = byte(uv >> 56)
+							i++
+						}
+					}
+				}
+				if vl == nil {
+					buf[i] = 0
+					i++
+				} else {
+					buf[i] = 1
+					i++
+					{
+						{
+							buf[i] = byte((*vl))
+							i++
+							buf[i] = byte((*vl) >> 8)
+							i++
+						}
+					}
 				}
 			}
 		}
@@ -180,6 +208,8 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		i++
 		v.UintRaw |= uint(buf[i]) << 56
 		i++
+	}
+	if err == nil {
 		err = BiggerThanTenUint(v.UintRaw)
 	}
 	if err != nil {
@@ -209,120 +239,158 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		tmp0 := new(int)
 		v.IntRawPtrPtr = &tmp0
 	}
-	{
+	if buf[i] == 0 {
+		i++
+		v.IntRawPtrPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			if len(buf) < 8 {
-				return i, errs.ErrSmallBuf
+			{
+				if len(buf) < 8 {
+					return i, errs.ErrSmallBuf
+				}
+				(**v.IntRawPtrPtr) = int(buf[i])
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 8
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 16
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 24
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 32
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 40
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 48
+				i++
+				(**v.IntRawPtrPtr) |= int(buf[i]) << 56
+				i++
 			}
-			(**v.IntRawPtrPtr) = int(buf[i])
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 8
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 16
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 24
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 32
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 40
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 48
-			i++
-			(**v.IntRawPtrPtr) |= int(buf[i]) << 56
-			i++
 		}
 	}
 	if err != nil {
 		return i, errs.NewFieldError("IntRawPtrPtr", err)
 	}
 	v.MapRawPtr = new(map[*float64]*int16)
-	{
-		var length int
+	if buf[i] == 0 {
+		i++
+		v.MapRawPtr = nil
+	} else if buf[i] != 1 {
+		i++
+		return i, errs.ErrWrongByte
+	} else {
+		i++
 		{
-			var uv uint64
-			{
-				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
-				}
-				shift := 0
-				done := false
-				for l, b := range buf[i:] {
-					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
-					}
-					if b < 0x80 {
-						uv = uv | uint64(b)<<shift
-						done = true
-						i += l + 1
-						break
-					}
-					uv = uv | uint64(b&0x7F)<<shift
-					shift += 7
-				}
-				if !done {
-					return i, errs.ErrSmallBuf
-				}
-			}
-			if uv&1 == 1 {
-				uv = ^(uv >> 1)
-			} else {
-				uv = uv >> 1
-			}
-			length = int(uv)
-		}
-		if length < 0 {
-			return i, errs.ErrNegativeLength
-		}
-		(*v.MapRawPtr) = make(map[*float64]*int16)
-		for ; length > 0; length-- {
-			kem := new(float64)
-			vlm := new(int16)
+			var length int
 			{
 				var uv uint64
 				{
-					if len(buf) < 8 {
+					if i > len(buf)-1 {
 						return i, errs.ErrSmallBuf
 					}
-					uv = uint64(buf[i])
-					i++
-					uv |= uint64(buf[i]) << 8
-					i++
-					uv |= uint64(buf[i]) << 16
-					i++
-					uv |= uint64(buf[i]) << 24
-					i++
-					uv |= uint64(buf[i]) << 32
-					i++
-					uv |= uint64(buf[i]) << 40
-					i++
-					uv |= uint64(buf[i]) << 48
-					i++
-					uv |= uint64(buf[i]) << 56
-					i++
-				}
-				(*kem) = float64(math.Float64frombits(uv))
-			}
-			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
-				break
-			}
-			{
-				{
-					if len(buf) < 2 {
+					shift := 0
+					done := false
+					for l, b := range buf[i:] {
+						if l == 9 && b > 1 {
+							return i, errs.ErrOverflow
+						}
+						if b < 0x80 {
+							uv = uv | uint64(b)<<shift
+							done = true
+							i += l + 1
+							break
+						}
+						uv = uv | uint64(b&0x7F)<<shift
+						shift += 7
+					}
+					if !done {
 						return i, errs.ErrSmallBuf
 					}
-					(*vlm) = int16(buf[i])
-					i++
-					(*vlm) |= int16(buf[i]) << 8
-					i++
 				}
-				err = BiggerThanTenInt16Ptr(vlm)
+				if uv&1 == 1 {
+					uv = ^(uv >> 1)
+				} else {
+					uv = uv >> 1
+				}
+				length = int(uv)
 			}
-			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
-				break
+			if length < 0 {
+				return i, errs.ErrNegativeLength
 			}
-			(*v.MapRawPtr)[kem] = vlm
+			(*v.MapRawPtr) = make(map[*float64]*int16)
+			for ; length > 0; length-- {
+				kem := new(float64)
+				vlm := new(int16)
+				if buf[i] == 0 {
+					i++
+					kem = nil
+				} else if buf[i] != 1 {
+					i++
+					return i, errs.ErrWrongByte
+				} else {
+					i++
+					{
+						var uv uint64
+						{
+							if len(buf) < 8 {
+								return i, errs.ErrSmallBuf
+							}
+							uv = uint64(buf[i])
+							i++
+							uv |= uint64(buf[i]) << 8
+							i++
+							uv |= uint64(buf[i]) << 16
+							i++
+							uv |= uint64(buf[i]) << 24
+							i++
+							uv |= uint64(buf[i]) << 32
+							i++
+							uv |= uint64(buf[i]) << 40
+							i++
+							uv |= uint64(buf[i]) << 48
+							i++
+							uv |= uint64(buf[i]) << 56
+							i++
+						}
+						(*kem) = float64(math.Float64frombits(uv))
+					}
+				}
+				if err != nil {
+					err = errs.NewMapKeyError(kem, err)
+					break
+				}
+				if buf[i] == 0 {
+					i++
+					vlm = nil
+				} else if buf[i] != 1 {
+					i++
+					return i, errs.ErrWrongByte
+				} else {
+					i++
+					{
+						{
+							if len(buf) < 2 {
+								return i, errs.ErrSmallBuf
+							}
+							(*vlm) = int16(buf[i])
+							i++
+							(*vlm) |= int16(buf[i]) << 8
+							i++
+						}
+					}
+				}
+				if err == nil {
+					err = BiggerThanTenInt16Ptr(vlm)
+				}
+				if err != nil {
+					err = errs.NewMapValueError(kem, vlm, err)
+					break
+				}
+				(*v.MapRawPtr)[kem] = vlm
+			}
 		}
 	}
 	if err != nil {
@@ -387,6 +455,8 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 				i++
 				v.SliceRaw[j] |= uint(buf[i]) << 56
 				i++
+			}
+			if err == nil {
 				err = BiggerThanTenUint(v.SliceRaw[j])
 			}
 			if err != nil {
@@ -414,35 +484,47 @@ func (v RawStructType) Size() int {
 			size += 4
 		}
 	}
-	{
+	size++
+	if v.IntRawPtrPtr != nil {
 		{
-			_ = (**v.IntRawPtrPtr)
-			size += 8
+			{
+				_ = (**v.IntRawPtrPtr)
+				size += 8
+			}
 		}
 	}
-	{
-		length := len((*v.MapRawPtr))
+	size++
+	if v.MapRawPtr != nil {
 		{
-			uv := uint64(length<<1) ^ uint64(length>>63)
+			length := len((*v.MapRawPtr))
 			{
-				for uv >= 0x80 {
-					uv >>= 7
+				uv := uint64(length<<1) ^ uint64(length>>63)
+				{
+					for uv >= 0x80 {
+						uv >>= 7
+						size++
+					}
 					size++
 				}
+			}
+			for ke, vl := range *v.MapRawPtr {
 				size++
-			}
-		}
-		for ke, vl := range *v.MapRawPtr {
-			{
-				{
-					_ = (*ke)
-					size += 8
+				if ke != nil {
+					{
+						{
+							_ = (*ke)
+							size += 8
+						}
+					}
 				}
-			}
-			{
-				{
-					_ = (*vl)
-					size += 2
+				size++
+				if vl != nil {
+					{
+						{
+							_ = (*vl)
+							size += 2
+						}
+					}
 				}
 			}
 		}

@@ -31,20 +31,27 @@ func (v FloatArrayPtrSliceAlias) Marshal(buf []byte) int {
 			}
 		}
 		for _, el := range v {
-			{
-				for _, item := range *el {
-					{
-						uv := math.Float32bits(float32(item))
-						uv = (uv << 16) | (uv >> 16)
-						uv = ((uv << 8) & 0xFF00FF00) | ((uv >> 8) & 0x00FF00FF)
+			if el == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					for _, item := range *el {
 						{
-							for uv >= 0x80 {
-								buf[i] = byte(uv) | 0x80
-								uv >>= 7
+							uv := math.Float32bits(float32(item))
+							uv = (uv << 16) | (uv >> 16)
+							uv = ((uv << 8) & 0xFF00FF00) | ((uv >> 8) & 0x00FF00FF)
+							{
+								for uv >= 0x80 {
+									buf[i] = byte(uv) | 0x80
+									uv >>= 7
+									i++
+								}
+								buf[i] = byte(uv)
 								i++
 							}
-							buf[i] = byte(uv)
-							i++
 						}
 					}
 				}
@@ -98,40 +105,49 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 		(*v) = make([]*[2]float32, length)
 		for j := 0; j < length; j++ {
 			(*v)[j] = new([2]float32)
-			{
-				for jj := 0; jj < 2; jj++ {
-					{
-						var uv uint32
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					for jj := 0; jj < 2; jj++ {
 						{
-							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
-							}
-							shift := 0
-							done := false
-							for l, b := range buf[i:] {
-								if l == 4 && b > 15 {
-									return i, errs.ErrOverflow
+							var uv uint32
+							{
+								if i > len(buf)-1 {
+									return i, errs.ErrSmallBuf
 								}
-								if b < 0x80 {
-									uv = uv | uint32(b)<<shift
-									done = true
-									i += l + 1
-									break
+								shift := 0
+								done := false
+								for l, b := range buf[i:] {
+									if l == 4 && b > 15 {
+										return i, errs.ErrOverflow
+									}
+									if b < 0x80 {
+										uv = uv | uint32(b)<<shift
+										done = true
+										i += l + 1
+										break
+									}
+									uv = uv | uint32(b&0x7F)<<shift
+									shift += 7
 								}
-								uv = uv | uint32(b&0x7F)<<shift
-								shift += 7
+								if !done {
+									return i, errs.ErrSmallBuf
+								}
 							}
-							if !done {
-								return i, errs.ErrSmallBuf
-							}
+							uv = (uv << 16) | (uv >> 16)
+							uv = ((uv << 8) & 0xFF00FF00) | ((uv >> 8) & 0x00FF00FF)
+							(*(*v)[j])[jj] = float32(math.Float32frombits(uv))
 						}
-						uv = (uv << 16) | (uv >> 16)
-						uv = ((uv << 8) & 0xFF00FF00) | ((uv >> 8) & 0x00FF00FF)
-						(*(*v)[j])[jj] = float32(math.Float32frombits(uv))
-					}
-					if err != nil {
-						err = errs.NewArrayError(jj, err)
-						break
+						if err != nil {
+							err = errs.NewArrayError(jj, err)
+							break
+						}
 					}
 				}
 			}
@@ -160,18 +176,21 @@ func (v FloatArrayPtrSliceAlias) Size() int {
 			}
 		}
 		for _, el := range v {
-			{
-				for _, item := range *el {
-					{
-						uv := math.Float32bits(float32(item))
-						uv = (uv << 16) | (uv >> 16)
-						uv = ((uv << 8) & 0xFF00FF00) | ((uv >> 8) & 0x00FF00FF)
+			size++
+			if el != nil {
+				{
+					for _, item := range *el {
 						{
-							for uv >= 0x80 {
-								uv >>= 7
+							uv := math.Float32bits(float32(item))
+							uv = (uv << 16) | (uv >> 16)
+							uv = ((uv << 8) & 0xFF00FF00) | ((uv >> 8) & 0x00FF00FF)
+							{
+								for uv >= 0x80 {
+									uv >>= 7
+									size++
+								}
 								size++
 							}
-							size++
 						}
 					}
 				}

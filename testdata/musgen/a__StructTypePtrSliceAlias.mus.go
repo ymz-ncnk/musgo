@@ -27,9 +27,16 @@ func (v StructTypePtrSliceAlias) Marshal(buf []byte) int {
 			}
 		}
 		for _, el := range v {
-			{
-				si := (*el).Marshal(buf[i:])
-				i += si
+			if el == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					si := (*el).Marshal(buf[i:])
+					i += si
+				}
 			}
 		}
 	}
@@ -80,13 +87,22 @@ func (v *StructTypePtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 		(*v) = make([]*SimpleStructType, length)
 		for j := 0; j < length; j++ {
 			(*v)[j] = new(SimpleStructType)
-			{
-				var sv SimpleStructType
-				si := 0
-				si, err = sv.Unmarshal(buf[i:])
-				if err == nil {
-					(*(*v)[j]) = sv
-					i += si
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					var sv SimpleStructType
+					si := 0
+					si, err = sv.Unmarshal(buf[i:])
+					if err == nil {
+						(*(*v)[j]) = sv
+						i += si
+					}
 				}
 			}
 			if err != nil {
@@ -114,9 +130,12 @@ func (v StructTypePtrSliceAlias) Size() int {
 			}
 		}
 		for _, el := range v {
-			{
-				ss := (*el).Size()
-				size += ss
+			size++
+			if el != nil {
+				{
+					ss := (*el).Size()
+					size += ss
+				}
 			}
 		}
 	}

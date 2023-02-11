@@ -45,16 +45,23 @@ func (v Float32Uint32ArrayPtrMapAlias) Marshal(buf []byte) int {
 					i++
 				}
 			}
-			{
-				for _, item := range *vl {
-					{
-						for item >= 0x80 {
-							buf[i] = byte(item) | 0x80
-							item >>= 7
+			if vl == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					for _, item := range *vl {
+						{
+							for item >= 0x80 {
+								buf[i] = byte(item) | 0x80
+								item >>= 7
+								i++
+							}
+							buf[i] = byte(item)
 							i++
 						}
-						buf[i] = byte(item)
-						i++
 					}
 				}
 			}
@@ -141,34 +148,43 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				err = errs.NewMapKeyError(kem, err)
 				break
 			}
-			{
-				for j := 0; j < 2; j++ {
-					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
-						}
-						shift := 0
-						done := false
-						for l, b := range buf[i:] {
-							if l == 4 && b > 15 {
-								return i, errs.ErrOverflow
+			if buf[i] == 0 {
+				i++
+				vlm = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					for j := 0; j < 2; j++ {
+						{
+							if i > len(buf)-1 {
+								return i, errs.ErrSmallBuf
 							}
-							if b < 0x80 {
-								(*vlm)[j] = (*vlm)[j] | uint32(b)<<shift
-								done = true
-								i += l + 1
-								break
+							shift := 0
+							done := false
+							for l, b := range buf[i:] {
+								if l == 4 && b > 15 {
+									return i, errs.ErrOverflow
+								}
+								if b < 0x80 {
+									(*vlm)[j] = (*vlm)[j] | uint32(b)<<shift
+									done = true
+									i += l + 1
+									break
+								}
+								(*vlm)[j] = (*vlm)[j] | uint32(b&0x7F)<<shift
+								shift += 7
 							}
-							(*vlm)[j] = (*vlm)[j] | uint32(b&0x7F)<<shift
-							shift += 7
+							if !done {
+								return i, errs.ErrSmallBuf
+							}
 						}
-						if !done {
-							return i, errs.ErrSmallBuf
+						if err != nil {
+							err = errs.NewArrayError(j, err)
+							break
 						}
-					}
-					if err != nil {
-						err = errs.NewArrayError(j, err)
-						break
 					}
 				}
 			}
@@ -210,14 +226,17 @@ func (v Float32Uint32ArrayPtrMapAlias) Size() int {
 					size++
 				}
 			}
-			{
-				for _, item := range *vl {
-					{
-						for item >= 0x80 {
-							item >>= 7
+			size++
+			if vl != nil {
+				{
+					for _, item := range *vl {
+						{
+							for item >= 0x80 {
+								item >>= 7
+								size++
+							}
 							size++
 						}
-						size++
 					}
 				}
 			}

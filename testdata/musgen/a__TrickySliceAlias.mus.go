@@ -49,29 +49,36 @@ func (v TrickySliceAlias) Marshal(buf []byte) int {
 							}
 						}
 						for ke, vl := range item {
-							{
-								length := len((*ke))
+							if ke == nil {
+								buf[i] = 0
+								i++
+							} else {
+								buf[i] = 1
+								i++
 								{
-									uv := uint64(length)
-									if length < 0 {
-										uv = ^(uv << 1)
-									} else {
-										uv = uv << 1
-									}
+									length := len((*ke))
 									{
-										for uv >= 0x80 {
-											buf[i] = byte(uv) | 0x80
-											uv >>= 7
+										uv := uint64(length)
+										if length < 0 {
+											uv = ^(uv << 1)
+										} else {
+											uv = uv << 1
+										}
+										{
+											for uv >= 0x80 {
+												buf[i] = byte(uv) | 0x80
+												uv >>= 7
+												i++
+											}
+											buf[i] = byte(uv)
 											i++
 										}
-										buf[i] = byte(uv)
-										i++
 									}
-								}
-								for _, el := range *ke {
-									{
-										si := el.Marshal(buf[i:])
-										i += si
+									for _, el := range *ke {
+										{
+											si := el.Marshal(buf[i:])
+											i += si
+										}
 									}
 								}
 							}
@@ -235,57 +242,66 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 						for ; length > 0; length-- {
 							kem := new([]StringAlias)
 							var vlm map[SimpleStructType][]int
-							{
-								var length int
+							if buf[i] == 0 {
+								i++
+								kem = nil
+							} else if buf[i] != 1 {
+								i++
+								return i, errs.ErrWrongByte
+							} else {
+								i++
 								{
-									var uv uint64
+									var length int
 									{
-										if i > len(buf)-1 {
-											return i, errs.ErrSmallBuf
-										}
-										shift := 0
-										done := false
-										for l, b := range buf[i:] {
-											if l == 9 && b > 1 {
-												return i, errs.ErrOverflow
+										var uv uint64
+										{
+											if i > len(buf)-1 {
+												return i, errs.ErrSmallBuf
 											}
-											if b < 0x80 {
-												uv = uv | uint64(b)<<shift
-												done = true
-												i += l + 1
-												break
+											shift := 0
+											done := false
+											for l, b := range buf[i:] {
+												if l == 9 && b > 1 {
+													return i, errs.ErrOverflow
+												}
+												if b < 0x80 {
+													uv = uv | uint64(b)<<shift
+													done = true
+													i += l + 1
+													break
+												}
+												uv = uv | uint64(b&0x7F)<<shift
+												shift += 7
 											}
-											uv = uv | uint64(b&0x7F)<<shift
-											shift += 7
+											if !done {
+												return i, errs.ErrSmallBuf
+											}
 										}
-										if !done {
-											return i, errs.ErrSmallBuf
+										if uv&1 == 1 {
+											uv = ^(uv >> 1)
+										} else {
+											uv = uv >> 1
 										}
+										length = int(uv)
 									}
-									if uv&1 == 1 {
-										uv = ^(uv >> 1)
-									} else {
-										uv = uv >> 1
+									if length < 0 {
+										return i, errs.ErrNegativeLength
 									}
-									length = int(uv)
-								}
-								if length < 0 {
-									return i, errs.ErrNegativeLength
-								}
-								(*kem) = make([]StringAlias, length)
-								for j := 0; j < length; j++ {
-									{
-										var sv StringAlias
-										si := 0
-										si, err = sv.Unmarshal(buf[i:])
-										if err == nil {
-											(*kem)[j] = sv
-											i += si
+									(*kem) = make([]StringAlias, length)
+									for j := 0; j < length; j++ {
+										{
+											var sv StringAlias
+											si := 0
+											si, err = sv.Unmarshal(buf[i:])
+											if err == nil {
+												(*kem)[j] = sv
+												i += si
+											}
 										}
-									}
-									if err != nil {
-										err = errs.NewSliceError(j, err)
-										break
+										if err != nil {
+											err = errs.NewSliceError(j, err)
+											break
+										}
 									}
 								}
 							}
@@ -484,22 +500,25 @@ func (v TrickySliceAlias) Size() int {
 							}
 						}
 						for ke, vl := range item {
-							{
-								length := len((*ke))
+							size++
+							if ke != nil {
 								{
-									uv := uint64(length<<1) ^ uint64(length>>63)
+									length := len((*ke))
 									{
-										for uv >= 0x80 {
-											uv >>= 7
+										uv := uint64(length<<1) ^ uint64(length>>63)
+										{
+											for uv >= 0x80 {
+												uv >>= 7
+												size++
+											}
 											size++
 										}
-										size++
 									}
-								}
-								for _, el := range *ke {
-									{
-										ss := el.Size()
-										size += ss
+									for _, el := range *ke {
+										{
+											ss := el.Size()
+											size += ss
+										}
 									}
 								}
 							}

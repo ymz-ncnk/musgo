@@ -9,21 +9,28 @@ func (v IntPtrPtrPtrAliasArrayAlias) Marshal(buf []byte) int {
 	i := 0
 	{
 		for _, item := range v {
-			{
-				uv := uint64((***item))
-				if (***item) < 0 {
-					uv = ^(uv << 1)
-				} else {
-					uv = uv << 1
-				}
+			if item == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
 				{
-					for uv >= 0x80 {
-						buf[i] = byte(uv) | 0x80
-						uv >>= 7
+					uv := uint64((***item))
+					if (***item) < 0 {
+						uv = ^(uv << 1)
+					} else {
+						uv = uv << 1
+					}
+					{
+						for uv >= 0x80 {
+							buf[i] = byte(uv) | 0x80
+							uv >>= 7
+							i++
+						}
+						buf[i] = byte(uv)
 						i++
 					}
-					buf[i] = byte(uv)
-					i++
 				}
 			}
 		}
@@ -42,37 +49,46 @@ func (v *IntPtrPtrPtrAliasArrayAlias) Unmarshal(buf []byte) (int, error) {
 				tmp1 := &tmp0
 				(*v)[j] = &tmp1
 			}
-			{
-				var uv uint64
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
 				{
-					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
-					}
-					shift := 0
-					done := false
-					for l, b := range buf[i:] {
-						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+					var uv uint64
+					{
+						if i > len(buf)-1 {
+							return i, errs.ErrSmallBuf
 						}
-						if b < 0x80 {
-							uv = uv | uint64(b)<<shift
-							done = true
-							i += l + 1
-							break
+						shift := 0
+						done := false
+						for l, b := range buf[i:] {
+							if l == 9 && b > 1 {
+								return i, errs.ErrOverflow
+							}
+							if b < 0x80 {
+								uv = uv | uint64(b)<<shift
+								done = true
+								i += l + 1
+								break
+							}
+							uv = uv | uint64(b&0x7F)<<shift
+							shift += 7
 						}
-						uv = uv | uint64(b&0x7F)<<shift
-						shift += 7
+						if !done {
+							return i, errs.ErrSmallBuf
+						}
 					}
-					if !done {
-						return i, errs.ErrSmallBuf
+					if uv&1 == 1 {
+						uv = ^(uv >> 1)
+					} else {
+						uv = uv >> 1
 					}
+					(***(*v)[j]) = int(uv)
 				}
-				if uv&1 == 1 {
-					uv = ^(uv >> 1)
-				} else {
-					uv = uv >> 1
-				}
-				(***(*v)[j]) = int(uv)
 			}
 			if err != nil {
 				err = errs.NewArrayError(j, err)
@@ -88,14 +104,17 @@ func (v IntPtrPtrPtrAliasArrayAlias) Size() int {
 	size := 0
 	{
 		for _, item := range v {
-			{
-				uv := uint64((***item)<<1) ^ uint64((***item)>>63)
+			size++
+			if item != nil {
 				{
-					for uv >= 0x80 {
-						uv >>= 7
+					uv := uint64((***item)<<1) ^ uint64((***item)>>63)
+					{
+						for uv >= 0x80 {
+							uv >>= 7
+							size++
+						}
 						size++
 					}
-					size++
 				}
 			}
 		}

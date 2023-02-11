@@ -9,11 +9,18 @@ func (v BytePtrArrayPtrArrayAlias) Marshal(buf []byte) int {
 	i := 0
 	{
 		for _, item := range v {
-			{
-				for _, item := range *item {
-					{
-						buf[i] = byte(item)
-						i++
+			if item == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					for _, item := range *item {
+						{
+							buf[i] = byte(item)
+							i++
+						}
 					}
 				}
 			}
@@ -29,18 +36,27 @@ func (v *BytePtrArrayPtrArrayAlias) Unmarshal(buf []byte) (int, error) {
 	{
 		for j := 0; j < 2; j++ {
 			(*v)[j] = new([2]uint8)
-			{
-				for jj := 0; jj < 2; jj++ {
-					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					for jj := 0; jj < 2; jj++ {
+						{
+							if i > len(buf)-1 {
+								return i, errs.ErrSmallBuf
+							}
+							(*(*v)[j])[jj] = uint8(buf[i])
+							i++
 						}
-						(*(*v)[j])[jj] = uint8(buf[i])
-						i++
-					}
-					if err != nil {
-						err = errs.NewArrayError(jj, err)
-						break
+						if err != nil {
+							err = errs.NewArrayError(jj, err)
+							break
+						}
 					}
 				}
 			}
@@ -58,11 +74,14 @@ func (v BytePtrArrayPtrArrayAlias) Size() int {
 	size := 0
 	{
 		for _, item := range v {
-			{
-				for _, item := range *item {
-					{
-						_ = item
-						size++
+			size++
+			if item != nil {
+				{
+					for _, item := range *item {
+						{
+							_ = item
+							size++
+						}
 					}
 				}
 			}

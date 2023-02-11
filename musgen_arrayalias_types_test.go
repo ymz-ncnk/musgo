@@ -23,7 +23,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Srray of pointers", func(t *testing.T) {
+	t.Run("Array of pointers", func(t *testing.T) {
 		var (
 			f1 = 191.10
 			f2 = 0.0
@@ -34,7 +34,10 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		)
 		for _, val := range []tdmg.FloatPtrArrayAlias{
 			{&f1, &f2, &f3},
-			{&f4, &f5, &f6}} {
+			{&f4, &f5, &f6},
+			{nil, nil, nil},
+			{nil, &f3, nil},
+		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
 			}
@@ -53,12 +56,14 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of pointer aliases", func(t *testing.T) {
 		var (
-			foo tdmg.Uint64Alias = 181727361
-			bar tdmg.Uint64Alias = 28283839844
-			car tdmg.Uint64Alias = 0
+			n1 tdmg.Uint64Alias = 181727361
+			n2 tdmg.Uint64Alias = 28283839844
+			n3 tdmg.Uint64Alias = 0
 		)
 		for _, val := range []tdmg.Uint64PtrAliasArrayAlias{
-			{&foo, &bar, &car},
+			{&n1, &n2, &n3},
+			{nil, nil, nil},
+			{&n3, nil, nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -87,11 +92,9 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 			slice3 []uint16 = []uint16{657, 23, 981}
 		)
 		for _, val := range []tdmg.Uint16SlicePtrArrayAlias{
-			{
-				&slice1,
-				&slice2,
-				&slice3,
-			},
+			{&slice1, &slice2, &slice3},
+			{nil, nil, nil},
+			{nil, nil, &slice3},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -150,6 +153,8 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		)
 		for _, val := range []tdmg.Uint32Int32MapArrayAlias{
 			{&map1, &map2, &map3, &map4},
+			{nil, nil, nil, nil},
+			{nil, &map3, nil, &map3},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -157,7 +162,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Array of CustomType", func(t *testing.T) {
+	t.Run("Array of CustomType-s", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypeArrayAlias{
 			{
 				tdmg.SimpleStructType{Int: 17},
@@ -174,7 +179,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Array of pointer CustomType", func(t *testing.T) {
+	t.Run("Array of pointer CustomType-s", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypePtrArrayAlias{
 			{
 				&tdmg.SimpleStructType{Int: -1289371},
@@ -186,6 +191,8 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 				&tdmg.SimpleStructType{},
 				&tdmg.SimpleStructType{Int: -182},
 			},
+			{nil, nil, nil},
+			{nil, &tdmg.SimpleStructType{}, nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -257,7 +264,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Array of double pointer ints", func(t *testing.T) {
+	t.Run("Array of triple pointer ints", func(t *testing.T) {
 		var (
 			n  int = 181727361
 			n1     = &n
@@ -274,6 +281,8 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		)
 		for _, val := range []tdmg.IntPtrPtrPtrAliasArrayAlias{
 			{n3, m3, c3},
+			{nil, nil, nil},
+			{nil, nil, c3},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -281,12 +290,38 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Array elem validation", func(t *testing.T) {
-		for _, val := range []tdmg.ValidIntArrayAlias{{2, 11}} {
+	t.Run("Array elems validation", func(t *testing.T) {
+		for _, val := range []tdmg.ValidIntArrayAlias{
+			{2, 11},
+		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
 				if arrErr, ok := unmarshalErr.(*errs.ArrayError); ok {
 					if arrErr.Cause() != tdmg.ErrBiggerThanTen {
+						t.Errorf("wrong error cause '%v'", arrErr.Cause())
+					}
+				} else {
+					t.Errorf("wrong error '%v'", unmarshalErr)
+				}
+			}
+		}
+	})
+
+	t.Run("Array pointer elems validation", func(t *testing.T) {
+		var (
+			n  int = 64
+			n1     = &n
+		)
+		for _, val := range []tdmg.ValidPtrIntArrayAlias{
+			{n1, nil},
+		} {
+			if _, err := testdata.ExecGeneratedCode(val); err != nil {
+				unmarshalErr := errors.Unwrap(err)
+				if arrErr, ok := unmarshalErr.(*errs.ArrayError); ok {
+					if arrErr.Index() != 1 {
+						t.Errorf("wrong error index '%v'", arrErr.Index())
+					}
+					if arrErr.Cause() != tdmg.ErrNil {
 						t.Errorf("wrong error cause '%v'", arrErr.Cause())
 					}
 				} else {

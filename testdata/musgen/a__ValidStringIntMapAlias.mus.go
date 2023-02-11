@@ -163,6 +163,8 @@ func (v *ValidStringIntMapAlias) Unmarshal(buf []byte) (int, error) {
 					}
 					kem = string(buf[i : i+length])
 					i += length
+				}
+				if err == nil {
 					err = StrIsHello(kem)
 				}
 				if err != nil {
@@ -200,6 +202,8 @@ func (v *ValidStringIntMapAlias) Unmarshal(buf []byte) (int, error) {
 						uv = uv >> 1
 					}
 					vlm = int(uv)
+				}
+				if err == nil {
 					err = BiggerThanTenInt(vlm)
 				}
 				if err != nil {
@@ -208,10 +212,10 @@ func (v *ValidStringIntMapAlias) Unmarshal(buf []byte) (int, error) {
 				}
 				(*v)[kem] = vlm
 			}
-			if err == nil {
-				err = ValidStringIntMapAliasSumBiggerThanTen(v)
-			}
 		}
+	}
+	if err == nil {
+		err = ValidStringIntMapAliasSumBiggerThanTen(v)
 	}
 	return i, err
 }

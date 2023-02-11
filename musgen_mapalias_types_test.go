@@ -3,6 +3,7 @@ package musgo
 
 import (
 	"errors"
+	"math"
 	"reflect"
 	"testing"
 
@@ -76,28 +77,44 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 			str1 tdmg.StringAlias = "1"
 			str2 tdmg.StringAlias = "'sow'"
 			str3 tdmg.StringAlias = ""
+			str4 tdmg.StringAlias = "st"
 			num1 tdmg.IntAlias    = 8239283422
 			num2 tdmg.IntAlias    = 10192838
 			num3 tdmg.IntAlias    = 0
 		)
 		for _, val := range []tdmg.StrAliasPtrIntAliasPtrMapAlias{
-			{&str1: &num1},
+			{&str1: &num1, nil: nil, &str4: nil},
 			{&str2: &num2},
 			{&str3: &num3},
+			{nil: nil},
+			{&str4: nil},
 		} {
 			aval, err := testdata.ExecGeneratedCode(val)
 			if err != nil {
 				t.Error(err)
 			}
+			if val[nil] != (*aval.(*tdmg.StrAliasPtrIntAliasPtrMapAlias))[nil] {
+				t.Error("not equal nil values")
+			}
+			delete(val, nil)
+			delete((*aval.(*tdmg.StrAliasPtrIntAliasPtrMapAlias)), nil)
 			var (
 				m1 = make(map[tdmg.StringAlias]tdmg.IntAlias)
 				m2 = make(map[tdmg.StringAlias]tdmg.IntAlias)
 			)
 			for k, v := range val {
-				m1[*k] = *v
+				if v != nil {
+					m1[*k] = *v
+				}
 			}
 			for k, v := range *aval.(*tdmg.StrAliasPtrIntAliasPtrMapAlias) {
-				m2[*k] = *v
+				if v == nil {
+					if *k != str4 {
+						t.Error("wrong key have nil value")
+					}
+				} else {
+					m2[*k] = *v
+				}
 			}
 			for k, v := range m1 {
 				if m2[k] != v {
@@ -120,9 +137,10 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of pointer slices", func(t *testing.T) {
 		for _, val := range []tdmg.ByteUint16SlicePtrMapAlias{
-			{0x50: &[]uint16{98, 333, 0}},
+			{0x50: &[]uint16{98, 333, 0}, 0x3: nil, 0x4: nil},
 			{0x8: &[]uint16{12, 1123, 123}},
 			{0x9: &[]uint16{}},
+			{0x51: nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -144,9 +162,10 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of pointer arrays", func(t *testing.T) {
 		for _, val := range []tdmg.Float32Uint32ArrayPtrMapAlias{
-			{19283.12: &[2]uint32{234, 434}},
+			{0.8: nil, 19283.12: &[2]uint32{234, 434}, 10.1: nil},
 			{0: &[2]uint32{}},
 			{-12847: &[2]uint32{3, 9374}},
+			{5.5: nil, 4.4: nil, 0: nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -168,9 +187,10 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of pointer maps", func(t *testing.T) {
 		for _, val := range []tdmg.UintIntStringMapPtrMapAlias{
-			{56: {-123554: "true", 12837: "city"}},
+			{1: nil, 56: {-123554: "true", 12837: "city"}},
 			{0: {0: ""}},
 			{1918: {12918923131211111: "bird", -1: "&&&92-2=!"}},
+			{2: nil, 0: nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -196,16 +216,25 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 	t.Run("Map of pointer CustomType", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypePtrStructTypePtrMapAlias{
 			{
-				&tdmg.SimpleStructType{Int: 12}: &tdmg.SimpleStructType{Int: 2383},
+				&tdmg.SimpleStructType{Int: 12}:          &tdmg.SimpleStructType{Int: 2383},
+				nil:                                      nil,
+				&tdmg.SimpleStructType{Int: math.MaxInt}: &tdmg.SimpleStructType{Int: -2},
 			},
 			{
 				&tdmg.SimpleStructType{Int: -12}: &tdmg.SimpleStructType{Int: 111},
+				nil:                              nil,
 			},
 		} {
 			aval, err := testdata.ExecGeneratedCode(val)
 			if err != nil {
 				t.Error(err)
 			}
+			if val[nil] != (*aval.(*tdmg.StructTypePtrStructTypePtrMapAlias))[nil] {
+				t.Error("not equal nil values")
+			}
+			delete(val, nil)
+			delete((*aval.(*tdmg.StructTypePtrStructTypePtrMapAlias)), nil)
+
 			var (
 				m1 = make(map[tdmg.SimpleStructType]tdmg.SimpleStructType)
 				m2 = make(map[tdmg.SimpleStructType]tdmg.SimpleStructType)
@@ -309,9 +338,35 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if mapValueErr, ok := unmarshalErr.(*errs.MapKeyError); ok {
-					if mapValueErr.Cause() != tdmg.ErrStrIsHello {
-						t.Errorf("wrong error cause '%v'", mapValueErr.Cause())
+				if mapKeyErr, ok := unmarshalErr.(*errs.MapKeyError); ok {
+					if mapKeyErr.Cause() != tdmg.ErrStrIsHello {
+						t.Errorf("wrong error cause '%v'", mapKeyErr.Cause())
+					}
+				} else {
+					t.Errorf("wrong error '%v'", unmarshalErr)
+				}
+			}
+		}
+	})
+
+	t.Run("Map pointer keys validation", func(t *testing.T) {
+		var (
+			n  = 1
+			n1 = &n
+			m  = 2
+			m1 = &m
+		)
+		for _, val := range []tdmg.ValidPtrIntPtrIntMapAlias{
+			{m1: m1, nil: n1},
+		} {
+			if _, err := testdata.ExecGeneratedCode(val); err != nil {
+				unmarshalErr := errors.Unwrap(err)
+				if mapKeyErr, ok := unmarshalErr.(*errs.MapKeyError); ok {
+					if !reflect.ValueOf(mapKeyErr.Key()).IsNil() {
+						t.Errorf("wrong error key '%v'", mapKeyErr.Key())
+					}
+					if mapKeyErr.Cause() != tdmg.ErrNil {
+						t.Errorf("wrong error cause '%v'", mapKeyErr.Cause())
 					}
 				} else {
 					t.Errorf("wrong error '%v'", unmarshalErr)
@@ -328,6 +383,32 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 				unmarshalErr := errors.Unwrap(err)
 				if mapValueErr, ok := unmarshalErr.(*errs.MapValueError); ok {
 					if mapValueErr.Cause() != tdmg.ErrBiggerThanTen {
+						t.Errorf("wrong error cause '%v'", mapValueErr.Cause())
+					}
+				} else {
+					t.Errorf("wrong error '%v'", unmarshalErr)
+				}
+			}
+		}
+	})
+
+	t.Run("Map pointer values validation", func(t *testing.T) {
+		var (
+			n  = 1
+			n1 = &n
+			m  = 2
+			m1 = &m
+		)
+		for _, val := range []tdmg.ValidPtrIntPtrIntMapAlias{
+			{m1: nil, n1: n1},
+		} {
+			if _, err := testdata.ExecGeneratedCode(val); err != nil {
+				unmarshalErr := errors.Unwrap(err)
+				if mapValueErr, ok := unmarshalErr.(*errs.MapValueError); ok {
+					if *mapValueErr.Key().(*int) != m {
+						t.Errorf("wrong error key '%v'", mapValueErr.Cause())
+					}
+					if mapValueErr.Cause() != tdmg.ErrNil {
 						t.Errorf("wrong error cause '%v'", mapValueErr.Cause())
 					}
 				} else {

@@ -101,7 +101,6 @@ func (v *ValidUintSliceAlias) Unmarshal(buf []byte) (int, error) {
 							(*v)[j] = (*v)[j] | uint(b)<<shift
 							done = true
 							i += l + 1
-							err = BiggerThanTenUint((*v)[j])
 							break
 						}
 						(*v)[j] = (*v)[j] | uint(b&0x7F)<<shift
@@ -111,15 +110,18 @@ func (v *ValidUintSliceAlias) Unmarshal(buf []byte) (int, error) {
 						return i, errs.ErrSmallBuf
 					}
 				}
+				if err == nil {
+					err = BiggerThanTenUint((*v)[j])
+				}
 				if err != nil {
 					err = errs.NewSliceError(j, err)
 					break
 				}
 			}
-			if err == nil {
-				err = ValidUintSliceAliasSumBiggerThanTen(v)
-			}
 		}
+	}
+	if err == nil {
+		err = ValidUintSliceAliasSumBiggerThanTen(v)
 	}
 	return i, err
 }

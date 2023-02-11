@@ -31,6 +31,7 @@ type StructType struct {
 	Int64        int64
 	IntPtr       *int
 	IntPtrPtrPtr ***int
+	IntAliasPtr  *IntAlias
 
 	String          string
 	StringPtr       *string
@@ -79,6 +80,7 @@ var StructTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 		{Name: "Int64", Type: "int64"},
 		{Name: "IntPtr", Type: "*int"},
 		{Name: "IntPtrPtrPtr", Type: "***int"},
+		{Name: "IntAliasPtr", Type: "*IntAlias"},
 
 		{Name: "String", Type: "string"},
 		{Name: "StringPtr", Type: "*string"},
@@ -116,9 +118,10 @@ type ValidStructType struct {
 
 	Int8 int8
 
-	String string
-	Byte   byte
-	Bool   bool
+	String    string
+	StringPtr *string
+	Byte      byte
+	Bool      bool
 
 	Slice    []uint
 	SlicePtr *[]uint16
@@ -142,6 +145,7 @@ var ValidStructTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 		{Name: "Int8", Type: "int8", Validator: "BiggerThanTenInt8"},
 
 		{Name: "String", Type: "string", Validator: "NotEmptyString", MaxLength: 10},
+		{Name: "StringPtr", Type: "*string", Validator: "NotNilString", MaxLength: 10},
 		{Name: "Byte", Type: "uint8", Validator: "BiggerThanTenByte"},
 		{Name: "Bool", Type: "bool", Validator: "PositiveBool"},
 

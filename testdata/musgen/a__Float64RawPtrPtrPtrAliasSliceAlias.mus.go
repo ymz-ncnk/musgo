@@ -31,25 +31,32 @@ func (v Float64RawPtrPtrPtrAliasSliceAlias) Marshal(buf []byte) int {
 			}
 		}
 		for _, el := range v {
-			{
-				uv := math.Float64bits(float64((***el)))
+			if el == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
 				{
-					buf[i] = byte(uv)
-					i++
-					buf[i] = byte(uv >> 8)
-					i++
-					buf[i] = byte(uv >> 16)
-					i++
-					buf[i] = byte(uv >> 24)
-					i++
-					buf[i] = byte(uv >> 32)
-					i++
-					buf[i] = byte(uv >> 40)
-					i++
-					buf[i] = byte(uv >> 48)
-					i++
-					buf[i] = byte(uv >> 56)
-					i++
+					uv := math.Float64bits(float64((***el)))
+					{
+						buf[i] = byte(uv)
+						i++
+						buf[i] = byte(uv >> 8)
+						i++
+						buf[i] = byte(uv >> 16)
+						i++
+						buf[i] = byte(uv >> 24)
+						i++
+						buf[i] = byte(uv >> 32)
+						i++
+						buf[i] = byte(uv >> 40)
+						i++
+						buf[i] = byte(uv >> 48)
+						i++
+						buf[i] = byte(uv >> 56)
+						i++
+					}
 				}
 			}
 		}
@@ -105,30 +112,39 @@ func (v *Float64RawPtrPtrPtrAliasSliceAlias) Unmarshal(buf []byte) (int, error) 
 				tmp1 := &tmp0
 				(*v)[j] = &tmp1
 			}
-			{
-				var uv uint64
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
 				{
-					if len(buf) < 8 {
-						return i, errs.ErrSmallBuf
+					var uv uint64
+					{
+						if len(buf) < 8 {
+							return i, errs.ErrSmallBuf
+						}
+						uv = uint64(buf[i])
+						i++
+						uv |= uint64(buf[i]) << 8
+						i++
+						uv |= uint64(buf[i]) << 16
+						i++
+						uv |= uint64(buf[i]) << 24
+						i++
+						uv |= uint64(buf[i]) << 32
+						i++
+						uv |= uint64(buf[i]) << 40
+						i++
+						uv |= uint64(buf[i]) << 48
+						i++
+						uv |= uint64(buf[i]) << 56
+						i++
 					}
-					uv = uint64(buf[i])
-					i++
-					uv |= uint64(buf[i]) << 8
-					i++
-					uv |= uint64(buf[i]) << 16
-					i++
-					uv |= uint64(buf[i]) << 24
-					i++
-					uv |= uint64(buf[i]) << 32
-					i++
-					uv |= uint64(buf[i]) << 40
-					i++
-					uv |= uint64(buf[i]) << 48
-					i++
-					uv |= uint64(buf[i]) << 56
-					i++
+					(***(*v)[j]) = float64(math.Float64frombits(uv))
 				}
-				(***(*v)[j]) = float64(math.Float64frombits(uv))
 			}
 			if err != nil {
 				err = errs.NewSliceError(j, err)
@@ -155,10 +171,13 @@ func (v Float64RawPtrPtrPtrAliasSliceAlias) Size() int {
 			}
 		}
 		for _, el := range v {
-			{
+			size++
+			if el != nil {
 				{
-					_ = (***el)
-					size += 8
+					{
+						_ = (***el)
+						size += 8
+					}
 				}
 			}
 		}

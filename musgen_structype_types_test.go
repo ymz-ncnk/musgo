@@ -11,15 +11,30 @@ import (
 
 func TestGeneratedStructCode(t *testing.T) {
 
+	makeValidStrucType := func() tdmg.ValidStructType {
+		var (
+			str  = "str"
+			str1 = &str
+		)
+		return tdmg.ValidStructType{
+			StringPtr: str1,
+			SlicePtr:  &[]uint16{},
+			ArrayPtr:  &[2]int32{},
+			MapPtr:    &map[string]int{},
+			StructPtr: &tdmg.SimpleStructType{},
+		}
+	}
+
 	t.Run("Struct", func(t *testing.T) {
 		var (
 			un  uint = 51
 			un1      = &un
 			un2      = &un1
 
-			n  int = 43
-			n1     = &n
-			n2     = &n1
+			n  int           = 43
+			n1               = &n
+			n2               = &n1
+			na tdmg.IntAlias = 5
 
 			str  = "strte"
 			str1 = &str
@@ -64,6 +79,7 @@ func TestGeneratedStructCode(t *testing.T) {
 				Int64:        -12309823487234892,
 				IntPtr:       &n,
 				IntPtrPtrPtr: &n2,
+				IntAliasPtr:  &na,
 
 				String:          "some antoherlkjalkja setlwkethwleh lkjwelkjwelr",
 				StringPtr:       &str,
@@ -98,6 +114,55 @@ func TestGeneratedStructCode(t *testing.T) {
 					{[2]tdmg.IntAlias{150, 2222}: {"an": [2]string{"erer", "qqqpq"}}},
 				},
 			},
+			{
+				Uint:          12,
+				Uint16:        12032,
+				Uint32:        123912913,
+				Uint64:        1231233333333333333,
+				UintPtr:       nil,
+				UintPtrPtrPtr: nil,
+
+				Int:          -1123,
+				Int16:        0,
+				Int32:        1231231231,
+				Int64:        -12309823487234892,
+				IntPtr:       nil,
+				IntPtrPtrPtr: nil,
+				IntAliasPtr:  nil,
+
+				String:          "some antoherlkjalkja setlwkethwleh lkjwelkjwelr",
+				StringPtr:       nil,
+				StringPtrPtrPtr: nil,
+
+				Byte:          0x10,
+				BytePtr:       nil,
+				BytePtrPtrPtr: nil,
+
+				Bool:          true,
+				BoolPtr:       nil,
+				BoolPtrPtrPtr: nil,
+
+				Slice:          []uint{123, 345},
+				SlicePtr:       nil,
+				SlicePtrPtrPtr: nil,
+
+				Array:          [2]int{-123, -345},
+				ArrayPtr:       nil,
+				ArrayPtrPtrPtr: nil,
+
+				Map:          map[string]int{"hello": 5},
+				MapPtr:       nil,
+				MapPtrPtrPtr: nil,
+
+				Struct:          tdmg.SimpleStructType{Int: 28},
+				StructPtr:       nil,
+				StructPtrPtrPtr: nil,
+
+				Tricky: [2]map[[2]tdmg.IntAlias]map[tdmg.StringAlias][2]string{
+					{[2]tdmg.IntAlias{1, 2}: {"slkjer": [2]string{"s", "r"}}},
+					{[2]tdmg.IntAlias{150, 2222}: {"an": [2]string{"ake", "qqqpq"}}},
+				},
+			},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -118,13 +183,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct uint field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Uint64:    120,
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Uint64 = 120
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Uint64", tdmg.ErrBiggerThanTen, t)
@@ -134,13 +197,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct int field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Int8:      19,
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Int8 = 19
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Int8", tdmg.ErrBiggerThanTen, t)
@@ -150,13 +211,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct string field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				String:    "hello w",
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.String = "hello w"
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "String", tdmg.ErrNotEmptyString, t)
@@ -164,15 +223,27 @@ func TestGeneratedStructCode(t *testing.T) {
 		}
 	})
 
+	t.Run("Struct pointer string field validation", func(t *testing.T) {
+		for _, val := range []tdmg.ValidStructType{
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.StringPtr = nil
+				return st
+			}(),
+		} {
+			if _, err := testdata.ExecGeneratedCode(val); err != nil {
+				testdata.TestFieldErrAndCause(err, "StringPtr", tdmg.ErrNil, t)
+			}
+		}
+	})
+
 	t.Run("Struct byte field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Byte:      21,
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Byte = 21
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Byte", tdmg.ErrBiggerThanTen, t)
@@ -182,13 +253,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct bool field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Bool:      true,
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Bool = true
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Bool", tdmg.ErrPositiveBool, t)
@@ -198,13 +267,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct slice field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Slice:     []uint{7, 4},
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Slice = []uint{7, 4}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Slice",
@@ -216,13 +283,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct slice field elem validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Slice:     []uint{5, 11},
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Slice = []uint{5, 11}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestSliceElemErr(err, "Slice", 1, tdmg.ErrBiggerThanTen, t)
@@ -232,12 +297,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer slice field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{8, 8},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.SlicePtr = &[]uint16{8, 8}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "SlicePtr",
@@ -249,12 +313,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer slice field elem validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{8, 11, 8},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.SlicePtr = &[]uint16{8, 11, 8}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestSliceElemErr(err, "SlicePtr", 1, tdmg.ErrBiggerThanTen, t)
@@ -264,13 +327,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct array field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Array:     [2]int{7, 4},
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Array = [2]int{7, 4}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Array",
@@ -282,13 +343,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct array field elem validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Array:     [2]int{5, 11},
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Array = [2]int{5, 11}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestSliceElemErr(err, "Array", 1, tdmg.ErrBiggerThanTen, t)
@@ -298,12 +357,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer array field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{4, 8},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.ArrayPtr = &[2]int32{4, 8}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "ArrayPtr",
@@ -315,12 +373,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer array field elem validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{12, 8},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.ArrayPtr = &[2]int32{12, 8}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestSliceElemErr(err, "ArrayPtr", 0, tdmg.ErrBiggerThanTen, t)
@@ -330,13 +387,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct map field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				Map:       map[string]int{"str1": 5, "str2": 10},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Map = map[string]int{"str1": 5, "str2": 10}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Map", tdmg.ErrMapSumBiggerThanTen,
@@ -347,13 +402,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct map field key validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				Map:       map[string]int{"": 5, "hello": 9, "rt": 1},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Map = map[string]int{"": 5, "hello": 9, "rt": 1}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestMapKeyErr(err, "Map", "hello", tdmg.ErrStrIsHello, t)
@@ -363,13 +416,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct map field value validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				Map:       map[string]int{"": 5, "not hello": 10, "rt": 88},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Map = map[string]int{"": 5, "not hello": 10, "rt": 88}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestMapValueErr(err, "Map", "rt", 88, tdmg.ErrBiggerThanTen, t)
@@ -379,12 +430,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer map field validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{"str1": 5, "str2": 10},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.MapPtr = &map[string]int{"str1": 5, "str2": 10}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "MapPtr",
@@ -396,12 +446,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer map field key validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{"": 5, "hello": 10, "rt": 1},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.MapPtr = &map[string]int{"": 5, "hello": 10, "rt": 1}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestMapKeyErr(err, "MapPtr", "hello", tdmg.ErrStrIsHello, t)
@@ -411,12 +460,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct pointer map field value validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{"": 5, "not hello": 10, "rt": 88},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.MapPtr = &map[string]int{"": 5, "not hello": 10, "rt": 88}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestMapValueErr(err, "MapPtr", "rt", 88,
@@ -428,13 +476,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				Struct:    tdmg.SimpleStructType{Int: 15},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Struct = tdmg.SimpleStructType{Int: 15}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Struct", tdmg.ErrSimpleStructType,
@@ -445,16 +491,14 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{Int: 15},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.StructPtr = &tdmg.SimpleStructType{Int: 15}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
-				testdata.TestFieldErrAndCause(err, "StructPtr",
-					tdmg.ErrSimpleStructType,
+				testdata.TestFieldErrAndCause(err, "StructPtr", tdmg.ErrSimpleStructType,
 					t)
 			}
 		}
@@ -462,13 +506,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct string field length validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				String:    "qwertyuiopa",
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.String = "qwertyuiopa"
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "String", errs.ErrMaxLengthExceeded,
@@ -479,13 +521,11 @@ func TestGeneratedStructCode(t *testing.T) {
 
 	t.Run("Struct slice field length validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				Slice:     []uint{1, 1, 1, 0, 0, 0, 0, 0, 0},
-				SlicePtr:  &[]uint16{},
-				ArrayPtr:  &[2]int32{},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Slice = []uint{1, 1, 1, 0, 0, 0, 0, 0, 0}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Slice", errs.ErrMaxLengthExceeded,
@@ -494,16 +534,14 @@ func TestGeneratedStructCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Struct slice field length validation", func(t *testing.T) {
+	t.Run("Struct map field length validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr: &[]uint16{},
-				ArrayPtr: &[2]int32{},
-				Map: map[string]int{"str1": 0, "str2": 1, "str3": 2, "str4": 3,
-					"str5": -1, "str6": 0},
-				MapPtr:    &map[string]int{},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.Map = map[string]int{"str1": 0, "str2": 1, "str3": 2, "str4": 3,
+					"str5": -1, "str6": 0}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "Map", errs.ErrMaxLengthExceeded, t)
@@ -511,15 +549,14 @@ func TestGeneratedStructCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Struct slice field length validation", func(t *testing.T) {
+	t.Run("Struct pointer map field length validation", func(t *testing.T) {
 		for _, val := range []tdmg.ValidStructType{
-			{
-				SlicePtr: &[]uint16{},
-				ArrayPtr: &[2]int32{},
-				MapPtr: &map[string]int{"str1": 0, "str2": 0, "str3": -10, "str4": 1,
-					"str5": -1, "str6": -2},
-				StructPtr: &tdmg.SimpleStructType{},
-			},
+			func() tdmg.ValidStructType {
+				st := makeValidStrucType()
+				st.MapPtr = &map[string]int{"str1": 0, "str2": 0, "str3": -10,
+					"str4": 1, "str5": -1, "str6": -2}
+				return st
+			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				testdata.TestFieldErrAndCause(err, "MapPtr", errs.ErrMaxLengthExceeded,

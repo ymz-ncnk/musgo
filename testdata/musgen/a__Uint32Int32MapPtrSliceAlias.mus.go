@@ -27,38 +27,17 @@ func (v Uint32Int32MapPtrSliceAlias) Marshal(buf []byte) int {
 			}
 		}
 		for _, el := range v {
-			{
-				length := len((*el))
+			if el == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
 				{
-					uv := uint64(length)
-					if length < 0 {
-						uv = ^(uv << 1)
-					} else {
-						uv = uv << 1
-					}
+					length := len((*el))
 					{
-						for uv >= 0x80 {
-							buf[i] = byte(uv) | 0x80
-							uv >>= 7
-							i++
-						}
-						buf[i] = byte(uv)
-						i++
-					}
-				}
-				for ke, vl := range *el {
-					{
-						for ke >= 0x80 {
-							buf[i] = byte(ke) | 0x80
-							ke >>= 7
-							i++
-						}
-						buf[i] = byte(ke)
-						i++
-					}
-					{
-						uv := uint32(vl)
-						if vl < 0 {
+						uv := uint64(length)
+						if length < 0 {
 							uv = ^(uv << 1)
 						} else {
 							uv = uv << 1
@@ -71,6 +50,34 @@ func (v Uint32Int32MapPtrSliceAlias) Marshal(buf []byte) int {
 							}
 							buf[i] = byte(uv)
 							i++
+						}
+					}
+					for ke, vl := range *el {
+						{
+							for ke >= 0x80 {
+								buf[i] = byte(ke) | 0x80
+								ke >>= 7
+								i++
+							}
+							buf[i] = byte(ke)
+							i++
+						}
+						{
+							uv := uint32(vl)
+							if vl < 0 {
+								uv = ^(uv << 1)
+							} else {
+								uv = uv << 1
+							}
+							{
+								for uv >= 0x80 {
+									buf[i] = byte(uv) | 0x80
+									uv >>= 7
+									i++
+								}
+								buf[i] = byte(uv)
+								i++
+							}
 						}
 					}
 				}
@@ -124,76 +131,18 @@ func (v *Uint32Int32MapPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 		(*v) = make([]*map[uint32]int32, length)
 		for j := 0; j < length; j++ {
 			(*v)[j] = new(map[uint32]int32)
-			{
-				var length int
+			if buf[i] == 0 {
+				i++
+				(*v)[j] = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
 				{
-					var uv uint64
+					var length int
 					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
-						}
-						shift := 0
-						done := false
-						for l, b := range buf[i:] {
-							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
-							}
-							if b < 0x80 {
-								uv = uv | uint64(b)<<shift
-								done = true
-								i += l + 1
-								break
-							}
-							uv = uv | uint64(b&0x7F)<<shift
-							shift += 7
-						}
-						if !done {
-							return i, errs.ErrSmallBuf
-						}
-					}
-					if uv&1 == 1 {
-						uv = ^(uv >> 1)
-					} else {
-						uv = uv >> 1
-					}
-					length = int(uv)
-				}
-				if length < 0 {
-					return i, errs.ErrNegativeLength
-				}
-				(*(*v)[j]) = make(map[uint32]int32)
-				for ; length > 0; length-- {
-					var kem uint32
-					var vlm int32
-					{
-						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
-						}
-						shift := 0
-						done := false
-						for l, b := range buf[i:] {
-							if l == 4 && b > 15 {
-								return i, errs.ErrOverflow
-							}
-							if b < 0x80 {
-								kem = kem | uint32(b)<<shift
-								done = true
-								i += l + 1
-								break
-							}
-							kem = kem | uint32(b&0x7F)<<shift
-							shift += 7
-						}
-						if !done {
-							return i, errs.ErrSmallBuf
-						}
-					}
-					if err != nil {
-						err = errs.NewMapKeyError(kem, err)
-						break
-					}
-					{
-						var uv uint32
+						var uv uint64
 						{
 							if i > len(buf)-1 {
 								return i, errs.ErrSmallBuf
@@ -201,16 +150,16 @@ func (v *Uint32Int32MapPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
-								if l == 4 && b > 15 {
+								if l == 9 && b > 1 {
 									return i, errs.ErrOverflow
 								}
 								if b < 0x80 {
-									uv = uv | uint32(b)<<shift
+									uv = uv | uint64(b)<<shift
 									done = true
 									i += l + 1
 									break
 								}
-								uv = uv | uint32(b&0x7F)<<shift
+								uv = uv | uint64(b&0x7F)<<shift
 								shift += 7
 							}
 							if !done {
@@ -222,13 +171,80 @@ func (v *Uint32Int32MapPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 						} else {
 							uv = uv >> 1
 						}
-						vlm = int32(uv)
+						length = int(uv)
 					}
-					if err != nil {
-						err = errs.NewMapValueError(kem, vlm, err)
-						break
+					if length < 0 {
+						return i, errs.ErrNegativeLength
 					}
-					(*(*v)[j])[kem] = vlm
+					(*(*v)[j]) = make(map[uint32]int32)
+					for ; length > 0; length-- {
+						var kem uint32
+						var vlm int32
+						{
+							if i > len(buf)-1 {
+								return i, errs.ErrSmallBuf
+							}
+							shift := 0
+							done := false
+							for l, b := range buf[i:] {
+								if l == 4 && b > 15 {
+									return i, errs.ErrOverflow
+								}
+								if b < 0x80 {
+									kem = kem | uint32(b)<<shift
+									done = true
+									i += l + 1
+									break
+								}
+								kem = kem | uint32(b&0x7F)<<shift
+								shift += 7
+							}
+							if !done {
+								return i, errs.ErrSmallBuf
+							}
+						}
+						if err != nil {
+							err = errs.NewMapKeyError(kem, err)
+							break
+						}
+						{
+							var uv uint32
+							{
+								if i > len(buf)-1 {
+									return i, errs.ErrSmallBuf
+								}
+								shift := 0
+								done := false
+								for l, b := range buf[i:] {
+									if l == 4 && b > 15 {
+										return i, errs.ErrOverflow
+									}
+									if b < 0x80 {
+										uv = uv | uint32(b)<<shift
+										done = true
+										i += l + 1
+										break
+									}
+									uv = uv | uint32(b&0x7F)<<shift
+									shift += 7
+								}
+								if !done {
+									return i, errs.ErrSmallBuf
+								}
+							}
+							if uv&1 == 1 {
+								uv = ^(uv >> 1)
+							} else {
+								uv = uv >> 1
+							}
+							vlm = int32(uv)
+						}
+						if err != nil {
+							err = errs.NewMapValueError(kem, vlm, err)
+							break
+						}
+						(*(*v)[j])[kem] = vlm
+					}
 				}
 			}
 			if err != nil {
@@ -256,34 +272,37 @@ func (v Uint32Int32MapPtrSliceAlias) Size() int {
 			}
 		}
 		for _, el := range v {
-			{
-				length := len((*el))
+			size++
+			if el != nil {
 				{
-					uv := uint64(length<<1) ^ uint64(length>>63)
+					length := len((*el))
 					{
-						for uv >= 0x80 {
-							uv >>= 7
-							size++
-						}
-						size++
-					}
-				}
-				for ke, vl := range *el {
-					{
-						for ke >= 0x80 {
-							ke >>= 7
-							size++
-						}
-						size++
-					}
-					{
-						uv := uint32(vl<<1) ^ uint32(vl>>31)
+						uv := uint64(length<<1) ^ uint64(length>>63)
 						{
 							for uv >= 0x80 {
 								uv >>= 7
 								size++
 							}
 							size++
+						}
+					}
+					for ke, vl := range *el {
+						{
+							for ke >= 0x80 {
+								ke >>= 7
+								size++
+							}
+							size++
+						}
+						{
+							uv := uint32(vl<<1) ^ uint32(vl>>31)
+							{
+								for uv >= 0x80 {
+									uv >>= 7
+									size++
+								}
+								size++
+							}
 						}
 					}
 				}

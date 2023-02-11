@@ -27,13 +27,27 @@ func (v StructTypePtrStructTypePtrMapAlias) Marshal(buf []byte) int {
 			}
 		}
 		for ke, vl := range v {
-			{
-				si := (*ke).Marshal(buf[i:])
-				i += si
+			if ke == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					si := (*ke).Marshal(buf[i:])
+					i += si
+				}
 			}
-			{
-				si := (*vl).Marshal(buf[i:])
-				i += si
+			if vl == nil {
+				buf[i] = 0
+				i++
+			} else {
+				buf[i] = 1
+				i++
+				{
+					si := (*vl).Marshal(buf[i:])
+					i += si
+				}
 			}
 		}
 	}
@@ -85,26 +99,44 @@ func (v *StructTypePtrStructTypePtrMapAlias) Unmarshal(buf []byte) (int, error) 
 		for ; length > 0; length-- {
 			kem := new(SimpleStructType)
 			vlm := new(SimpleStructType)
-			{
-				var sv SimpleStructType
-				si := 0
-				si, err = sv.Unmarshal(buf[i:])
-				if err == nil {
-					(*kem) = sv
-					i += si
+			if buf[i] == 0 {
+				i++
+				kem = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					var sv SimpleStructType
+					si := 0
+					si, err = sv.Unmarshal(buf[i:])
+					if err == nil {
+						(*kem) = sv
+						i += si
+					}
 				}
 			}
 			if err != nil {
 				err = errs.NewMapKeyError(kem, err)
 				break
 			}
-			{
-				var sv SimpleStructType
-				si := 0
-				si, err = sv.Unmarshal(buf[i:])
-				if err == nil {
-					(*vlm) = sv
-					i += si
+			if buf[i] == 0 {
+				i++
+				vlm = nil
+			} else if buf[i] != 1 {
+				i++
+				return i, errs.ErrWrongByte
+			} else {
+				i++
+				{
+					var sv SimpleStructType
+					si := 0
+					si, err = sv.Unmarshal(buf[i:])
+					if err == nil {
+						(*vlm) = sv
+						i += si
+					}
 				}
 			}
 			if err != nil {
@@ -133,13 +165,19 @@ func (v StructTypePtrStructTypePtrMapAlias) Size() int {
 			}
 		}
 		for ke, vl := range v {
-			{
-				ss := (*ke).Size()
-				size += ss
+			size++
+			if ke != nil {
+				{
+					ss := (*ke).Size()
+					size += ss
+				}
 			}
-			{
-				ss := (*vl).Size()
-				size += ss
+			size++
+			if vl != nil {
+				{
+					ss := (*vl).Size()
+					size += ss
+				}
 			}
 		}
 	}

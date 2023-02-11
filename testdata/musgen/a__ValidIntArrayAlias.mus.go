@@ -68,6 +68,8 @@ func (v *ValidIntArrayAlias) Unmarshal(buf []byte) (int, error) {
 					uv = uv >> 1
 				}
 				(*v)[j] = int(uv)
+			}
+			if err == nil {
 				err = BiggerThanTenInt((*v)[j])
 			}
 			if err != nil {
@@ -75,9 +77,9 @@ func (v *ValidIntArrayAlias) Unmarshal(buf []byte) (int, error) {
 				break
 			}
 		}
-		if err == nil {
-			err = ValidIntArrayAliasSumBiggerThanTen(v)
-		}
+	}
+	if err == nil {
+		err = ValidIntArrayAliasSumBiggerThanTen(v)
 	}
 	return i, err
 }

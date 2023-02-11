@@ -26,12 +26,14 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 
 	t.Run("Slice of pointers", func(t *testing.T) {
 		var (
-			foo = 191.10
-			bar = 0.0
-			car = -0.19283
+			n = 191.10
+			m = 0.0
+			k = -0.19283
 		)
 		for _, val := range []tdmg.FloatPtrSliceAlias{
-			{&foo, &bar, &car},
+			{&n, &m, &k},
+			{nil, nil, nil},
+			{nil, &k, nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -52,12 +54,14 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 
 	t.Run("Slice of pointer aliases", func(t *testing.T) {
 		var (
-			foo tdmg.Uint64Alias = 181727361
-			bar tdmg.Uint64Alias = 28283839844
-			car tdmg.Uint64Alias = 0
+			n tdmg.Uint64Alias = 181727361
+			m tdmg.Uint64Alias = 28283839844
+			k tdmg.Uint64Alias = 0
 		)
 		for _, val := range []tdmg.Uint64PtrAliasSliceAlias{
-			{&foo, &bar, &car},
+			{&n, &m, &k},
+			{nil, nil, nil},
+			{&k, nil, &k},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -144,12 +148,14 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("slice of pointer arrays", func(t *testing.T) {
+	t.Run("Slice of pointer arrays", func(t *testing.T) {
 		for _, val := range []tdmg.FloatArrayPtrSliceAlias{
 			{
 				&[2]float32{102.1826, -123.12},
 				&[2]float32{10, 0.2836},
 			},
+			{nil, nil, nil},
+			{&[2]float32{100, -0.2}, nil, nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -176,6 +182,8 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 				&map[uint32]int32{345: 82},
 				&map[uint32]int32{19292: 893837},
 			},
+			{nil},
+			{nil, &map[uint32]int32{10: 2}},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -183,7 +191,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Slice of CustomType", func(t *testing.T) {
+	t.Run("Slice of CustomType-s", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypeSliceAlias{
 			{
 				tdmg.SimpleStructType{Int: 8},
@@ -196,11 +204,15 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		}
 	})
 
-	t.Run("Slice of pointer CustomType", func(t *testing.T) {
-		for _, val := range []tdmg.StructTypePtrSliceAlias{{
-			&tdmg.SimpleStructType{Int: 8},
-			&tdmg.SimpleStructType{Int: 23429},
-		}} {
+	t.Run("Slice of pointer CustomType-s", func(t *testing.T) {
+		for _, val := range []tdmg.StructTypePtrSliceAlias{
+			{
+				&tdmg.SimpleStructType{Int: 8},
+				&tdmg.SimpleStructType{Int: 23429},
+			},
+			{nil, nil},
+			{&tdmg.SimpleStructType{Int: -2}, nil},
+		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
 			}
@@ -281,9 +293,32 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		} {
 			_, err := testdata.ExecGeneratedCode(val)
 			unmarshalErr := errors.Unwrap(err)
-			if mapValueErr, ok := unmarshalErr.(*errs.SliceError); ok {
-				if mapValueErr.Cause() != tdmg.ErrBiggerThanTen {
-					t.Errorf("wrong error cause '%v'", mapValueErr.Cause())
+			if sliceElemErr, ok := unmarshalErr.(*errs.SliceError); ok {
+				if sliceElemErr.Cause() != tdmg.ErrBiggerThanTen {
+					t.Errorf("wrong error cause '%v'", sliceElemErr.Cause())
+				}
+			} else {
+				t.Errorf("wrong error '%v'", unmarshalErr)
+			}
+		}
+	})
+
+	t.Run("Slice pointer elems validation", func(t *testing.T) {
+		var (
+			s  = "str"
+			s1 = &s
+		)
+		for _, val := range []tdmg.ValidPtrStringSliceAlias{
+			{s1, nil},
+		} {
+			_, err := testdata.ExecGeneratedCode(val)
+			unmarshalErr := errors.Unwrap(err)
+			if sliceElemErr, ok := unmarshalErr.(*errs.SliceError); ok {
+				if sliceElemErr.Index() != 1 {
+					t.Errorf("wrong error index '%v'", sliceElemErr.Index())
+				}
+				if sliceElemErr.Cause() != tdmg.ErrNil {
+					t.Errorf("wrong error cause '%v'", sliceElemErr.Cause())
 				}
 			} else {
 				t.Errorf("wrong error '%v'", unmarshalErr)
