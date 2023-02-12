@@ -80,7 +80,7 @@ func TestMusGo(t *testing.T) {
 				Package: "musgo",
 				Name:    "Struct",
 				Unsafe:  unsafe,
-				Suffix:  "",
+				Suffix:  "MUS",
 				Fields: []musgen.FieldDesc{
 					{
 						Name: "Field",

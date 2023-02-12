@@ -30,7 +30,7 @@ type AliasConf struct {
 	KeyEncoding   string // if alias to map, sets encoding
 }
 
-var DefConf = Conf{Path: "."}
+var DefConf = Conf{Suffix: "MUS", Path: "."}
 
 // New creates a new MusGo.
 func New() (musGo MusGo, err error) {
