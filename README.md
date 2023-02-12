@@ -28,6 +28,9 @@ MusGo itself is pretty well tested, test coverage is about 90%.
 # Benchmarks
 [github.com/alecthomas/go_serialization_benchmarks](https://github.com/alecthomas/go_serialization_benchmarks)
 
+# Backward compatibility
+[github.com/ymz-ncnk/musgen#backward-compatibility](https://github.com/ymz-ncnk/musgen#backward-compatibility)
+
 # How to use
 First, you should download and install Go, version 1.18 or later.
 
