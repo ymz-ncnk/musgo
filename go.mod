@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/ymz-ncnk/amock v0.1.0
-	github.com/ymz-ncnk/musgen v1.0.1-0.20230211212246-767238119d8d
+	github.com/ymz-ncnk/musgen v1.0.1-0.20230212141013-d1506f80cb0f
 	golang.org/x/tools v0.5.0
 )
 

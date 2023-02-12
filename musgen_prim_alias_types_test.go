@@ -263,9 +263,8 @@ func TestPrimAlias(t *testing.T) {
 	t.Run("Float64", func(t *testing.T) {
 		for _, val := range []tdmg.Float64Alias{
 			-math.MaxFloat64,
-			-math.SmallestNonzeroFloat64,
-			math.SmallestNonzeroFloat64,
 			0,
+			math.SmallestNonzeroFloat64,
 			12093.1827,
 			math.MaxFloat64,
 		} {
@@ -277,9 +276,10 @@ func TestPrimAlias(t *testing.T) {
 
 	t.Run("Float32", func(t *testing.T) {
 		for _, val := range []tdmg.Float32Alias{
+			-math.MaxFloat32,
+			0,
 			math.SmallestNonzeroFloat32,
 			1093.11,
-			0,
 			math.MaxFloat32,
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {

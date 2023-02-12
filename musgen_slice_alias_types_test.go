@@ -3,6 +3,7 @@ package musgo
 
 import (
 	"errors"
+	"math"
 	"reflect"
 	"testing"
 
@@ -17,6 +18,29 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		for _, val := range []tdmg.StrSliceAlias{
 			{"hello", "world"},
 			{"", "tekejt"},
+			{
+				"hello", "hello", "hello", "hello", "hlo", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "h", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "helo", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+				"hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello", "hello",
+			},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -26,7 +50,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 
 	t.Run("Slice of pointers", func(t *testing.T) {
 		var (
-			n = 191.10
+			n = math.MaxFloat64
 			m = 0.0
 			k = -0.19283
 		)
@@ -45,6 +69,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		for _, val := range []tdmg.IntAliasSliceAlias{
 			{1, 0, -21923},
 			{12828, -18128, 19292},
+			{math.MaxInt, math.MinInt, 19292},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -55,7 +80,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 	t.Run("Slice of pointer aliases", func(t *testing.T) {
 		var (
 			n tdmg.Uint64Alias = 181727361
-			m tdmg.Uint64Alias = 28283839844
+			m tdmg.Uint64Alias = math.MaxUint64
 			k tdmg.Uint64Alias = 0
 		)
 		for _, val := range []tdmg.Uint64PtrAliasSliceAlias{
@@ -139,7 +164,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		for _, val := range []tdmg.ByteArraySliceAlias{
 			{
 				[2]byte{0x01, 0x60},
-				[2]byte{0x50, 0x78},
+				[2]byte{0x50, math.MaxInt8},
 			},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {

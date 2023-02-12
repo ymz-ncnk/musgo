@@ -62,8 +62,9 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of aliases", func(t *testing.T) {
 		for _, val := range []tdmg.StrAliasIntAliasMapAlias{
-			{"sky": 626262},
-			{"town": -29283},
+			{"sky": math.MaxInt},
+			{"town": math.MinInt},
+			{"yetee": -1028474},
 			{"": 0},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
@@ -78,8 +79,8 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 			str2 tdmg.StringAlias = "'sow'"
 			str3 tdmg.StringAlias = ""
 			str4 tdmg.StringAlias = "st"
-			num1 tdmg.IntAlias    = 8239283422
-			num2 tdmg.IntAlias    = 10192838
+			num1 tdmg.IntAlias    = math.MaxInt
+			num2 tdmg.IntAlias    = math.MinInt
 			num3 tdmg.IntAlias    = 0
 		)
 		for _, val := range []tdmg.StrAliasPtrIntAliasPtrMapAlias{
@@ -126,8 +127,8 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of slices", func(t *testing.T) {
 		for _, val := range []tdmg.BoolInt16SliceMapAlias{
-			{true: {123, 434, 0}},
-			{false: {-12, -123, 123}},
+			{true: {123, math.MaxInt16, 0}},
+			{false: {-12, math.MinInt16, 123}},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -138,7 +139,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 	t.Run("Map of pointer slices", func(t *testing.T) {
 		for _, val := range []tdmg.ByteUint16SlicePtrMapAlias{
 			{0x50: &[]uint16{98, 333, 0}, 0x3: nil, 0x4: nil},
-			{0x8: &[]uint16{12, 1123, 123}},
+			{0x8: &[]uint16{12, 1123, math.MaxUint16}},
 			{0x9: &[]uint16{}},
 			{0x51: nil},
 		} {
@@ -150,9 +151,9 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of arrays", func(t *testing.T) {
 		for _, val := range []tdmg.Int32Float64ArrayMapAlias{
-			{19283: [2]float64{0.19, 434.937}},
+			{math.MaxInt32: [2]float64{0.19, 434.937}},
 			{0: [2]float64{}},
-			{-12847: {-12, -123.3}},
+			{-12847: {-12, -math.MaxFloat64}},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
@@ -175,7 +176,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of maps", func(t *testing.T) {
 		for _, val := range []tdmg.FloatByteBoolMapMapAlias{
-			{56.22: {0x03: true, 0x20: true}},
+			{-math.MaxFloat32: {0x03: true, 0x20: true}},
 			{0: {0x00: false}},
 			{-123.34: {0x05: false, 0x23: true}},
 		} {
@@ -187,9 +188,9 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 
 	t.Run("Map of pointer maps", func(t *testing.T) {
 		for _, val := range []tdmg.UintIntStringMapPtrMapAlias{
-			{1: nil, 56: {-123554: "true", 12837: "city"}},
+			{math.MaxUint16: nil, 56: {-123554: "true", math.MaxInt: "city"}},
 			{0: {0: ""}},
-			{1918: {12918923131211111: "bird", -1: "&&&92-2=!"}},
+			{1918: {12918923131211111: "bird", -1: "&&&92-2=!", math.MinInt: "iiii"}},
 			{2: nil, 0: nil},
 		} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
@@ -201,7 +202,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 	t.Run("Map of CustomType", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypeStructTypeMapAlias{
 			{
-				tdmg.SimpleStructType{Int: 12}: tdmg.SimpleStructType{Int: 2383},
+				tdmg.SimpleStructType{Int: math.MinInt}: tdmg.SimpleStructType{Int: math.MaxInt},
 			},
 			{
 				tdmg.SimpleStructType{Int: -12}: tdmg.SimpleStructType{Int: 111},
@@ -216,7 +217,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 	t.Run("Map of pointer CustomType", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypePtrStructTypePtrMapAlias{
 			{
-				&tdmg.SimpleStructType{Int: 12}:          &tdmg.SimpleStructType{Int: 2383},
+				&tdmg.SimpleStructType{Int: 12}:          &tdmg.SimpleStructType{Int: math.MinInt},
 				nil:                                      nil,
 				&tdmg.SimpleStructType{Int: math.MaxInt}: &tdmg.SimpleStructType{Int: -2},
 			},

@@ -3,6 +3,7 @@ package musgo
 
 import (
 	"errors"
+	"math"
 	"testing"
 
 	"github.com/ymz-ncnk/musgo/errs"
@@ -25,12 +26,12 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of pointers", func(t *testing.T) {
 		var (
-			f1 = 191.10
+			f1 = -math.MaxFloat64
 			f2 = 0.0
-			f3 = -0.19283
-			f4 = 1.0
-			f5 = -181928.0 // min value
-			f6 = 2342342.0 // max value
+			f3 = math.MaxFloat64
+			f4 = 11.8476301
+			f5 = math.SmallestNonzeroFloat64
+			f6 = 2342342.0
 		)
 		for _, val := range []tdmg.FloatPtrArrayAlias{
 			{&f1, &f2, &f3},
@@ -46,8 +47,8 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of aliases", func(t *testing.T) {
 		for _, val := range []tdmg.IntAliasArrayAlias{
-			{1, 0, -21923},
-			{12828, -18128, 19292}} { // mix,max value
+			{math.MinInt, 0, math.MaxInt},
+			{12828, -18128, 19292}} {
 			if err := testdata.TestGeneratedCode(val); err != nil {
 				t.Error(err)
 			}
@@ -57,7 +58,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 	t.Run("Array of pointer aliases", func(t *testing.T) {
 		var (
 			n1 tdmg.Uint64Alias = 181727361
-			n2 tdmg.Uint64Alias = 28283839844
+			n2 tdmg.Uint64Alias = math.MaxUint64
 			n3 tdmg.Uint64Alias = 0
 		)
 		for _, val := range []tdmg.Uint64PtrAliasArrayAlias{
@@ -74,7 +75,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 	t.Run("Array of slices", func(t *testing.T) {
 		for _, val := range []tdmg.Int64SliceArrayAlias{
 			{
-				{123, 0, 12342},
+				{123, 0, math.MinInt64},
 				{0, 0, 0},
 				{-1, -2, -12342},
 			},
@@ -87,7 +88,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of pointer slices", func(t *testing.T) {
 		var (
-			slice1 []uint16 = []uint16{7788, 0, 12}
+			slice1 []uint16 = []uint16{math.MaxUint16, 0, 12}
 			slice2 []uint16 = []uint16{0, 0, 0}
 			slice3 []uint16 = []uint16{657, 23, 981}
 		)
@@ -117,7 +118,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of arrays", func(t *testing.T) {
 		var (
-			arr1 = [2]byte{0x08, 0x55}
+			arr1 = [2]byte{0x08, math.MaxInt8}
 			arr2 = [2]byte{0x00, 0x09}
 		)
 		for _, val := range []tdmg.BytePtrArrayPtrArrayAlias{
@@ -131,8 +132,8 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of maps with keys - arrays", func(t *testing.T) {
 		var (
-			map1 = map[int]string{1: "some1", 876: "some2"}
-			map2 = map[int]string{2: "some3"}
+			map1 = map[int]string{1: "some1", math.MaxInt: "some2", 10: "another"}
+			map2 = map[int]string{math.MinInt: "some3"}
 			map3 = map[int]string{}
 		)
 		for _, val := range []tdmg.IntStrMapArrayAlias{
@@ -146,9 +147,9 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 
 	t.Run("Array of pointer maps", func(t *testing.T) {
 		var (
-			map1 = map[uint32]int32{1927: 0, 123: -123}
+			map1 = map[uint32]int32{math.MaxUint32: math.MaxInt32, 123: -123}
 			map2 = map[uint32]int32{7: 1, 120383: -12323423}
-			map3 = map[uint32]int32{0: 0, 1: 0}
+			map3 = map[uint32]int32{0: math.MinInt32, 1: 0}
 			map4 = map[uint32]int32{7: 1, 120383: -12323423}
 		)
 		for _, val := range []tdmg.Uint32Int32MapArrayAlias{
@@ -182,12 +183,12 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 	t.Run("Array of pointer CustomType-s", func(t *testing.T) {
 		for _, val := range []tdmg.StructTypePtrArrayAlias{
 			{
-				&tdmg.SimpleStructType{Int: -1289371},
+				&tdmg.SimpleStructType{Int: math.MinInt},
 				&tdmg.SimpleStructType{Int: -123},
 				&tdmg.SimpleStructType{Int: -123},
 			},
 			{
-				&tdmg.SimpleStructType{Int: 999999},
+				&tdmg.SimpleStructType{Int: math.MaxInt},
 				&tdmg.SimpleStructType{},
 				&tdmg.SimpleStructType{Int: -182},
 			},

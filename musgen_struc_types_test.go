@@ -2,6 +2,7 @@
 package musgo
 
 import (
+	"math"
 	"testing"
 
 	"github.com/ymz-ncnk/musgo/errs"
@@ -48,17 +49,18 @@ func TestGeneratedStructCode(t *testing.T) {
 			bl1      = &bl
 			bl2      = &bl1
 
-			sl  []uint16 = []uint16{1123, 0}
+			sl  []uint16 = []uint16{1123, 0, math.MaxUint16}
 			sl1          = &sl
 			sl2          = &sl1
 
-			ar  [2]int32 = [2]int32{123123123, 10}
+			ar  [2]int32 = [2]int32{123123123, math.MinInt32}
 			ar1          = &ar
 			ar2          = &ar1
 
-			m  map[string]int = map[string]int{"world": 20}
-			m1                = &m
-			m2                = &m1
+			m map[string]int = map[string]int{"world": 20, "string": math.MaxInt,
+				"small": math.MinInt}
+			m1 = &m
+			m2 = &m1
 
 			st  tdmg.SimpleStructType = tdmg.SimpleStructType{Int: 99}
 			st1                       = &st
