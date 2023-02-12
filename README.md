@@ -31,6 +31,9 @@ MusGo itself is pretty well tested, test coverage is about 90%.
 # Backward compatibility
 [github.com/ymz-ncnk/musgen#backward-compatibility](https://github.com/ymz-ncnk/musgen#backward-compatibility)
 
+# Versioning
+[github.com/ymz-ncnk/musgen#versioning](https://github.com/ymz-ncnk/musgen#versioning)
+
 # How to use
 First, you should download and install Go, version 1.18 or later.
 
