@@ -9,38 +9,38 @@ import (
 type TagParser func(tp reflect.Type, field reflect.StructField,
 	tag reflect.StructTag) (arr []any, err error)
 
-// Parse can accepts alias or sturct type, for other types returns
+// Parse can accept alias or sturct type, for other types returns
 // ErrUnsupportedType.
 // For alias type creates string representation of the underlying type and
 // returns it as the aliasOf value.
-// For struct type (alias to struct is also a sturct) - for each struct 
-// field creates a string representation of its type, puts all this in 
+// For struct type (alias to struct is also a sturct) - for each struct
+// field creates a string representation of its type, puts all this in
 // the fieldsTypes value.
 // Adds to each map type a "map number". For example, map[string]int becomes
 // map-0[string]-0int. With help of map numbers we could parse map types
 // correctly in situations like map[*map[string]int]int.
-func Parse(tp reflect.Type, tagParser TagParser) (aliasOf string, 
-	fieldsTypes []string, 
-	fieldsProps [][]any, 
+func Parse(tp reflect.Type, tagParser TagParser) (aliasOf string,
+	fieldsTypes []string,
+	fieldsProps [][]any,
 	err error,
-	) {
-		if tp == nil {
-			err = ErrUnsupportedType
-			return
-		}
-		if aliasType(tp) {
-			aliasOf, err = parseAlias(tp)
-			return
-		}
-		if definedStrucType(tp) {
-			fieldsTypes, fieldsProps, err = parseStruct(tp, tagParser)
-			return
-		}
+) {
+	if tp == nil {
 		err = ErrUnsupportedType
 		return
 	}
+	if aliasType(tp) {
+		aliasOf, err = parseAlias(tp)
+		return
+	}
+	if definedStrucType(tp) {
+		fieldsTypes, fieldsProps, err = parseStruct(tp, tagParser)
+		return
+	}
+	err = ErrUnsupportedType
+	return
+}
 
-	// parseAlias tries to parse an alias type(not an alias to a struct).
+// parseAlias tries to parse an alias type(not an alias to a struct).
 func parseAlias(tp reflect.Type) (aliasOf string, err error) {
 	if primitiveType(tp) {
 		aliasOf = tp.Kind().String()
