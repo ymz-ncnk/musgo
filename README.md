@@ -334,11 +334,13 @@ type PtrInt struct {
 
 var ptr PtrInt
 // Buf will not equal to the empty slice here.
+buf := make([]byte, ptr.SizeMUS())
 ptr.MarshalMUS(buf) // buf == []{0}
 ```
 
 And instead of this zero you can, for example, persist an empty slice:
 ```go
+...
 var buf []byte
 if ptr.Value == nil {
   buf = []byte{}
@@ -351,9 +353,10 @@ persist(buf)
 
 And on Unmarhsal:
 ```go
+...
 var ptr PtrInt
 if len(buf) != 0 {
-  _, err := ptr.UnamrshalMUS(buf)
+  _, err = ptr.UnamrshalMUS(buf)
   ...
 }
 ```
