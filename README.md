@@ -54,12 +54,12 @@ __foo.go__
 package foo
 
 type Foo struct {
-  num int `mus:"validators.Positive"` // private fields are supported
-  // too, will be checked with Positive validator while unmarshalling 
-  arr []int `mus:",,validators.Positive"` // every element will be checked
-  // with Positive validator
-  Alias StringAlias // alias types are supported too
-  Bool bool     `mus:"-"` // this field will be skiped
+  num int `mus:"validators.Positive"` // Private fields are supported
+  // too. It will be checked with Positive validator while unmarshalling.
+  arr []int `mus:",,validators.Positive"` // Every slice element will be checked
+  // with Positive validator.
+  Alias StringAlias // Alias types are supported too.
+  Bool bool     `mus:"-"` // This field will be skiped.
 }
 
 type StringAlias string
@@ -84,39 +84,41 @@ func Positive(n int) error {
 __gen/mus.go__
 ```go
 //go:build ignore
+
 package main
 
 import (
-  "foo"
-   "reflect"
+	"foo"
+	"reflect"
 
-  "github.com/ymz-ncnk/musgo"
+	"github.com/ymz-ncnk/musgo"
 )
 
 func main() {
-  // MusGo can generate code for struct or alias types.
-  musGo, err := musgo.New()
-  if err != nil {
-    panic(err)
-  }
-  // You should "Generate" for all involved custom types.
-  unsafe := false // to generate safe code
-  var alias foo.StringAlias
-  // Alias types don't support tags, so to set up validators we use
-  // GenerateAlias method.
-	conf := musgo.AliasConf{
-		MaxLength: 5, // Restricts length of StringAlias values to 5 characters.
+	// MusGo can generate code for struct or alias types.
+	musGo, err := musgo.New()
+	if err != nil {
+		panic(err)
 	}
-	err = musGo.GenerateAliasAs(reflect.TypeOf(alias), conf)
-  if err != nil {
-    panic(err)
-  }
-  // reflect.Type could be created without the explicit variable.
-  err = musGo.Generate(reflect.TypeOf((*foo.Foo)(nil)).Elem(), unsafe)
-  if err != nil {
-    panic(err)
-  }
+	// You should "Generate" for all involved custom types.
+	unsafe := false // To generate safe code.
+	var alias foo.StringAlias
+	// Alias types don't support tags, so to set up validators we use
+	// GenerateAliasAs() method.
+	conf := musgo.NewAliasConf()
+	conf.T = reflect.TypeOf(alias)
+	conf.MaxLength = 5 // Restricts length of StringAlias values to 5 characters.
+	err = musGo.GenerateAliasAs(conf)
+	if err != nil {
+		panic(err)
+	}
+	// reflect.Type could be created without the explicit variable.
+	err = musGo.Generate(reflect.TypeOf((*foo.Foo)(nil)).Elem(), unsafe)
+	if err != nil {
+		panic(err)
+	}
 }
+
 ```
 
 Run from the command line:
@@ -142,120 +144,119 @@ __foo_test.go__
 package foo
 
 import (
-  "foo/validators"
-  "reflect"
-  "testing"
+	"foo/validators"
+	"reflect"
+	"testing"
 
-  "github.com/ymz-ncnk/musgo/errs"
+	"github.com/ymz-ncnk/musgo/errs"
 )
 
 func TestFooSerialization(t *testing.T) {
-  foo := Foo{
-    num:   5,
-    arr:   []int{4, 2},
-    Alias: StringAlias("hello"),
-    Bool:  true,
-  }
-  buf := make([]byte, foo.SizeMUS())
-  foo.MarshalMUS(buf)
+	foo := Foo{
+		num:   5,
+		arr:   []int{4, 2},
+		Alias: StringAlias("hello"),
+		Bool:  true,
+	}
+	buf := make([]byte, foo.SizeMUS())
+	foo.MarshalMUS(buf)
 
-  afoo := Foo{}
-  _, err := afoo.UnmarshalMUS(buf)
-  if err != nil {
-    t.Error(err)
-  }
-  foo.Bool = false
-  if !reflect.DeepEqual(foo, afoo) {
-    t.Error("something went wrong")
-  }
+	afoo := Foo{}
+	_, err := afoo.UnmarshalMUS(buf)
+	if err != nil {
+		t.Error(err)
+	}
+	foo.Bool = false
+	if !reflect.DeepEqual(foo, afoo) {
+		t.Error("something went wrong")
+	}
 }
 
 func TestFooValidation(t *testing.T) {
-  // test simple validator
-  {
-    foo := Foo{
-      num:   -11,
-      arr:   []int{1, 2},
-      Alias: "hello",
-    }
-    buf := make([]byte, foo.SizeMUS())
-    foo.MarshalMUS(buf)
+	t.Run("Validator", func(t *testing.T) {
+		foo := Foo{
+			num:   -11,
+			arr:   []int{1, 2},
+			Alias: "hello",
+		}
+		buf := make([]byte, foo.SizeMUS())
+		foo.MarshalMUS(buf)
 
-    afoo := Foo{}
-    _, err := afoo.UnmarshalMUS(buf)
-    if err == nil {
-      t.Error("validation error expected")
-    }
-    if fieldErr, ok := err.(errs.FieldError); ok {
-      if fieldErr.FieldName() != "num" {
-        t.Error("wrong FieldError's FieldName")
-      }
-      if fieldErr.Cause() != validators.ErrNegative {
-        t.Error("wrong FieldError's Cause")
-      }
-    } else {
-      t.Error("not FiledError")
-    }
-  }
-  // test element validator
-  {
-    foo := Foo{
-      num:   3,
-      arr:   []int{1, -12, 2},
-      Alias: "hello",
-    }
-    buf := make([]byte, foo.SizeMUS())
-    foo.MarshalMUS(buf)
+		afoo := Foo{}
+		_, err := afoo.UnmarshalMUS(buf)
+		if err == nil {
+			t.Error("validation error expected")
+		}
+		if fieldErr, ok := err.(errs.FieldError); ok {
+			if fieldErr.FieldName() != "num" {
+				t.Error("wrong FieldError's FieldName")
+			}
+			if fieldErr.Cause() != validators.ErrNegative {
+				t.Error("wrong FieldError's Cause")
+			}
+		} else {
+			t.Error("not FiledError")
+		}
+	})
 
-    afoo := Foo{}
-    _, err := afoo.UnmarshalMUS(buf)
-    if err == nil {
-      t.Error("validation error expected")
-    }
-    if fieldErr, ok := err.(errs.FieldError); ok {
-      if fieldErr.FieldName() != "arr" {
-        t.Error("wrong FieldError's FieldName")
-      }
-      if sliceErr, ok := fieldErr.Cause().(errs.SliceError); ok {
-        if sliceErr.Index() != 1 {
-          t.Error("wrong SliceError's Index")
-        }
-        if sliceErr.Cause() != validators.ErrNegative {
-          t.Error("wrong SliceError's Cause")
-        }
-      } else {
-        t.Error("not SliceError")
-      }
-    } else {
-      t.Error("not FiledError")
-    }
-  }
-  // test max length
-  {
-    foo := Foo{
-      num:   8,
-      arr:   []int{1, 2},
-      Alias: "hello world",
-    }
-    buf := make([]byte, foo.SizeMUS())
-    foo.MarshalMUS(buf)
+	t.Run("Element validator", func(t *testing.T) {
+		foo := Foo{
+			num:   3,
+			arr:   []int{1, -12, 2},
+			Alias: "hello",
+		}
+		buf := make([]byte, foo.SizeMUS())
+		foo.MarshalMUS(buf)
 
-    afoo := Foo{}
-    _, err := afoo.UnmarshalMUS(buf)
-    if err == nil {
-      t.Error("validation error expected")
-    }
-    if fieldErr, ok := err.(errs.FieldError); ok {
-      if fieldErr.FieldName() != "Alias" {
-        t.Error("wrong FieldError's FieldName")
-      }
-      if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
-        t.Error("wrong FieldError's Cause")
-      }
-    } else {
-      t.Error("not FiledError")
-    }
-  }
+		afoo := Foo{}
+		_, err := afoo.UnmarshalMUS(buf)
+		if err == nil {
+			t.Error("validation error expected")
+		}
+		if fieldErr, ok := err.(errs.FieldError); ok {
+			if fieldErr.FieldName() != "arr" {
+				t.Error("wrong FieldError's FieldName")
+			}
+			if sliceErr, ok := fieldErr.Cause().(errs.SliceError); ok {
+				if sliceErr.Index() != 1 {
+					t.Error("wrong SliceError's Index")
+				}
+				if sliceErr.Cause() != validators.ErrNegative {
+					t.Error("wrong SliceError's Cause")
+				}
+			} else {
+				t.Error("not SliceError")
+			}
+		} else {
+			t.Error("not FiledError")
+		}
+	})
+
+	t.Run("Max length", func(t *testing.T) {
+		foo := Foo{
+			num:   8,
+			arr:   []int{1, 2},
+			Alias: "hello world",
+		}
+		buf := make([]byte, foo.SizeMUS())
+		foo.MarshalMUS(buf)
+
+		afoo := Foo{}
+		_, err := afoo.UnmarshalMUS(buf)
+		if err == nil {
+			t.Error("validation error expected")
+		}
+		if fieldErr, ok := err.(errs.FieldError); ok {
+			if fieldErr.FieldName() != "Alias" {
+				t.Error("wrong FieldError's FieldName")
+			}
+			if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
+				t.Error("wrong FieldError's Cause")
+			}
+		} else {
+			t.Error("not FiledError")
+		}
+	})
 }
 ```
 More advanced usage you can find at https://github.com/ymz-ncnk/musgotry.
@@ -326,7 +327,7 @@ You could generate fast unsafe code. Read more about it in the
 [MusGen documentation](https://github.com/ymz-ncnk/musgen#overview).
 
 # Nil pointer support
-Take a note, that nil pointer is encoded with zero:
+Take a note, that nil pointers are encoded with zeros:
 ```go
 type PtrInt struct {
   Value *int
@@ -428,15 +429,15 @@ func RorValidator(ror Ror) error {...}
 ## Errors
 Often validation errors are wrapped by one of the predefined error 
 (from the `errs` package):
-- FieldError - happens when field validation failed. Contains the field name
+- FieldError - happens when the field validation failed. Contains the field name
   and cause.
-- SliceError - happens when validation of the slice element failed. Contains 
+- SliceError - happens when the validation of the slice element failed. Contains 
   the element index and cause.
-- ArrayError - happens when validation of the array element failed. Contains 
+- ArrayError - happens when the validation of the array element failed. Contains 
   the element index and cause.
-- MapKeyError - happens when validation of the map key failed. Contains the 
+- MapKeyError - happens when the validation of the map key failed. Contains the 
   key and cause.
-- MapValueError - happens when validation of the map value failed. Contains 
+- MapValueError - happens when the validation of the map value failed. Contains 
   the key, value and cause.
 
 # Encodings
@@ -446,12 +447,12 @@ default `Varint` is used. You can choose `Raw` encoding using the `#raw` in
 
 For example:
 ```go
-// Set up Raw encoding without validator for the field.
+// Set up the Raw encoding without a validator for the field.
 type Foo struct {
   Field uint64 `mus:"#raw"`
 }
 
-// Set up validator and Raw encoding for the field.
+// Set up the validator and Raw encoding for the field.
 type Foo struct {
   Field uint64 `mus:"Positive#raw"`
 }
@@ -461,7 +462,7 @@ type Foo struct {
 (> 2^48 in uint representation) it has same or lesser size as `Varint`.
 
 For an alias type, you can set up encoding with help of the 
-`MusGo.GenerateAlias()` method.
+`MusGo.GenerateAliasAs()` method.
 
 # Single number serialization
 If all you want is to serialize a single number you can use:
