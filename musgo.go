@@ -50,7 +50,7 @@ func (musGo MusGo) Generate(tp reflect.Type, unsafe bool) error {
 }
 
 // GenerateAs performs like Generate. With help of this method you can configure
-// generation process.
+// the generation process.
 func (musGo MusGo) GenerateAs(tp reflect.Type, conf Conf) (err error) {
 	tdesc, err := tdesc_builder.Build(tp, tdesc_builder.Conf{
 		Unsafe: conf.Unsafe,
