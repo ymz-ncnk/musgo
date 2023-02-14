@@ -1,7 +1,7 @@
 package persistor
 
 import (
-	"github.com/ymz-ncnk/musgen"
+	"github.com/ymz-ncnk/musgen/v2"
 )
 
 // FilenameExtenstion of the generated files.

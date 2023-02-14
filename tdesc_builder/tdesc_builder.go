@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/ymz-ncnk/musgen"
+	"github.com/ymz-ncnk/musgen/v2"
 	"github.com/ymz-ncnk/musgo/parser"
 )
 
@@ -19,7 +19,6 @@ func Build(tp reflect.Type, conf Conf) (tdesc musgen.TypeDesc, err error) {
 	}
 	return BuildForStruct(tp, fieldsTypes, fieldsProps, conf)
 }
-
 
 // Build builds musgen.TypeDesc for alias type.
 func BuildForAlias(tp reflect.Type, aliasOf string, conf AliasConf) (
@@ -47,7 +46,7 @@ func BuildForAlias(tp reflect.Type, aliasOf string, conf AliasConf) (
 }
 
 // Build builds musgen.TypeDesc for struct type.
-func BuildForStruct(tp reflect.Type, fieldsTypes []string, fieldsProps [][]any, 
+func BuildForStruct(tp reflect.Type, fieldsTypes []string, fieldsProps [][]any,
 	conf Conf) (tdesc musgen.TypeDesc, err error) {
 	var (
 		fd  musgen.FieldDesc
@@ -100,7 +99,6 @@ func BuildForStruct(tp reflect.Type, fieldsTypes []string, fieldsProps [][]any,
 	}
 	return
 }
-
 
 func pkg(t reflect.Type) string {
 	re := regexp.MustCompile(`^(.*)\.`)

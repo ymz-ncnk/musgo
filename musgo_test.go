@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/musgen"
-	musgen_mock "github.com/ymz-ncnk/musgen/testdata/mock"
+	"github.com/ymz-ncnk/musgen/v2"
+	musgen_mock "github.com/ymz-ncnk/musgen/v2/testdata/mock"
 	"github.com/ymz-ncnk/musgo/parser"
 	musgo_mock "github.com/ymz-ncnk/musgo/testdata/mock"
 )

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/musgen"
+	"github.com/ymz-ncnk/musgen/v2"
 )
 
 func TestTypeDescBuilder(t *testing.T) {

@@ -2,7 +2,7 @@ package mocks
 
 import (
 	"github.com/ymz-ncnk/amock"
-	"github.com/ymz-ncnk/musgen"
+	"github.com/ymz-ncnk/musgen/v2"
 )
 
 func NewPersistor() Persistor {

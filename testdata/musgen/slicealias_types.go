@@ -1,6 +1,6 @@
 package musgen
 
-import musgenmod "github.com/ymz-ncnk/musgen"
+import musgenmod "github.com/ymz-ncnk/musgen/v2"
 
 type StrSliceAlias []string
 

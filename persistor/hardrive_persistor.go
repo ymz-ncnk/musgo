@@ -4,7 +4,7 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/ymz-ncnk/musgen"
+	"github.com/ymz-ncnk/musgen/v2"
 	"golang.org/x/tools/imports"
 )
 

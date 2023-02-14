@@ -1,7 +1,7 @@
 package musgen
 
 import (
-	musgenmod "github.com/ymz-ncnk/musgen"
+	musgenmod "github.com/ymz-ncnk/musgen/v2"
 )
 
 type StrArrayAlias [3]string

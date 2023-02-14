@@ -3,8 +3,8 @@ package musgo
 import (
 	"reflect"
 
-	"github.com/ymz-ncnk/musgen"
-	musgen_textmpl "github.com/ymz-ncnk/musgen/text_template"
+	"github.com/ymz-ncnk/musgen/v2"
+	musgen_textmpl "github.com/ymz-ncnk/musgen/v2/text_template"
 	"github.com/ymz-ncnk/musgo/parser"
 	persist "github.com/ymz-ncnk/musgo/persistor"
 	"github.com/ymz-ncnk/musgo/tdesc_builder"
