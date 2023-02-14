@@ -10,7 +10,7 @@ import (
 
 	"github.com/ymz-ncnk/musgen/v2"
 	musgen_textmpl "github.com/ymz-ncnk/musgen/v2/text_template"
-	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
+	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 	"golang.org/x/tools/imports"
 )
 

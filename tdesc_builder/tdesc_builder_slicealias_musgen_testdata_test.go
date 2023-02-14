@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
+	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
 
 func TestParseSliceAliasMusgenTestdata(t *testing.T) {

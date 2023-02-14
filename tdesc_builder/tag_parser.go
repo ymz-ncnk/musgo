@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ymz-ncnk/musgo/parser"
+	"github.com/ymz-ncnk/musgo/v2/parser"
 )
 
 // TagKey represents a key of a tag, which marks field validators and

@@ -6,9 +6,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/errs"
-	"github.com/ymz-ncnk/musgo/testdata"
-	tdmg "github.com/ymz-ncnk/musgo/testdata/musgen"
+	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/musgo/v2/testdata"
+	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
 
 func TestGeneratedArrayAliasCode(t *testing.T) {

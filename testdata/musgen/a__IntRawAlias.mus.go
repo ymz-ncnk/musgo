@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/errs"
+import "github.com/ymz-ncnk/musgo/v2/errs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v IntRawAlias) Marshal(buf []byte) int {

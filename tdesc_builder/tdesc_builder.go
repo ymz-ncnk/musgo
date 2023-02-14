@@ -5,7 +5,7 @@ import (
 	"regexp"
 
 	"github.com/ymz-ncnk/musgen/v2"
-	"github.com/ymz-ncnk/musgo/parser"
+	"github.com/ymz-ncnk/musgo/v2/parser"
 )
 
 // Build builds musgen.TypeDesc for struct or alias type.

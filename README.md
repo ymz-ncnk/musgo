@@ -146,7 +146,7 @@ import (
   "reflect"
   "testing"
 
-  "github.com/ymz-ncnk/musgo/errs"
+  "github.com/ymz-ncnk/musgo/v2/errs"
 )
 
 func TestFooSerialization(t *testing.T) {

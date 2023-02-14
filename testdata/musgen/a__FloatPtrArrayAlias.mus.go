@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/musgo/errs"
+	"github.com/ymz-ncnk/musgo/v2/errs"
 )
 
 // Marshal fills buf with the MUS encoding of v.

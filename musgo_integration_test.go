@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/persistor"
+	"github.com/ymz-ncnk/musgo/v2/persistor"
 )
 
 func TestMusGoIntegration(t *testing.T) {

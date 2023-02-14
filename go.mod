@@ -1,4 +1,4 @@
-module github.com/ymz-ncnk/musgo
+module github.com/ymz-ncnk/musgo/v2
 
 go 1.18
 

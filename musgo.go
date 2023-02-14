@@ -5,9 +5,9 @@ import (
 
 	"github.com/ymz-ncnk/musgen/v2"
 	musgen_textmpl "github.com/ymz-ncnk/musgen/v2/text_template"
-	"github.com/ymz-ncnk/musgo/parser"
-	persist "github.com/ymz-ncnk/musgo/persistor"
-	"github.com/ymz-ncnk/musgo/tdesc_builder"
+	"github.com/ymz-ncnk/musgo/v2/parser"
+	persistor_pkg "github.com/ymz-ncnk/musgo/v2/persistor"
+	"github.com/ymz-ncnk/musgo/v2/tdesc_builder"
 )
 
 // DefConf is the default configuration for a struct type.
@@ -22,19 +22,19 @@ func New() (musGo MusGo, err error) {
 	if err != nil {
 		return
 	}
-	return NewWith(musGen, persist.NewHarDrivePersistor())
+	return NewWith(musGen, persistor_pkg.NewHarDrivePersistor())
 }
 
 // NewWith creates a configurable MusGo.
-func NewWith(musGen musgen.MusGen, persistor persist.Persistor) (musGo MusGo,
-	err error) {
+func NewWith(musGen musgen.MusGen, persistor persistor_pkg.Persistor) (
+	musGo MusGo, err error) {
 	return MusGo{musGen, persistor}, nil
 }
 
 // MusGo is a Go code generator for the MUS format.
 type MusGo struct {
 	musGen    musgen.MusGen
-	persistor persist.Persistor
+	persistor persistor_pkg.Persistor
 }
 
 // Generate accepts a struct or alias type. Returns an error if receives an
