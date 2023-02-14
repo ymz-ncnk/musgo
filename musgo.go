@@ -99,7 +99,7 @@ func (musGo MusGo) generate(tDesc musgen.TypeDesc, path string) (err error) {
 	if err != nil {
 		return
 	}
-	data, err = imports.Process(".", data, nil)
+	data, err = imports.Process("", data, nil)
 	if err != nil {
 		return
 	}
