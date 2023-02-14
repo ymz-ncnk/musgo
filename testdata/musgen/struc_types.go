@@ -1,15 +1,15 @@
 package musgen
 
-import musgenmod "github.com/ymz-ncnk/musgen/v2"
+import musgen_mod "github.com/ymz-ncnk/musgen/v2"
 
 type SimpleStructType struct {
 	Int int
 }
 
-var SimpleStructTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var SimpleStructTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "SimpleStructType",
-	Fields: []musgenmod.FieldDesc{
+	Fields: []musgen_mod.FieldDesc{
 		{Name: "Int", Type: "int"},
 	},
 }
@@ -62,10 +62,10 @@ type StructType struct {
 	Tricky [2]map[[2]IntAlias]map[StringAlias][2]string
 }
 
-var StructTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var StructTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "StructType",
-	Fields: []musgenmod.FieldDesc{
+	Fields: []musgen_mod.FieldDesc{
 		{Name: "Uint", Type: "uint"},
 		{Name: "Uint16", Type: "uint16"},
 		{Name: "Uint32", Type: "uint32"},
@@ -136,10 +136,10 @@ type ValidStructType struct {
 	StructPtr *SimpleStructType
 }
 
-var ValidStructTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var ValidStructTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "ValidStructType",
-	Fields: []musgenmod.FieldDesc{
+	Fields: []musgen_mod.FieldDesc{
 		{Name: "Uint64", Type: "uint64", Validator: "BiggerThanTenUint64"},
 
 		{Name: "Int8", Type: "int8", Validator: "BiggerThanTenInt8"},
@@ -178,8 +178,8 @@ type FieldlessStructType struct {
 	Slice  []int
 }
 
-var FieldlessStructTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var FieldlessStructTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "FieldlessStructType",
-	Fields:  []musgenmod.FieldDesc{},
+	Fields:  []musgen_mod.FieldDesc{},
 }

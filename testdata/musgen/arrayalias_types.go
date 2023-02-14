@@ -1,15 +1,15 @@
 package musgen
 
 import (
-	musgenmod "github.com/ymz-ncnk/musgen/v2"
+	musgen_mod "github.com/ymz-ncnk/musgen/v2"
 )
 
 type StrArrayAlias [3]string
 
-var StrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var StrArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "StrArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]string",
 		Alias: "StrArrayAlias",
 	}},
@@ -17,10 +17,10 @@ var StrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type FloatPtrArrayAlias [3]*float64
 
-var FloatPtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var FloatPtrArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "FloatPtrArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]*float64",
 		Alias: "FloatPtrArrayAlias",
 	}},
@@ -28,19 +28,19 @@ var FloatPtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type IntAliasArrayAlias [3]IntAlias
 
-var IntAliasArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var IntAliasArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "IntAliasArrayAlias",
-	Fields: []musgenmod.FieldDesc{{Name: "", Type: "[3]IntAlias",
+	Fields: []musgen_mod.FieldDesc{{Name: "", Type: "[3]IntAlias",
 		Alias: "IntAliasArrayAlias"}},
 }
 
 type Uint64PtrAliasArrayAlias [3]*Uint64Alias
 
-var Uint64PtrAliasArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var Uint64PtrAliasArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "Uint64PtrAliasArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]*Uint64Alias",
 		Alias: "Uint64PtrAliasArrayAlias",
 	}},
@@ -48,10 +48,10 @@ var Uint64PtrAliasArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type Int64SliceArrayAlias [3][]int64
 
-var Int64SliceArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var Int64SliceArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "Int64SliceArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3][]int64",
 		Alias: "Int64SliceArrayAlias",
 	}},
@@ -59,10 +59,10 @@ var Int64SliceArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type Uint16SlicePtrArrayAlias [3]*[]uint16
 
-var Uint16SlicePtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var Uint16SlicePtrArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "Uint16SlicePtrArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]*[]uint16",
 		Alias: "Uint16SlicePtrArrayAlias",
 	}},
@@ -70,10 +70,10 @@ var Uint16SlicePtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type BoolArrayArrayAlias [3][3]bool
 
-var BoolArrayArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var BoolArrayArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "BoolArrayArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3][3]bool",
 		Alias: "BoolArrayArrayAlias",
 	}},
@@ -81,10 +81,10 @@ var BoolArrayArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type BytePtrArrayPtrArrayAlias [2]*[2]byte
 
-var BytePtrArrayPtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var BytePtrArrayPtrArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "BytePtrArrayPtrArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[2]*[2]uint8",
 		Alias: "BytePtrArrayPtrArrayAlias",
 	}},
@@ -92,10 +92,10 @@ var BytePtrArrayPtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type IntStrMapArrayAlias [3]map[int]string
 
-var IntStrMapArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var IntStrMapArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "IntStrMapArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]map-0[int]-0string",
 		Alias: "IntStrMapArrayAlias",
 	}},
@@ -103,10 +103,10 @@ var IntStrMapArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type Uint32Int32MapArrayAlias [4]*map[uint32]int32
 
-var Uint32Int32MapArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var Uint32Int32MapArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "Uint32Int32MapArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[4]*map-0[uint32]-0int32",
 		Alias: "Uint32Int32MapArrayAlias",
 	}},
@@ -114,10 +114,10 @@ var Uint32Int32MapArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type StructTypeArrayAlias [3]SimpleStructType
 
-var StructTypeArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var StructTypeArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "StructTypeArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]SimpleStructType",
 		Alias: "StructTypeArrayAlias",
 	}},
@@ -125,10 +125,10 @@ var StructTypeArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type StructTypePtrArrayAlias [3]*SimpleStructType
 
-var StructTypePtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var StructTypePtrArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "StructTypePtrArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]*SimpleStructType",
 		Alias: "StructTypePtrArrayAlias",
 	}},
@@ -136,10 +136,10 @@ var StructTypePtrArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type TrickyArrayAlias [2][][3]map[SimpleStructType][1]int
 
-var TrickyArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var TrickyArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "TrickyArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[2][][3]map-0[SimpleStructType]-0[1]int",
 		Alias: "TrickyArrayAlias",
 	}},
@@ -147,10 +147,10 @@ var TrickyArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type StrZeroLengthArrayAlias [0]string
 
-var StrZeroLengthArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var StrZeroLengthArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "StrZeroLengthArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[0]string",
 		Alias: "StrZeroLengthArrayAlias",
 	}},
@@ -158,10 +158,10 @@ var StrZeroLengthArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type IntPtrPtrPtrAliasArrayAlias [3]***int
 
-var IntPtrPtrPtrAliasArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var IntPtrPtrPtrAliasArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "IntPtrPtrPtrAliasArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:  "[3]***int",
 		Alias: "IntPtrPtrPtrAliasArrayAlias",
 	}},
@@ -169,10 +169,10 @@ var IntPtrPtrPtrAliasArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type ValidIntArrayAlias [2]int
 
-var ValidIntArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var ValidIntArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "ValidIntArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:          "[2]int",
 		Validator:     "ValidIntArrayAliasSumBiggerThanTen",
 		ElemValidator: "BiggerThanTenInt", Alias: "ValidIntArrayAlias",
@@ -181,10 +181,10 @@ var ValidIntArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
 
 type ValidPtrIntArrayAlias [2]*int
 
-var ValidPtrIntArrayAliasTypeDesc musgenmod.TypeDesc = musgenmod.TypeDesc{
+var ValidPtrIntArrayAliasTypeDesc musgen_mod.TypeDesc = musgen_mod.TypeDesc{
 	Package: "musgen",
 	Name:    "ValidPtrIntArrayAlias",
-	Fields: []musgenmod.FieldDesc{{
+	Fields: []musgen_mod.FieldDesc{{
 		Type:          "[2]*int",
 		ElemValidator: "NotNilInt", Alias: "ValidPtrIntArrayAlias",
 	}},
