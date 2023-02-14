@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/ymz-ncnk/musgen/v2"
-	"golang.org/x/tools/imports"
 )
 
 // NewHarDrivePersistor creates new HarDrivePersistor.
@@ -24,10 +23,6 @@ type HarDrivePersistor struct {
 
 func (persistor HarDrivePersistor) Persist(tDesc musgen.TypeDesc, data []byte,
 	path string) (err error) {
-	data, err = imports.Process("", data, nil)
-	if err != nil {
-		return
-	}
 	filename := persistor.FilenameBuilder(tDesc)
 	if path == "" {
 		path = "."

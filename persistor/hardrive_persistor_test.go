@@ -36,16 +36,4 @@ func TestHarDrivePersistor(t *testing.T) {
 		}
 	})
 
-	t.Run("Persist not source code", func(t *testing.T) {
-		var (
-			wantData = []byte{1, 2, 3}
-			tDesc    = musgen.TypeDesc{Name: "StringAlias"}
-		)
-		p := NewHarDrivePersistor()
-		err := p.Persist(tDesc, wantData, dname)
-		if err == nil {
-			t.Fatal("expects an error here")
-		}
-	})
-
 }

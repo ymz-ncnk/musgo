@@ -69,7 +69,6 @@ func TestMusGo(t *testing.T) {
 	}
 
 	t.Run("Generate", func(t *testing.T) {
-		// TODO Generate struct.
 		type Struct struct {
 			Field uint
 		}
@@ -89,7 +88,7 @@ func TestMusGo(t *testing.T) {
 				},
 			}
 			wantLang          = musgen.GoLang
-			wantData          = []byte{10}
+			wantData          = []byte("package musgo\n")
 			musGen, persistor = makeMocks(wantTDesc, wantLang, wantData, DefConf.Path)
 		)
 		musGo, err := NewWith(musGen, persistor)
@@ -124,7 +123,7 @@ func TestMusGo(t *testing.T) {
 				},
 			}
 			wantLang          = musgen.GoLang
-			wantData          = []byte{1, 1, 1}
+			wantData          = []byte("package musgo\n")
 			musGen, persistor = makeMocks(wantTDesc, wantLang, wantData, conf.Path)
 		)
 		musGo, err := NewWith(musGen, persistor)
@@ -175,7 +174,7 @@ func TestMusGo(t *testing.T) {
 				},
 			}
 			wantLang          = musgen.GoLang
-			wantData          = []byte{1, 10, 5}
+			wantData          = []byte("package musgo\n")
 			musGen, persistor = makeMocks(wantTDesc, wantLang, wantData, conf.Path)
 		)
 		musGo, err := NewWith(musGen, persistor)

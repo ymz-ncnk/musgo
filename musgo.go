@@ -8,6 +8,7 @@ import (
 	"github.com/ymz-ncnk/musgo/v2/parser"
 	persistor_pkg "github.com/ymz-ncnk/musgo/v2/persistor"
 	"github.com/ymz-ncnk/musgo/v2/tdesc_builder"
+	"golang.org/x/tools/imports"
 )
 
 // DefConf is the default configuration for a struct type.
@@ -52,14 +53,14 @@ func (musGo MusGo) Generate(tp reflect.Type, unsafe bool) error {
 // GenerateAs performs like Generate. With help of this method you can configure
 // the generation process.
 func (musGo MusGo) GenerateAs(tp reflect.Type, conf Conf) (err error) {
-	tdesc, err := tdesc_builder.Build(tp, tdesc_builder.Conf{
+	tDesc, err := tdesc_builder.Build(tp, tdesc_builder.Conf{
 		Unsafe: conf.Unsafe,
 		Suffix: conf.Suffix,
 	})
 	if err != nil {
 		return
 	}
-	return musGo.generate(tdesc, conf.Path)
+	return musGo.generate(tDesc, conf.Path)
 }
 
 // GenerateAliasAs performs like Generate. With help of this method Validators
@@ -73,7 +74,7 @@ func (musGo MusGo) GenerateAliasAs(tp reflect.Type, conf AliasConf) (
 	if aliasOf == "" {
 		return ErrNotAlias
 	}
-	tdesc, err := tdesc_builder.BuildForAlias(tp, aliasOf,
+	tDesc, err := tdesc_builder.BuildForAlias(tp, aliasOf,
 		tdesc_builder.AliasConf{
 			Conf: tdesc_builder.Conf{
 				Unsafe: conf.Unsafe,
@@ -90,13 +91,17 @@ func (musGo MusGo) GenerateAliasAs(tp reflect.Type, conf AliasConf) (
 	if err != nil {
 		return
 	}
-	return musGo.generate(tdesc, conf.Path)
+	return musGo.generate(tDesc, conf.Path)
 }
 
-func (musGo MusGo) generate(tdesc musgen.TypeDesc, path string) (err error) {
-	b, err := musGo.musGen.Generate(tdesc, musgen.GoLang)
+func (musGo MusGo) generate(tDesc musgen.TypeDesc, path string) (err error) {
+	data, err := musGo.musGen.Generate(tDesc, musgen.GoLang)
 	if err != nil {
 		return
 	}
-	return musGo.persistor.Persist(tdesc, b, path)
+	data, err = imports.Process(".", data, nil)
+	if err != nil {
+		return
+	}
+	return musGo.persistor.Persist(tDesc, data, path)
 }
