@@ -103,7 +103,7 @@ func main() {
   // You should "Generate" for all involved custom types.
   unsafe := false // To generate safe code.
   var alias foo.StringAlias
-  // Alias types don't support tags, so to set up validators we use
+  // Alias types don't support tags, so to set up validator we use
   // GenerateAliasAs() method.
   conf := musgo.DefAliasConf
   conf.MaxLength = 5 // Restricts length of StringAlias values to 5 characters.
