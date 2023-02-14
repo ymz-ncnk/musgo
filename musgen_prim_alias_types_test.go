@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 	"github.com/ymz-ncnk/musgo/v2/testdata"
 	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
@@ -28,7 +28,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255}
 		val := tdmg.Uint64Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrSmallBuf {
+		if err != muserrs.ErrSmallBuf {
 			t.Error("incorrect encoding is ok")
 		}
 	})
@@ -39,7 +39,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{131, 128, 128, 128, 128, 128, 128, 128, 128, 2}
 		val := tdmg.Uint64Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("incorrect encoding is ok")
 		}
 	})
@@ -48,7 +48,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255, 255, 255, 225, 255, 255, 255, 2}
 		val := tdmg.Uint64Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("too long encoding is ok")
 		}
 	})
@@ -72,7 +72,7 @@ func TestPrimAlias(t *testing.T) {
 			arr := []byte{131, 128, 128, 128, 16}
 			val := tdmg.Uint32Alias(0)
 			_, err := val.Unmarshal(arr)
-			if err != errs.ErrOverflow {
+			if err != muserrs.ErrOverflow {
 				t.Error("incorrect encoding is ok")
 			}
 		})
@@ -81,7 +81,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255, 255, 255, 2}
 		val := tdmg.Uint32Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("too long encoding is ok")
 		}
 	})
@@ -105,7 +105,7 @@ func TestPrimAlias(t *testing.T) {
 			arr := []byte{131, 128, 4}
 			val := tdmg.Uint16Alias(0)
 			_, err := val.Unmarshal(arr)
-			if err != errs.ErrOverflow {
+			if err != muserrs.ErrOverflow {
 				t.Error("incorrect encoding is ok")
 			}
 		})
@@ -114,7 +114,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255, 2}
 		val := tdmg.Uint16Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("too long encoding is ok")
 		}
 	})
@@ -168,7 +168,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255}
 		val := tdmg.Int64Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrSmallBuf {
+		if err != muserrs.ErrSmallBuf {
 			t.Error("incorrect encoding is ok")
 		}
 	})
@@ -177,7 +177,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255, 255, 255, 225, 255, 255, 255, 2}
 		val := tdmg.Int64Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("too long encoding is ok")
 		}
 	})
@@ -199,7 +199,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255, 255, 255, 2}
 		val := tdmg.Int32Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("too long encoding is ok")
 		}
 	})
@@ -221,7 +221,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{255, 255, 255, 2}
 		val := tdmg.Int16Alias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrOverflow {
+		if err != muserrs.ErrOverflow {
 			t.Error("too long encoding is ok")
 		}
 	})
@@ -311,7 +311,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{3}
 		val := tdmg.BoolAlias(false)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrWrongByte {
+		if err != muserrs.ErrWrongByte {
 			t.Error("wrong byte is ok")
 		}
 	})
@@ -350,7 +350,7 @@ func TestPrimAlias(t *testing.T) {
 	t.Run("String, too small buf", func(t *testing.T) {
 		defer func() {
 			if r := recover(); r != nil {
-				if r != errs.ErrSmallBuf {
+				if r != muserrs.ErrSmallBuf {
 					t.Error("unexpected panic msg")
 				}
 			}
@@ -365,7 +365,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{12, 1, 1}
 		val := tdmg.StringAlias("")
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrSmallBuf {
+		if err != muserrs.ErrSmallBuf {
 			t.Error("too short buf is ok")
 		}
 	})
@@ -374,7 +374,7 @@ func TestPrimAlias(t *testing.T) {
 		arr := []byte{1, 12, 12}
 		val := tdmg.StringAlias("")
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrNegativeLength {
+		if err != muserrs.ErrNegativeLength {
 			t.Error("negative length in byte string is ok")
 		}
 	})

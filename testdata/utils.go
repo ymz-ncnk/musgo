@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 )
 
 type MUSMarshalType interface {
@@ -50,7 +50,7 @@ func ExecGeneratedCode(val MUSMarshalType) (aval MUSUnmarshalType, err error) {
 
 func TestBufferEnds(val MUSUnmarshalType, buf []byte) error {
 	_, err := val.Unmarshal(buf)
-	if err != errs.ErrSmallBuf {
+	if err != muserrs.ErrSmallBuf {
 		return errors.New("small buf is ok")
 	}
 	return nil
@@ -58,7 +58,7 @@ func TestBufferEnds(val MUSUnmarshalType, buf []byte) error {
 
 func TestFieldErr(err error, wantField string, t *testing.T) (cause error) {
 	unmarshalErr := errors.Unwrap(err)
-	if fieldErr, ok := unmarshalErr.(*errs.FieldError); ok {
+	if fieldErr, ok := unmarshalErr.(*muserrs.FieldError); ok {
 		if fieldErr.FieldName() != wantField {
 			t.Errorf("wrong error field name '%v'", fieldErr.FieldName())
 		}
@@ -85,7 +85,7 @@ func TestSliceElemErr(err error, wantField string, wantElemIndex int,
 ) {
 	cause := TestFieldErr(err, wantField, t)
 	if cause != nil {
-		sliceErr, ok := cause.(*errs.SliceError)
+		sliceErr, ok := cause.(*muserrs.SliceError)
 		if !ok {
 			t.Errorf("wrong error cause '%v'", cause)
 		}
@@ -104,7 +104,7 @@ func TestMapKeyErr(err error, wantField string, wantKey string,
 ) {
 	cause := TestFieldErr(err, wantField, t)
 	if cause != nil {
-		mapKeyErr, ok := cause.(*errs.MapKeyError)
+		mapKeyErr, ok := cause.(*muserrs.MapKeyError)
 		if !ok {
 			t.Errorf("wrong error cause '%v'", cause)
 		}
@@ -122,7 +122,7 @@ func TestMapValueErr(err error, wantField string, wantKey string, wantValue int,
 	t *testing.T) {
 	cause := TestFieldErr(err, wantField, t)
 	if cause != nil {
-		mapValueErr, ok := cause.(*errs.MapValueError)
+		mapValueErr, ok := cause.(*muserrs.MapValueError)
 		if !ok {
 			t.Errorf("wrong error cause '%v'", cause)
 		}

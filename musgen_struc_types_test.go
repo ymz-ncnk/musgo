@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 	"github.com/ymz-ncnk/musgo/v2/testdata"
 	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
@@ -515,7 +515,7 @@ func TestGeneratedStructCode(t *testing.T) {
 			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
-				testdata.TestFieldErrAndCause(err, "String", errs.ErrMaxLengthExceeded,
+				testdata.TestFieldErrAndCause(err, "String", muserrs.ErrMaxLengthExceeded,
 					t)
 			}
 		}
@@ -530,7 +530,7 @@ func TestGeneratedStructCode(t *testing.T) {
 			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
-				testdata.TestFieldErrAndCause(err, "Slice", errs.ErrMaxLengthExceeded,
+				testdata.TestFieldErrAndCause(err, "Slice", muserrs.ErrMaxLengthExceeded,
 					t)
 			}
 		}
@@ -546,7 +546,7 @@ func TestGeneratedStructCode(t *testing.T) {
 			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
-				testdata.TestFieldErrAndCause(err, "Map", errs.ErrMaxLengthExceeded, t)
+				testdata.TestFieldErrAndCause(err, "Map", muserrs.ErrMaxLengthExceeded, t)
 			}
 		}
 	})
@@ -561,7 +561,7 @@ func TestGeneratedStructCode(t *testing.T) {
 			}(),
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
-				testdata.TestFieldErrAndCause(err, "MapPtr", errs.ErrMaxLengthExceeded,
+				testdata.TestFieldErrAndCause(err, "MapPtr", muserrs.ErrMaxLengthExceeded,
 					t)
 			}
 		}

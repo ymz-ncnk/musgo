@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v BoolSliceSliceAlias) Marshal(buf []byte) int {
@@ -72,13 +72,13 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -90,7 +90,7 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -101,7 +101,7 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make([][]bool, length)
 		for j := 0; j < length; j++ {
@@ -111,13 +111,13 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -129,7 +129,7 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -140,13 +140,13 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 					length = int(uv)
 				}
 				if length < 0 {
-					return i, errs.ErrNegativeLength
+					return i, muserrs.ErrNegativeLength
 				}
 				(*v)[j] = make([]bool, length)
 				for jj := 0; jj < length; jj++ {
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						if buf[i] == 0x01 {
 							(*v)[j][jj] = true
@@ -155,17 +155,17 @@ func (v *BoolSliceSliceAlias) Unmarshal(buf []byte) (int, error) {
 							(*v)[j][jj] = false
 							i++
 						} else {
-							err = errs.ErrWrongByte
+							err = muserrs.ErrWrongByte
 						}
 					}
 					if err != nil {
-						err = errs.NewSliceError(jj, err)
+						err = muserrs.NewSliceError(jj, err)
 						break
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewSliceError(j, err)
+				err = muserrs.NewSliceError(j, err)
 				break
 			}
 		}

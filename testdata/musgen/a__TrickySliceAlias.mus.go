@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v TrickySliceAlias) Marshal(buf []byte) int {
@@ -166,13 +166,13 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -184,7 +184,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -195,7 +195,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make([][2]map[*[]StringAlias]map[SimpleStructType][]int, length)
 		for j := 0; j < length; j++ {
@@ -207,13 +207,13 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 							var uv uint64
 							{
 								if i > len(buf)-1 {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 								shift := 0
 								done := false
 								for l, b := range buf[i:] {
 									if l == 9 && b > 1 {
-										return i, errs.ErrOverflow
+										return i, muserrs.ErrOverflow
 									}
 									if b < 0x80 {
 										uv = uv | uint64(b)<<shift
@@ -225,7 +225,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 									shift += 7
 								}
 								if !done {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 							}
 							if uv&1 == 1 {
@@ -236,7 +236,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 							length = int(uv)
 						}
 						if length < 0 {
-							return i, errs.ErrNegativeLength
+							return i, muserrs.ErrNegativeLength
 						}
 						(*v)[j][jj] = make(map[*[]StringAlias]map[SimpleStructType][]int)
 						for ; length > 0; length-- {
@@ -247,7 +247,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 								kem = nil
 							} else if buf[i] != 1 {
 								i++
-								return i, errs.ErrWrongByte
+								return i, muserrs.ErrWrongByte
 							} else {
 								i++
 								{
@@ -256,13 +256,13 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 										var uv uint64
 										{
 											if i > len(buf)-1 {
-												return i, errs.ErrSmallBuf
+												return i, muserrs.ErrSmallBuf
 											}
 											shift := 0
 											done := false
 											for l, b := range buf[i:] {
 												if l == 9 && b > 1 {
-													return i, errs.ErrOverflow
+													return i, muserrs.ErrOverflow
 												}
 												if b < 0x80 {
 													uv = uv | uint64(b)<<shift
@@ -274,7 +274,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 												shift += 7
 											}
 											if !done {
-												return i, errs.ErrSmallBuf
+												return i, muserrs.ErrSmallBuf
 											}
 										}
 										if uv&1 == 1 {
@@ -285,7 +285,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 										length = int(uv)
 									}
 									if length < 0 {
-										return i, errs.ErrNegativeLength
+										return i, muserrs.ErrNegativeLength
 									}
 									(*kem) = make([]StringAlias, length)
 									for j := 0; j < length; j++ {
@@ -299,14 +299,14 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 											}
 										}
 										if err != nil {
-											err = errs.NewSliceError(j, err)
+											err = muserrs.NewSliceError(j, err)
 											break
 										}
 									}
 								}
 							}
 							if err != nil {
-								err = errs.NewMapKeyError(kem, err)
+								err = muserrs.NewMapKeyError(kem, err)
 								break
 							}
 							{
@@ -315,13 +315,13 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 									var uv uint64
 									{
 										if i > len(buf)-1 {
-											return i, errs.ErrSmallBuf
+											return i, muserrs.ErrSmallBuf
 										}
 										shift := 0
 										done := false
 										for l, b := range buf[i:] {
 											if l == 9 && b > 1 {
-												return i, errs.ErrOverflow
+												return i, muserrs.ErrOverflow
 											}
 											if b < 0x80 {
 												uv = uv | uint64(b)<<shift
@@ -333,7 +333,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 											shift += 7
 										}
 										if !done {
-											return i, errs.ErrSmallBuf
+											return i, muserrs.ErrSmallBuf
 										}
 									}
 									if uv&1 == 1 {
@@ -344,7 +344,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 									length = int(uv)
 								}
 								if length < 0 {
-									return i, errs.ErrNegativeLength
+									return i, muserrs.ErrNegativeLength
 								}
 								vlm = make(map[SimpleStructType][]int)
 								for ; length > 0; length-- {
@@ -360,7 +360,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 										}
 									}
 									if err != nil {
-										err = errs.NewMapKeyError(kemm, err)
+										err = muserrs.NewMapKeyError(kemm, err)
 										break
 									}
 									{
@@ -369,13 +369,13 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 											var uv uint64
 											{
 												if i > len(buf)-1 {
-													return i, errs.ErrSmallBuf
+													return i, muserrs.ErrSmallBuf
 												}
 												shift := 0
 												done := false
 												for l, b := range buf[i:] {
 													if l == 9 && b > 1 {
-														return i, errs.ErrOverflow
+														return i, muserrs.ErrOverflow
 													}
 													if b < 0x80 {
 														uv = uv | uint64(b)<<shift
@@ -387,7 +387,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 													shift += 7
 												}
 												if !done {
-													return i, errs.ErrSmallBuf
+													return i, muserrs.ErrSmallBuf
 												}
 											}
 											if uv&1 == 1 {
@@ -398,7 +398,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 											length = int(uv)
 										}
 										if length < 0 {
-											return i, errs.ErrNegativeLength
+											return i, muserrs.ErrNegativeLength
 										}
 										vlmm = make([]int, length)
 										for j := 0; j < length; j++ {
@@ -406,13 +406,13 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 												var uv uint64
 												{
 													if i > len(buf)-1 {
-														return i, errs.ErrSmallBuf
+														return i, muserrs.ErrSmallBuf
 													}
 													shift := 0
 													done := false
 													for l, b := range buf[i:] {
 														if l == 9 && b > 1 {
-															return i, errs.ErrOverflow
+															return i, muserrs.ErrOverflow
 														}
 														if b < 0x80 {
 															uv = uv | uint64(b)<<shift
@@ -424,7 +424,7 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 														shift += 7
 													}
 													if !done {
-														return i, errs.ErrSmallBuf
+														return i, muserrs.ErrSmallBuf
 													}
 												}
 												if uv&1 == 1 {
@@ -435,33 +435,33 @@ func (v *TrickySliceAlias) Unmarshal(buf []byte) (int, error) {
 												vlmm[j] = int(uv)
 											}
 											if err != nil {
-												err = errs.NewSliceError(j, err)
+												err = muserrs.NewSliceError(j, err)
 												break
 											}
 										}
 									}
 									if err != nil {
-										err = errs.NewMapValueError(kemm, vlmm, err)
+										err = muserrs.NewMapValueError(kemm, vlmm, err)
 										break
 									}
 									(vlm)[kemm] = vlmm
 								}
 							}
 							if err != nil {
-								err = errs.NewMapValueError(kem, vlm, err)
+								err = muserrs.NewMapValueError(kem, vlm, err)
 								break
 							}
 							((*v)[j][jj])[kem] = vlm
 						}
 					}
 					if err != nil {
-						err = errs.NewArrayError(jj, err)
+						err = muserrs.NewArrayError(jj, err)
 						break
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewSliceError(j, err)
+				err = muserrs.NewSliceError(j, err)
 				break
 			}
 		}

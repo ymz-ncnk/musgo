@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 	"github.com/ymz-ncnk/musgo/v2/testdata"
 	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
@@ -339,7 +339,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if mapKeyErr, ok := unmarshalErr.(*errs.MapKeyError); ok {
+				if mapKeyErr, ok := unmarshalErr.(*muserrs.MapKeyError); ok {
 					if mapKeyErr.Cause() != tdmg.ErrStrIsHello {
 						t.Errorf("wrong error cause '%v'", mapKeyErr.Cause())
 					}
@@ -362,7 +362,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if mapKeyErr, ok := unmarshalErr.(*errs.MapKeyError); ok {
+				if mapKeyErr, ok := unmarshalErr.(*muserrs.MapKeyError); ok {
 					if !reflect.ValueOf(mapKeyErr.Key()).IsNil() {
 						t.Errorf("wrong error key '%v'", mapKeyErr.Key())
 					}
@@ -382,7 +382,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if mapValueErr, ok := unmarshalErr.(*errs.MapValueError); ok {
+				if mapValueErr, ok := unmarshalErr.(*muserrs.MapValueError); ok {
 					if mapValueErr.Cause() != tdmg.ErrBiggerThanTen {
 						t.Errorf("wrong error cause '%v'", mapValueErr.Cause())
 					}
@@ -405,7 +405,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if mapValueErr, ok := unmarshalErr.(*errs.MapValueError); ok {
+				if mapValueErr, ok := unmarshalErr.(*muserrs.MapValueError); ok {
 					if *mapValueErr.Key().(*int) != m {
 						t.Errorf("wrong error key '%v'", mapValueErr.Cause())
 					}
@@ -438,7 +438,7 @@ func TestGeneratedMapAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if unmarshalErr != errs.ErrMaxLengthExceeded {
+				if unmarshalErr != muserrs.ErrMaxLengthExceeded {
 					t.Errorf("wrong error '%v'", unmarshalErr)
 				}
 			}

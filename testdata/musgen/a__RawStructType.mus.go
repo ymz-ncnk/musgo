@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -190,7 +190,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 	var err error
 	{
 		if len(buf) < 8 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		v.UintRaw = uint(buf[i])
 		i++
@@ -213,13 +213,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		err = BiggerThanTenUint(v.UintRaw)
 	}
 	if err != nil {
-		return i, errs.NewFieldError("UintRaw", err)
+		return i, muserrs.NewFieldError("UintRaw", err)
 	}
 	{
 		var uv uint32
 		{
 			if len(buf) < 4 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			uv = uint32(buf[i])
 			i++
@@ -233,7 +233,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		v.Float32Raw = float32(math.Float32frombits(uv))
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Float32Raw", err)
+		return i, muserrs.NewFieldError("Float32Raw", err)
 	}
 	{
 		tmp0 := new(int)
@@ -244,13 +244,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		v.IntRawPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			{
 				if len(buf) < 8 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				(**v.IntRawPtrPtr) = int(buf[i])
 				i++
@@ -272,7 +272,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("IntRawPtrPtr", err)
+		return i, muserrs.NewFieldError("IntRawPtrPtr", err)
 	}
 	v.MapRawPtr = new(map[*float64]*int16)
 	if buf[i] == 0 {
@@ -280,7 +280,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		v.MapRawPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -289,13 +289,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -307,7 +307,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -318,7 +318,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			(*v.MapRawPtr) = make(map[*float64]*int16)
 			for ; length > 0; length-- {
@@ -329,14 +329,14 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 					kem = nil
 				} else if buf[i] != 1 {
 					i++
-					return i, errs.ErrWrongByte
+					return i, muserrs.ErrWrongByte
 				} else {
 					i++
 					{
 						var uv uint64
 						{
 							if len(buf) < 8 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							uv = uint64(buf[i])
 							i++
@@ -359,7 +359,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 					}
 				}
 				if err != nil {
-					err = errs.NewMapKeyError(kem, err)
+					err = muserrs.NewMapKeyError(kem, err)
 					break
 				}
 				if buf[i] == 0 {
@@ -367,13 +367,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 					vlm = nil
 				} else if buf[i] != 1 {
 					i++
-					return i, errs.ErrWrongByte
+					return i, muserrs.ErrWrongByte
 				} else {
 					i++
 					{
 						{
 							if len(buf) < 2 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							(*vlm) = int16(buf[i])
 							i++
@@ -386,7 +386,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 					err = BiggerThanTenInt16Ptr(vlm)
 				}
 				if err != nil {
-					err = errs.NewMapValueError(kem, vlm, err)
+					err = muserrs.NewMapValueError(kem, vlm, err)
 					break
 				}
 				(*v.MapRawPtr)[kem] = vlm
@@ -394,7 +394,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("MapRawPtr", err)
+		return i, muserrs.NewFieldError("MapRawPtr", err)
 	}
 	{
 		var length int
@@ -402,13 +402,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -420,7 +420,7 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -431,13 +431,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		v.SliceRaw = make([]uint, length)
 		for j := 0; j < length; j++ {
 			{
 				if len(buf) < 8 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				v.SliceRaw[j] = uint(buf[i])
 				i++
@@ -460,13 +460,13 @@ func (v *RawStructType) Unmarshal(buf []byte) (int, error) {
 				err = BiggerThanTenUint(v.SliceRaw[j])
 			}
 			if err != nil {
-				err = errs.NewSliceError(j, err)
+				err = muserrs.NewSliceError(j, err)
 				break
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("SliceRaw", err)
+		return i, muserrs.NewFieldError("SliceRaw", err)
 	}
 	return i, err
 }

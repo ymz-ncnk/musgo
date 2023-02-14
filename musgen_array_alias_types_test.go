@@ -6,7 +6,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 	"github.com/ymz-ncnk/musgo/v2/testdata"
 	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
@@ -297,7 +297,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if arrErr, ok := unmarshalErr.(*errs.ArrayError); ok {
+				if arrErr, ok := unmarshalErr.(*muserrs.ArrayError); ok {
 					if arrErr.Cause() != tdmg.ErrBiggerThanTen {
 						t.Errorf("wrong error cause '%v'", arrErr.Cause())
 					}
@@ -318,7 +318,7 @@ func TestGeneratedArrayAliasCode(t *testing.T) {
 		} {
 			if _, err := testdata.ExecGeneratedCode(val); err != nil {
 				unmarshalErr := errors.Unwrap(err)
-				if arrErr, ok := unmarshalErr.(*errs.ArrayError); ok {
+				if arrErr, ok := unmarshalErr.(*muserrs.ArrayError); ok {
 					if arrErr.Index() != 1 {
 						t.Errorf("wrong error index '%v'", arrErr.Index())
 					}

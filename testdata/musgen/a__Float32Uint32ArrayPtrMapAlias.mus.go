@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -80,13 +80,13 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -98,7 +98,7 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -109,7 +109,7 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make(map[float32]*[2]uint32)
 		for ; length > 0; length-- {
@@ -119,13 +119,13 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				var uv uint32
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 4 && b > 15 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint32(b)<<shift
@@ -137,7 +137,7 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				uv = (uv << 16) | (uv >> 16)
@@ -145,7 +145,7 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				kem = float32(math.Float32frombits(uv))
 			}
 			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
+				err = muserrs.NewMapKeyError(kem, err)
 				break
 			}
 			if buf[i] == 0 {
@@ -153,20 +153,20 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				vlm = nil
 			} else if buf[i] != 1 {
 				i++
-				return i, errs.ErrWrongByte
+				return i, muserrs.ErrWrongByte
 			} else {
 				i++
 				{
 					for j := 0; j < 2; j++ {
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 4 && b > 15 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									(*vlm)[j] = (*vlm)[j] | uint32(b)<<shift
@@ -178,18 +178,18 @@ func (v *Float32Uint32ArrayPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						if err != nil {
-							err = errs.NewArrayError(j, err)
+							err = muserrs.NewArrayError(j, err)
 							break
 						}
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
+				err = muserrs.NewMapValueError(kem, vlm, err)
 				break
 			}
 			(*v)[kem] = vlm

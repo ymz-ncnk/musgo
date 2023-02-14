@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v StructType) Marshal(buf []byte) int {
@@ -228,7 +228,7 @@ func (v StructType) Marshal(buf []byte) int {
 			}
 		}
 		if len(buf[i:]) < length {
-			panic(errs.ErrSmallBuf)
+			panic(muserrs.ErrSmallBuf)
 		}
 		i += copy(buf[i:], v.String)
 	}
@@ -258,7 +258,7 @@ func (v StructType) Marshal(buf []byte) int {
 				}
 			}
 			if len(buf[i:]) < length {
-				panic(errs.ErrSmallBuf)
+				panic(muserrs.ErrSmallBuf)
 			}
 			i += copy(buf[i:], (*v.StringPtr))
 		}
@@ -289,7 +289,7 @@ func (v StructType) Marshal(buf []byte) int {
 				}
 			}
 			if len(buf[i:]) < length {
-				panic(errs.ErrSmallBuf)
+				panic(muserrs.ErrSmallBuf)
 			}
 			i += copy(buf[i:], (***v.StringPtrPtrPtr))
 		}
@@ -582,7 +582,7 @@ func (v StructType) Marshal(buf []byte) int {
 					}
 				}
 				if len(buf[i:]) < length {
-					panic(errs.ErrSmallBuf)
+					panic(muserrs.ErrSmallBuf)
 				}
 				i += copy(buf[i:], ke)
 			}
@@ -651,7 +651,7 @@ func (v StructType) Marshal(buf []byte) int {
 						}
 					}
 					if len(buf[i:]) < length {
-						panic(errs.ErrSmallBuf)
+						panic(muserrs.ErrSmallBuf)
 					}
 					i += copy(buf[i:], ke)
 				}
@@ -721,7 +721,7 @@ func (v StructType) Marshal(buf []byte) int {
 						}
 					}
 					if len(buf[i:]) < length {
-						panic(errs.ErrSmallBuf)
+						panic(muserrs.ErrSmallBuf)
 					}
 					i += copy(buf[i:], ke)
 				}
@@ -847,7 +847,7 @@ func (v StructType) Marshal(buf []byte) int {
 											}
 										}
 										if len(buf[i:]) < length {
-											panic(errs.ErrSmallBuf)
+											panic(muserrs.ErrSmallBuf)
 										}
 										i += copy(buf[i:], item)
 									}
@@ -868,13 +868,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 	var err error
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		shift := 0
 		done := false
 		for l, b := range buf[i:] {
 			if l == 9 && b > 1 {
-				return i, errs.ErrOverflow
+				return i, muserrs.ErrOverflow
 			}
 			if b < 0x80 {
 				v.Uint = v.Uint | uint(b)<<shift
@@ -886,21 +886,21 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			shift += 7
 		}
 		if !done {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Uint", err)
+		return i, muserrs.NewFieldError("Uint", err)
 	}
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		shift := 0
 		done := false
 		for l, b := range buf[i:] {
 			if l == 2 && b > 3 {
-				return i, errs.ErrOverflow
+				return i, muserrs.ErrOverflow
 			}
 			if b < 0x80 {
 				v.Uint16 = v.Uint16 | uint16(b)<<shift
@@ -912,21 +912,21 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			shift += 7
 		}
 		if !done {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Uint16", err)
+		return i, muserrs.NewFieldError("Uint16", err)
 	}
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		shift := 0
 		done := false
 		for l, b := range buf[i:] {
 			if l == 4 && b > 15 {
-				return i, errs.ErrOverflow
+				return i, muserrs.ErrOverflow
 			}
 			if b < 0x80 {
 				v.Uint32 = v.Uint32 | uint32(b)<<shift
@@ -938,21 +938,21 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			shift += 7
 		}
 		if !done {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Uint32", err)
+		return i, muserrs.NewFieldError("Uint32", err)
 	}
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		shift := 0
 		done := false
 		for l, b := range buf[i:] {
 			if l == 9 && b > 1 {
-				return i, errs.ErrOverflow
+				return i, muserrs.ErrOverflow
 			}
 			if b < 0x80 {
 				v.Uint64 = v.Uint64 | uint64(b)<<shift
@@ -964,11 +964,11 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			shift += 7
 		}
 		if !done {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Uint64", err)
+		return i, muserrs.NewFieldError("Uint64", err)
 	}
 	v.UintPtr = new(uint)
 	if buf[i] == 0 {
@@ -976,18 +976,18 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.UintPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			shift := 0
 			done := false
 			for l, b := range buf[i:] {
 				if l == 9 && b > 1 {
-					return i, errs.ErrOverflow
+					return i, muserrs.ErrOverflow
 				}
 				if b < 0x80 {
 					(*v.UintPtr) = (*v.UintPtr) | uint(b)<<shift
@@ -999,12 +999,12 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				shift += 7
 			}
 			if !done {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("UintPtr", err)
+		return i, muserrs.NewFieldError("UintPtr", err)
 	}
 	{
 		tmp0 := new(uint)
@@ -1016,18 +1016,18 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.UintPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			shift := 0
 			done := false
 			for l, b := range buf[i:] {
 				if l == 9 && b > 1 {
-					return i, errs.ErrOverflow
+					return i, muserrs.ErrOverflow
 				}
 				if b < 0x80 {
 					(***v.UintPtrPtrPtr) = (***v.UintPtrPtrPtr) | uint(b)<<shift
@@ -1039,24 +1039,24 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				shift += 7
 			}
 			if !done {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("UintPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("UintPtrPtrPtr", err)
 	}
 	{
 		var uv uint64
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			shift := 0
 			done := false
 			for l, b := range buf[i:] {
 				if l == 9 && b > 1 {
-					return i, errs.ErrOverflow
+					return i, muserrs.ErrOverflow
 				}
 				if b < 0x80 {
 					uv = uv | uint64(b)<<shift
@@ -1068,7 +1068,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				shift += 7
 			}
 			if !done {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 		}
 		if uv&1 == 1 {
@@ -1079,29 +1079,29 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.Int = int(uv)
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Int", err)
+		return i, muserrs.NewFieldError("Int", err)
 	}
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		v.Int8 = int8(buf[i])
 		i++
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Int8", err)
+		return i, muserrs.NewFieldError("Int8", err)
 	}
 	{
 		var uv uint16
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			shift := 0
 			done := false
 			for l, b := range buf[i:] {
 				if l == 2 && b > 3 {
-					return i, errs.ErrOverflow
+					return i, muserrs.ErrOverflow
 				}
 				if b < 0x80 {
 					uv = uv | uint16(b)<<shift
@@ -1113,7 +1113,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				shift += 7
 			}
 			if !done {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 		}
 		if uv&1 == 1 {
@@ -1124,19 +1124,19 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.Int16 = int16(uv)
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Int16", err)
+		return i, muserrs.NewFieldError("Int16", err)
 	}
 	{
 		var uv uint32
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			shift := 0
 			done := false
 			for l, b := range buf[i:] {
 				if l == 4 && b > 15 {
-					return i, errs.ErrOverflow
+					return i, muserrs.ErrOverflow
 				}
 				if b < 0x80 {
 					uv = uv | uint32(b)<<shift
@@ -1148,7 +1148,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				shift += 7
 			}
 			if !done {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 		}
 		if uv&1 == 1 {
@@ -1159,19 +1159,19 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.Int32 = int32(uv)
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Int32", err)
+		return i, muserrs.NewFieldError("Int32", err)
 	}
 	{
 		var uv uint64
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			shift := 0
 			done := false
 			for l, b := range buf[i:] {
 				if l == 9 && b > 1 {
-					return i, errs.ErrOverflow
+					return i, muserrs.ErrOverflow
 				}
 				if b < 0x80 {
 					uv = uv | uint64(b)<<shift
@@ -1183,7 +1183,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				shift += 7
 			}
 			if !done {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 		}
 		if uv&1 == 1 {
@@ -1194,7 +1194,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.Int64 = int64(uv)
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Int64", err)
+		return i, muserrs.NewFieldError("Int64", err)
 	}
 	v.IntPtr = new(int)
 	if buf[i] == 0 {
@@ -1202,20 +1202,20 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.IntPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -1227,7 +1227,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -1239,7 +1239,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("IntPtr", err)
+		return i, muserrs.NewFieldError("IntPtr", err)
 	}
 	{
 		tmp0 := new(int)
@@ -1251,20 +1251,20 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.IntPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -1276,7 +1276,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -1288,7 +1288,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("IntPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("IntPtrPtrPtr", err)
 	}
 	v.IntAliasPtr = new(IntAlias)
 	if buf[i] == 0 {
@@ -1296,7 +1296,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.IntAliasPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1310,7 +1310,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("IntAliasPtr", err)
+		return i, muserrs.NewFieldError("IntAliasPtr", err)
 	}
 	{
 		var length int
@@ -1318,13 +1318,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -1336,7 +1336,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -1347,16 +1347,16 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		if len(buf) < i+length {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		v.String = string(buf[i : i+length])
 		i += length
 	}
 	if err != nil {
-		return i, errs.NewFieldError("String", err)
+		return i, muserrs.NewFieldError("String", err)
 	}
 	v.StringPtr = new(string)
 	if buf[i] == 0 {
@@ -1364,7 +1364,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.StringPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1373,13 +1373,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -1391,7 +1391,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -1402,17 +1402,17 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			if len(buf) < i+length {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			(*v.StringPtr) = string(buf[i : i+length])
 			i += length
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("StringPtr", err)
+		return i, muserrs.NewFieldError("StringPtr", err)
 	}
 	{
 		tmp0 := new(string)
@@ -1424,7 +1424,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.StringPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1433,13 +1433,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -1451,7 +1451,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -1462,27 +1462,27 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			if len(buf) < i+length {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			(***v.StringPtrPtrPtr) = string(buf[i : i+length])
 			i += length
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("StringPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("StringPtrPtrPtr", err)
 	}
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		v.Byte = uint8(buf[i])
 		i++
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Byte", err)
+		return i, muserrs.NewFieldError("Byte", err)
 	}
 	v.BytePtr = new(uint8)
 	if buf[i] == 0 {
@@ -1490,19 +1490,19 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.BytePtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			(*v.BytePtr) = uint8(buf[i])
 			i++
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("BytePtr", err)
+		return i, muserrs.NewFieldError("BytePtr", err)
 	}
 	{
 		tmp0 := new(uint8)
@@ -1514,23 +1514,23 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.BytePtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			(***v.BytePtrPtrPtr) = uint8(buf[i])
 			i++
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("BytePtrPtrPtr", err)
+		return i, muserrs.NewFieldError("BytePtrPtrPtr", err)
 	}
 	{
 		if i > len(buf)-1 {
-			return i, errs.ErrSmallBuf
+			return i, muserrs.ErrSmallBuf
 		}
 		if buf[i] == 0x01 {
 			v.Bool = true
@@ -1539,11 +1539,11 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			v.Bool = false
 			i++
 		} else {
-			err = errs.ErrWrongByte
+			err = muserrs.ErrWrongByte
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Bool", err)
+		return i, muserrs.NewFieldError("Bool", err)
 	}
 	v.BoolPtr = new(bool)
 	if buf[i] == 0 {
@@ -1551,12 +1551,12 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.BoolPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			if buf[i] == 0x01 {
 				(*v.BoolPtr) = true
@@ -1565,12 +1565,12 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				(*v.BoolPtr) = false
 				i++
 			} else {
-				err = errs.ErrWrongByte
+				err = muserrs.ErrWrongByte
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("BoolPtr", err)
+		return i, muserrs.NewFieldError("BoolPtr", err)
 	}
 	{
 		tmp0 := new(bool)
@@ -1582,12 +1582,12 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.BoolPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
 			if i > len(buf)-1 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			if buf[i] == 0x01 {
 				(***v.BoolPtrPtrPtr) = true
@@ -1596,12 +1596,12 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				(***v.BoolPtrPtrPtr) = false
 				i++
 			} else {
-				err = errs.ErrWrongByte
+				err = muserrs.ErrWrongByte
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("BoolPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("BoolPtrPtrPtr", err)
 	}
 	{
 		var length int
@@ -1609,13 +1609,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -1627,7 +1627,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -1638,19 +1638,19 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		v.Slice = make([]uint, length)
 		for j := 0; j < length; j++ {
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						v.Slice[j] = v.Slice[j] | uint(b)<<shift
@@ -1662,17 +1662,17 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if err != nil {
-				err = errs.NewSliceError(j, err)
+				err = muserrs.NewSliceError(j, err)
 				break
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Slice", err)
+		return i, muserrs.NewFieldError("Slice", err)
 	}
 	v.SlicePtr = new([]uint16)
 	if buf[i] == 0 {
@@ -1680,7 +1680,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.SlicePtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1689,13 +1689,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -1707,7 +1707,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -1718,19 +1718,19 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			(*v.SlicePtr) = make([]uint16, length)
 			for j := 0; j < length; j++ {
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 2 && b > 3 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							(*v.SlicePtr)[j] = (*v.SlicePtr)[j] | uint16(b)<<shift
@@ -1742,18 +1742,18 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if err != nil {
-					err = errs.NewSliceError(j, err)
+					err = muserrs.NewSliceError(j, err)
 					break
 				}
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("SlicePtr", err)
+		return i, muserrs.NewFieldError("SlicePtr", err)
 	}
 	{
 		tmp0 := new([]uint16)
@@ -1765,7 +1765,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.SlicePtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1774,13 +1774,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -1792,7 +1792,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -1803,19 +1803,19 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			(***v.SlicePtrPtrPtr) = make([]uint16, length)
 			for j := 0; j < length; j++ {
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 2 && b > 3 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							(***v.SlicePtrPtrPtr)[j] = (***v.SlicePtrPtrPtr)[j] | uint16(b)<<shift
@@ -1827,18 +1827,18 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if err != nil {
-					err = errs.NewSliceError(j, err)
+					err = muserrs.NewSliceError(j, err)
 					break
 				}
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("SlicePtrPtrPtr", err)
+		return i, muserrs.NewFieldError("SlicePtrPtrPtr", err)
 	}
 	{
 		for j := 0; j < 2; j++ {
@@ -1846,13 +1846,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -1864,7 +1864,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -1875,13 +1875,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				v.Array[j] = int(uv)
 			}
 			if err != nil {
-				err = errs.NewArrayError(j, err)
+				err = muserrs.NewArrayError(j, err)
 				break
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Array", err)
+		return i, muserrs.NewFieldError("Array", err)
 	}
 	v.ArrayPtr = new([2]int32)
 	if buf[i] == 0 {
@@ -1889,7 +1889,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.ArrayPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1898,13 +1898,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					var uv uint32
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 4 && b > 15 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint32(b)<<shift
@@ -1916,7 +1916,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -1927,14 +1927,14 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					(*v.ArrayPtr)[j] = int32(uv)
 				}
 				if err != nil {
-					err = errs.NewArrayError(j, err)
+					err = muserrs.NewArrayError(j, err)
 					break
 				}
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("ArrayPtr", err)
+		return i, muserrs.NewFieldError("ArrayPtr", err)
 	}
 	{
 		tmp0 := new([2]int32)
@@ -1946,7 +1946,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.ArrayPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -1955,13 +1955,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					var uv uint32
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 4 && b > 15 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint32(b)<<shift
@@ -1973,7 +1973,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -1984,14 +1984,14 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					(***v.ArrayPtrPtrPtr)[j] = int32(uv)
 				}
 				if err != nil {
-					err = errs.NewArrayError(j, err)
+					err = muserrs.NewArrayError(j, err)
 					break
 				}
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("ArrayPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("ArrayPtrPtrPtr", err)
 	}
 	{
 		var length int
@@ -1999,13 +1999,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -2017,7 +2017,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -2028,7 +2028,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		v.Map = make(map[string]int)
 		for ; length > 0; length-- {
@@ -2040,13 +2040,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -2058,7 +2058,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -2069,29 +2069,29 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					length = int(uv)
 				}
 				if length < 0 {
-					return i, errs.ErrNegativeLength
+					return i, muserrs.ErrNegativeLength
 				}
 				if len(buf) < i+length {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				kem = string(buf[i : i+length])
 				i += length
 			}
 			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
+				err = muserrs.NewMapKeyError(kem, err)
 				break
 			}
 			{
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -2103,7 +2103,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -2114,14 +2114,14 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				vlm = int(uv)
 			}
 			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
+				err = muserrs.NewMapValueError(kem, vlm, err)
 				break
 			}
 			(v.Map)[kem] = vlm
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Map", err)
+		return i, muserrs.NewFieldError("Map", err)
 	}
 	v.MapPtr = new(map[string]int)
 	if buf[i] == 0 {
@@ -2129,7 +2129,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.MapPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -2138,13 +2138,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -2156,7 +2156,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -2167,7 +2167,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			(*v.MapPtr) = make(map[string]int)
 			for ; length > 0; length-- {
@@ -2179,13 +2179,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						var uv uint64
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 9 && b > 1 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									uv = uv | uint64(b)<<shift
@@ -2197,7 +2197,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						if uv&1 == 1 {
@@ -2208,29 +2208,29 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						length = int(uv)
 					}
 					if length < 0 {
-						return i, errs.ErrNegativeLength
+						return i, muserrs.ErrNegativeLength
 					}
 					if len(buf) < i+length {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					kem = string(buf[i : i+length])
 					i += length
 				}
 				if err != nil {
-					err = errs.NewMapKeyError(kem, err)
+					err = muserrs.NewMapKeyError(kem, err)
 					break
 				}
 				{
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -2242,7 +2242,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -2253,7 +2253,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					vlm = int(uv)
 				}
 				if err != nil {
-					err = errs.NewMapValueError(kem, vlm, err)
+					err = muserrs.NewMapValueError(kem, vlm, err)
 					break
 				}
 				(*v.MapPtr)[kem] = vlm
@@ -2261,7 +2261,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("MapPtr", err)
+		return i, muserrs.NewFieldError("MapPtr", err)
 	}
 	{
 		tmp0 := new(map[string]int)
@@ -2273,7 +2273,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.MapPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -2282,13 +2282,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				var uv uint64
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 9 && b > 1 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint64(b)<<shift
@@ -2300,7 +2300,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -2311,7 +2311,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 				length = int(uv)
 			}
 			if length < 0 {
-				return i, errs.ErrNegativeLength
+				return i, muserrs.ErrNegativeLength
 			}
 			(***v.MapPtrPtrPtr) = make(map[string]int)
 			for ; length > 0; length-- {
@@ -2323,13 +2323,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						var uv uint64
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 9 && b > 1 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									uv = uv | uint64(b)<<shift
@@ -2341,7 +2341,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						if uv&1 == 1 {
@@ -2352,29 +2352,29 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 						length = int(uv)
 					}
 					if length < 0 {
-						return i, errs.ErrNegativeLength
+						return i, muserrs.ErrNegativeLength
 					}
 					if len(buf) < i+length {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					kem = string(buf[i : i+length])
 					i += length
 				}
 				if err != nil {
-					err = errs.NewMapKeyError(kem, err)
+					err = muserrs.NewMapKeyError(kem, err)
 					break
 				}
 				{
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -2386,7 +2386,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -2397,7 +2397,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					vlm = int(uv)
 				}
 				if err != nil {
-					err = errs.NewMapValueError(kem, vlm, err)
+					err = muserrs.NewMapValueError(kem, vlm, err)
 					break
 				}
 				(***v.MapPtrPtrPtr)[kem] = vlm
@@ -2405,7 +2405,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("MapPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("MapPtrPtrPtr", err)
 	}
 	{
 		var sv SimpleStructType
@@ -2417,7 +2417,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Struct", err)
+		return i, muserrs.NewFieldError("Struct", err)
 	}
 	v.StructPtr = new(SimpleStructType)
 	if buf[i] == 0 {
@@ -2425,7 +2425,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.StructPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -2439,7 +2439,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("StructPtr", err)
+		return i, muserrs.NewFieldError("StructPtr", err)
 	}
 	{
 		tmp0 := new(SimpleStructType)
@@ -2451,7 +2451,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		v.StructPtrPtrPtr = nil
 	} else if buf[i] != 1 {
 		i++
-		return i, errs.ErrWrongByte
+		return i, muserrs.ErrWrongByte
 	} else {
 		i++
 		{
@@ -2465,7 +2465,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("StructPtrPtrPtr", err)
+		return i, muserrs.NewFieldError("StructPtrPtrPtr", err)
 	}
 	{
 		for j := 0; j < 2; j++ {
@@ -2475,13 +2475,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -2493,7 +2493,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -2504,7 +2504,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 					length = int(uv)
 				}
 				if length < 0 {
-					return i, errs.ErrNegativeLength
+					return i, muserrs.ErrNegativeLength
 				}
 				v.Tricky[j] = make(map[[2]IntAlias]map[StringAlias][2]string)
 				for ; length > 0; length-- {
@@ -2522,13 +2522,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 								}
 							}
 							if err != nil {
-								err = errs.NewArrayError(j, err)
+								err = muserrs.NewArrayError(j, err)
 								break
 							}
 						}
 					}
 					if err != nil {
-						err = errs.NewMapKeyError(kem, err)
+						err = muserrs.NewMapKeyError(kem, err)
 						break
 					}
 					{
@@ -2537,13 +2537,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							var uv uint64
 							{
 								if i > len(buf)-1 {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 								shift := 0
 								done := false
 								for l, b := range buf[i:] {
 									if l == 9 && b > 1 {
-										return i, errs.ErrOverflow
+										return i, muserrs.ErrOverflow
 									}
 									if b < 0x80 {
 										uv = uv | uint64(b)<<shift
@@ -2555,7 +2555,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 									shift += 7
 								}
 								if !done {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 							}
 							if uv&1 == 1 {
@@ -2566,7 +2566,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 							length = int(uv)
 						}
 						if length < 0 {
-							return i, errs.ErrNegativeLength
+							return i, muserrs.ErrNegativeLength
 						}
 						vlm = make(map[StringAlias][2]string)
 						for ; length > 0; length-- {
@@ -2582,7 +2582,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 								}
 							}
 							if err != nil {
-								err = errs.NewMapKeyError(kemm, err)
+								err = muserrs.NewMapKeyError(kemm, err)
 								break
 							}
 							{
@@ -2593,13 +2593,13 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 											var uv uint64
 											{
 												if i > len(buf)-1 {
-													return i, errs.ErrSmallBuf
+													return i, muserrs.ErrSmallBuf
 												}
 												shift := 0
 												done := false
 												for l, b := range buf[i:] {
 													if l == 9 && b > 1 {
-														return i, errs.ErrOverflow
+														return i, muserrs.ErrOverflow
 													}
 													if b < 0x80 {
 														uv = uv | uint64(b)<<shift
@@ -2611,7 +2611,7 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 													shift += 7
 												}
 												if !done {
-													return i, errs.ErrSmallBuf
+													return i, muserrs.ErrSmallBuf
 												}
 											}
 											if uv&1 == 1 {
@@ -2622,42 +2622,42 @@ func (v *StructType) Unmarshal(buf []byte) (int, error) {
 											length = int(uv)
 										}
 										if length < 0 {
-											return i, errs.ErrNegativeLength
+											return i, muserrs.ErrNegativeLength
 										}
 										if len(buf) < i+length {
-											return i, errs.ErrSmallBuf
+											return i, muserrs.ErrSmallBuf
 										}
 										vlmm[j] = string(buf[i : i+length])
 										i += length
 									}
 									if err != nil {
-										err = errs.NewArrayError(j, err)
+										err = muserrs.NewArrayError(j, err)
 										break
 									}
 								}
 							}
 							if err != nil {
-								err = errs.NewMapValueError(kemm, vlmm, err)
+								err = muserrs.NewMapValueError(kemm, vlmm, err)
 								break
 							}
 							(vlm)[kemm] = vlmm
 						}
 					}
 					if err != nil {
-						err = errs.NewMapValueError(kem, vlm, err)
+						err = muserrs.NewMapValueError(kem, vlm, err)
 						break
 					}
 					(v.Tricky[j])[kem] = vlm
 				}
 			}
 			if err != nil {
-				err = errs.NewArrayError(j, err)
+				err = muserrs.NewArrayError(j, err)
 				break
 			}
 		}
 	}
 	if err != nil {
-		return i, errs.NewFieldError("Tricky", err)
+		return i, muserrs.NewFieldError("Tricky", err)
 	}
 	return i, err
 }

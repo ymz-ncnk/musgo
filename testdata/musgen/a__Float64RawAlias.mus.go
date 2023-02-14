@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -43,7 +43,7 @@ func (v *Float64RawAlias) Unmarshal(buf []byte) (int, error) {
 		var uv uint64
 		{
 			if len(buf) < 8 {
-				return i, errs.ErrSmallBuf
+				return i, muserrs.ErrSmallBuf
 			}
 			uv = uint64(buf[i])
 			i++

@@ -6,7 +6,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 	"github.com/ymz-ncnk/musgo/v2/testdata"
 	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
@@ -268,7 +268,7 @@ func TestRawEncoding(t *testing.T) {
 		arr := []byte{25, 255, 21}
 		val := tdmg.Int32RawAlias(0)
 		_, err := val.Unmarshal(arr)
-		if err != errs.ErrSmallBuf {
+		if err != muserrs.ErrSmallBuf {
 			t.Error("too small buf is ok")
 		}
 	})

@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v TrickyArrayAlias) Marshal(buf []byte) int {
@@ -99,13 +99,13 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -117,7 +117,7 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -128,7 +128,7 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 					length = int(uv)
 				}
 				if length < 0 {
-					return i, errs.ErrNegativeLength
+					return i, muserrs.ErrNegativeLength
 				}
 				(*v)[j] = make([][3]map[SimpleStructType][1]int, length)
 				for jj := 0; jj < length; jj++ {
@@ -140,13 +140,13 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 									var uv uint64
 									{
 										if i > len(buf)-1 {
-											return i, errs.ErrSmallBuf
+											return i, muserrs.ErrSmallBuf
 										}
 										shift := 0
 										done := false
 										for l, b := range buf[i:] {
 											if l == 9 && b > 1 {
-												return i, errs.ErrOverflow
+												return i, muserrs.ErrOverflow
 											}
 											if b < 0x80 {
 												uv = uv | uint64(b)<<shift
@@ -158,7 +158,7 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 											shift += 7
 										}
 										if !done {
-											return i, errs.ErrSmallBuf
+											return i, muserrs.ErrSmallBuf
 										}
 									}
 									if uv&1 == 1 {
@@ -169,7 +169,7 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 									length = int(uv)
 								}
 								if length < 0 {
-									return i, errs.ErrNegativeLength
+									return i, muserrs.ErrNegativeLength
 								}
 								(*v)[j][jj][jjj] = make(map[SimpleStructType][1]int)
 								for ; length > 0; length-- {
@@ -185,7 +185,7 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 										}
 									}
 									if err != nil {
-										err = errs.NewMapKeyError(kem, err)
+										err = muserrs.NewMapKeyError(kem, err)
 										break
 									}
 									{
@@ -194,13 +194,13 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 												var uv uint64
 												{
 													if i > len(buf)-1 {
-														return i, errs.ErrSmallBuf
+														return i, muserrs.ErrSmallBuf
 													}
 													shift := 0
 													done := false
 													for l, b := range buf[i:] {
 														if l == 9 && b > 1 {
-															return i, errs.ErrOverflow
+															return i, muserrs.ErrOverflow
 														}
 														if b < 0x80 {
 															uv = uv | uint64(b)<<shift
@@ -212,7 +212,7 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 														shift += 7
 													}
 													if !done {
-														return i, errs.ErrSmallBuf
+														return i, muserrs.ErrSmallBuf
 													}
 												}
 												if uv&1 == 1 {
@@ -223,32 +223,32 @@ func (v *TrickyArrayAlias) Unmarshal(buf []byte) (int, error) {
 												vlm[j] = int(uv)
 											}
 											if err != nil {
-												err = errs.NewArrayError(j, err)
+												err = muserrs.NewArrayError(j, err)
 												break
 											}
 										}
 									}
 									if err != nil {
-										err = errs.NewMapValueError(kem, vlm, err)
+										err = muserrs.NewMapValueError(kem, vlm, err)
 										break
 									}
 									((*v)[j][jj][jjj])[kem] = vlm
 								}
 							}
 							if err != nil {
-								err = errs.NewArrayError(jjj, err)
+								err = muserrs.NewArrayError(jjj, err)
 								break
 							}
 						}
 					}
 					if err != nil {
-						err = errs.NewSliceError(jj, err)
+						err = muserrs.NewSliceError(jj, err)
 						break
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewArrayError(j, err)
+				err = muserrs.NewArrayError(j, err)
 				break
 			}
 		}

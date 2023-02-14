@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -71,13 +71,13 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -89,7 +89,7 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -100,7 +100,7 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make([]*[2]float32, length)
 		for j := 0; j < length; j++ {
@@ -110,7 +110,7 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 				(*v)[j] = nil
 			} else if buf[i] != 1 {
 				i++
-				return i, errs.ErrWrongByte
+				return i, muserrs.ErrWrongByte
 			} else {
 				i++
 				{
@@ -119,13 +119,13 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 							var uv uint32
 							{
 								if i > len(buf)-1 {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 								shift := 0
 								done := false
 								for l, b := range buf[i:] {
 									if l == 4 && b > 15 {
-										return i, errs.ErrOverflow
+										return i, muserrs.ErrOverflow
 									}
 									if b < 0x80 {
 										uv = uv | uint32(b)<<shift
@@ -137,7 +137,7 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 									shift += 7
 								}
 								if !done {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 							}
 							uv = (uv << 16) | (uv >> 16)
@@ -145,14 +145,14 @@ func (v *FloatArrayPtrSliceAlias) Unmarshal(buf []byte) (int, error) {
 							(*(*v)[j])[jj] = float32(math.Float32frombits(uv))
 						}
 						if err != nil {
-							err = errs.NewArrayError(jj, err)
+							err = muserrs.NewArrayError(jj, err)
 							break
 						}
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewSliceError(j, err)
+				err = muserrs.NewSliceError(j, err)
 				break
 			}
 		}

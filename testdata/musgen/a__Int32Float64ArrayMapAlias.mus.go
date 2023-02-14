@@ -5,7 +5,7 @@ package musgen
 import (
 	"math"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 )
 
 // Marshal fills buf with the MUS encoding of v.
@@ -82,13 +82,13 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -100,7 +100,7 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -111,7 +111,7 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make(map[int32][2]float64)
 		for ; length > 0; length-- {
@@ -121,13 +121,13 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 				var uv uint32
 				{
 					if i > len(buf)-1 {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					shift := 0
 					done := false
 					for l, b := range buf[i:] {
 						if l == 4 && b > 15 {
-							return i, errs.ErrOverflow
+							return i, muserrs.ErrOverflow
 						}
 						if b < 0x80 {
 							uv = uv | uint32(b)<<shift
@@ -139,7 +139,7 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 						shift += 7
 					}
 					if !done {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 				}
 				if uv&1 == 1 {
@@ -150,7 +150,7 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 				kem = int32(uv)
 			}
 			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
+				err = muserrs.NewMapKeyError(kem, err)
 				break
 			}
 			{
@@ -159,13 +159,13 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 						var uv uint64
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 9 && b > 1 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									uv = uv | uint64(b)<<shift
@@ -177,7 +177,7 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						uv = (uv << 32) | (uv >> 32)
@@ -186,13 +186,13 @@ func (v *Int32Float64ArrayMapAlias) Unmarshal(buf []byte) (int, error) {
 						vlm[j] = float64(math.Float64frombits(uv))
 					}
 					if err != nil {
-						err = errs.NewArrayError(j, err)
+						err = muserrs.NewArrayError(j, err)
 						break
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
+				err = muserrs.NewMapValueError(kem, vlm, err)
 				break
 			}
 			(*v)[kem] = vlm

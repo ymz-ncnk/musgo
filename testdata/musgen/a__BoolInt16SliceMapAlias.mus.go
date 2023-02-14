@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v BoolInt16SliceMapAlias) Marshal(buf []byte) int {
@@ -89,13 +89,13 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -107,7 +107,7 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -118,7 +118,7 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make(map[bool][]int16)
 		for ; length > 0; length-- {
@@ -126,7 +126,7 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 			var vlm []int16
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				if buf[i] == 0x01 {
 					kem = true
@@ -135,11 +135,11 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 					kem = false
 					i++
 				} else {
-					err = errs.ErrWrongByte
+					err = muserrs.ErrWrongByte
 				}
 			}
 			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
+				err = muserrs.NewMapKeyError(kem, err)
 				break
 			}
 			{
@@ -148,13 +148,13 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -166,7 +166,7 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -177,7 +177,7 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 					length = int(uv)
 				}
 				if length < 0 {
-					return i, errs.ErrNegativeLength
+					return i, muserrs.ErrNegativeLength
 				}
 				vlm = make([]int16, length)
 				for j := 0; j < length; j++ {
@@ -185,13 +185,13 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 						var uv uint16
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 2 && b > 3 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									uv = uv | uint16(b)<<shift
@@ -203,7 +203,7 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						if uv&1 == 1 {
@@ -214,13 +214,13 @@ func (v *BoolInt16SliceMapAlias) Unmarshal(buf []byte) (int, error) {
 						vlm[j] = int16(uv)
 					}
 					if err != nil {
-						err = errs.NewSliceError(j, err)
+						err = muserrs.NewSliceError(j, err)
 						break
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
+				err = muserrs.NewMapValueError(kem, vlm, err)
 				break
 			}
 			(*v)[kem] = vlm

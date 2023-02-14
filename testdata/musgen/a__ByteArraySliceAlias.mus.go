@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v ByteArraySliceAlias) Marshal(buf []byte) int {
@@ -50,13 +50,13 @@ func (v *ByteArraySliceAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -68,7 +68,7 @@ func (v *ByteArraySliceAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -79,7 +79,7 @@ func (v *ByteArraySliceAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make([][2]byte, length)
 		for j := 0; j < length; j++ {
@@ -87,19 +87,19 @@ func (v *ByteArraySliceAlias) Unmarshal(buf []byte) (int, error) {
 				for jj := 0; jj < 2; jj++ {
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						(*v)[j][jj] = byte(buf[i])
 						i++
 					}
 					if err != nil {
-						err = errs.NewArrayError(jj, err)
+						err = muserrs.NewArrayError(jj, err)
 						break
 					}
 				}
 			}
 			if err != nil {
-				err = errs.NewSliceError(j, err)
+				err = muserrs.NewSliceError(j, err)
 				break
 			}
 		}

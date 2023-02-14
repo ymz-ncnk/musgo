@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v IntPtrPtrPtrAliasArrayAlias) Marshal(buf []byte) int {
@@ -54,20 +54,20 @@ func (v *IntPtrPtrPtrAliasArrayAlias) Unmarshal(buf []byte) (int, error) {
 				(*v)[j] = nil
 			} else if buf[i] != 1 {
 				i++
-				return i, errs.ErrWrongByte
+				return i, muserrs.ErrWrongByte
 			} else {
 				i++
 				{
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -79,7 +79,7 @@ func (v *IntPtrPtrPtrAliasArrayAlias) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -91,7 +91,7 @@ func (v *IntPtrPtrPtrAliasArrayAlias) Unmarshal(buf []byte) (int, error) {
 				}
 			}
 			if err != nil {
-				err = errs.NewArrayError(j, err)
+				err = muserrs.NewArrayError(j, err)
 				break
 			}
 		}

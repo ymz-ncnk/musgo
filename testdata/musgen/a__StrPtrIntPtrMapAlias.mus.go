@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v StrPtrIntPtrMapAlias) Marshal(buf []byte) int {
@@ -53,7 +53,7 @@ func (v StrPtrIntPtrMapAlias) Marshal(buf []byte) int {
 						}
 					}
 					if len(buf[i:]) < length {
-						panic(errs.ErrSmallBuf)
+						panic(muserrs.ErrSmallBuf)
 					}
 					i += copy(buf[i:], (*ke))
 				}
@@ -97,13 +97,13 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 			var uv uint64
 			{
 				if i > len(buf)-1 {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 				shift := 0
 				done := false
 				for l, b := range buf[i:] {
 					if l == 9 && b > 1 {
-						return i, errs.ErrOverflow
+						return i, muserrs.ErrOverflow
 					}
 					if b < 0x80 {
 						uv = uv | uint64(b)<<shift
@@ -115,7 +115,7 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 					shift += 7
 				}
 				if !done {
-					return i, errs.ErrSmallBuf
+					return i, muserrs.ErrSmallBuf
 				}
 			}
 			if uv&1 == 1 {
@@ -126,7 +126,7 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 			length = int(uv)
 		}
 		if length < 0 {
-			return i, errs.ErrNegativeLength
+			return i, muserrs.ErrNegativeLength
 		}
 		(*v) = make(map[*string]*int)
 		for ; length > 0; length-- {
@@ -137,7 +137,7 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				kem = nil
 			} else if buf[i] != 1 {
 				i++
-				return i, errs.ErrWrongByte
+				return i, muserrs.ErrWrongByte
 			} else {
 				i++
 				{
@@ -146,13 +146,13 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 						var uv uint64
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 9 && b > 1 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									uv = uv | uint64(b)<<shift
@@ -164,7 +164,7 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						if uv&1 == 1 {
@@ -175,17 +175,17 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 						length = int(uv)
 					}
 					if length < 0 {
-						return i, errs.ErrNegativeLength
+						return i, muserrs.ErrNegativeLength
 					}
 					if len(buf) < i+length {
-						return i, errs.ErrSmallBuf
+						return i, muserrs.ErrSmallBuf
 					}
 					(*kem) = string(buf[i : i+length])
 					i += length
 				}
 			}
 			if err != nil {
-				err = errs.NewMapKeyError(kem, err)
+				err = muserrs.NewMapKeyError(kem, err)
 				break
 			}
 			if buf[i] == 0 {
@@ -193,20 +193,20 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				vlm = nil
 			} else if buf[i] != 1 {
 				i++
-				return i, errs.ErrWrongByte
+				return i, muserrs.ErrWrongByte
 			} else {
 				i++
 				{
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -218,7 +218,7 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -230,7 +230,7 @@ func (v *StrPtrIntPtrMapAlias) Unmarshal(buf []byte) (int, error) {
 				}
 			}
 			if err != nil {
-				err = errs.NewMapValueError(kem, vlm, err)
+				err = muserrs.NewMapValueError(kem, vlm, err)
 				break
 			}
 			(*v)[kem] = vlm

@@ -1,7 +1,9 @@
 github.com/ymz-ncnk/amock v0.1.0 h1:OkH/ydxNf6ioO9r/YwohyBY+VBUwZ/cEleYUBhyhHQU=
 github.com/ymz-ncnk/amock v0.1.0/go.mod h1:JG4igTCkNaGDgTdnao/+pV6c3M1h0QVLdkQDHgE5Uhg=
-github.com/ymz-ncnk/musgen/v2 v2.0.3 h1:ItsfgiLdkZenzgoEbtxSDemn2cOVHIdgBEV+/MTL6oI=
-github.com/ymz-ncnk/musgen/v2 v2.0.3/go.mod h1:iB4+J3WGrh/wqbAu2Qc35Ud/beNNOkz4nVcOnznH3bs=
+github.com/ymz-ncnk/muserrs v0.1.1 h1:+q6i3ImX0259JC+xKoPncP2YUynsTAndozQ5OlJxaH4=
+github.com/ymz-ncnk/muserrs v0.1.1/go.mod h1:RLfp/e5CM/REuuSWIBiVbUh1arOuzwnMlQaW3UTx0T8=
+github.com/ymz-ncnk/musgen/v2 v2.0.4-0.20230214232022-3250026db9a6 h1:9vwhaKSOPnuB9cVF1GhVOioEKxgaliZlHbzvKzov7co=
+github.com/ymz-ncnk/musgen/v2 v2.0.4-0.20230214232022-3250026db9a6/go.mod h1:iB4+J3WGrh/wqbAu2Qc35Ud/beNNOkz4nVcOnznH3bs=
 golang.org/x/mod v0.7.0 h1:LapD9S96VoQRhi/GrNTqeBJFrUjs5UHCAtTlgwA5oZA=
 golang.org/x/mod v0.7.0/go.mod h1:iBbtSCu2XBx23ZKBPSOrRkjjQPZFPuis4dIYUhu/chs=
 golang.org/x/sys v0.4.0 h1:Zr2JFtRQNX3BCZ8YtxRE9hNJYC8J6I1MVbMg6owUp18=

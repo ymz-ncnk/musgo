@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ymz-ncnk/musgo/v2/errs"
+	"github.com/ymz-ncnk/muserrs"
 	"github.com/ymz-ncnk/musgo/v2/testdata"
 	tdmg "github.com/ymz-ncnk/musgo/v2/testdata/musgen"
 )
@@ -155,7 +155,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 	t.Run("Unmarshal slice of slices with empty buf", func(t *testing.T) {
 		var val tdmg.BoolSliceSliceAlias
 		_, err := val.Unmarshal([]byte{})
-		if err != errs.ErrSmallBuf {
+		if err != muserrs.ErrSmallBuf {
 			t.Errorf("unexpected '%v' error", err)
 		}
 	})
@@ -318,7 +318,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		} {
 			_, err := testdata.ExecGeneratedCode(val)
 			unmarshalErr := errors.Unwrap(err)
-			if sliceElemErr, ok := unmarshalErr.(*errs.SliceError); ok {
+			if sliceElemErr, ok := unmarshalErr.(*muserrs.SliceError); ok {
 				if sliceElemErr.Cause() != tdmg.ErrBiggerThanTen {
 					t.Errorf("wrong error cause '%v'", sliceElemErr.Cause())
 				}
@@ -338,7 +338,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		} {
 			_, err := testdata.ExecGeneratedCode(val)
 			unmarshalErr := errors.Unwrap(err)
-			if sliceElemErr, ok := unmarshalErr.(*errs.SliceError); ok {
+			if sliceElemErr, ok := unmarshalErr.(*muserrs.SliceError); ok {
 				if sliceElemErr.Index() != 1 {
 					t.Errorf("wrong error index '%v'", sliceElemErr.Index())
 				}
@@ -369,7 +369,7 @@ func TestGeneratedSliceAliasCode(t *testing.T) {
 		} {
 			_, err := testdata.ExecGeneratedCode(val)
 			unmarshalErr := errors.Unwrap(err)
-			if unmarshalErr != errs.ErrMaxLengthExceeded {
+			if unmarshalErr != muserrs.ErrMaxLengthExceeded {
 				t.Errorf("wrong error '%v'", unmarshalErr)
 			}
 		}

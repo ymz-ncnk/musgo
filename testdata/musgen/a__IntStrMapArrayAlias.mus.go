@@ -2,7 +2,7 @@
 
 package musgen
 
-import "github.com/ymz-ncnk/musgo/v2/errs"
+import "github.com/ymz-ncnk/muserrs"
 
 // Marshal fills buf with the MUS encoding of v.
 func (v IntStrMapArrayAlias) Marshal(buf []byte) int {
@@ -66,7 +66,7 @@ func (v IntStrMapArrayAlias) Marshal(buf []byte) int {
 							}
 						}
 						if len(buf[i:]) < length {
-							panic(errs.ErrSmallBuf)
+							panic(muserrs.ErrSmallBuf)
 						}
 						i += copy(buf[i:], vl)
 					}
@@ -89,13 +89,13 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 					var uv uint64
 					{
 						if i > len(buf)-1 {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						shift := 0
 						done := false
 						for l, b := range buf[i:] {
 							if l == 9 && b > 1 {
-								return i, errs.ErrOverflow
+								return i, muserrs.ErrOverflow
 							}
 							if b < 0x80 {
 								uv = uv | uint64(b)<<shift
@@ -107,7 +107,7 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 							shift += 7
 						}
 						if !done {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 					}
 					if uv&1 == 1 {
@@ -118,7 +118,7 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 					length = int(uv)
 				}
 				if length < 0 {
-					return i, errs.ErrNegativeLength
+					return i, muserrs.ErrNegativeLength
 				}
 				(*v)[j] = make(map[int]string)
 				for ; length > 0; length-- {
@@ -128,13 +128,13 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 						var uv uint64
 						{
 							if i > len(buf)-1 {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 							shift := 0
 							done := false
 							for l, b := range buf[i:] {
 								if l == 9 && b > 1 {
-									return i, errs.ErrOverflow
+									return i, muserrs.ErrOverflow
 								}
 								if b < 0x80 {
 									uv = uv | uint64(b)<<shift
@@ -146,7 +146,7 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 								shift += 7
 							}
 							if !done {
-								return i, errs.ErrSmallBuf
+								return i, muserrs.ErrSmallBuf
 							}
 						}
 						if uv&1 == 1 {
@@ -157,7 +157,7 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 						kem = int(uv)
 					}
 					if err != nil {
-						err = errs.NewMapKeyError(kem, err)
+						err = muserrs.NewMapKeyError(kem, err)
 						break
 					}
 					{
@@ -166,13 +166,13 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 							var uv uint64
 							{
 								if i > len(buf)-1 {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 								shift := 0
 								done := false
 								for l, b := range buf[i:] {
 									if l == 9 && b > 1 {
-										return i, errs.ErrOverflow
+										return i, muserrs.ErrOverflow
 									}
 									if b < 0x80 {
 										uv = uv | uint64(b)<<shift
@@ -184,7 +184,7 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 									shift += 7
 								}
 								if !done {
-									return i, errs.ErrSmallBuf
+									return i, muserrs.ErrSmallBuf
 								}
 							}
 							if uv&1 == 1 {
@@ -195,23 +195,23 @@ func (v *IntStrMapArrayAlias) Unmarshal(buf []byte) (int, error) {
 							length = int(uv)
 						}
 						if length < 0 {
-							return i, errs.ErrNegativeLength
+							return i, muserrs.ErrNegativeLength
 						}
 						if len(buf) < i+length {
-							return i, errs.ErrSmallBuf
+							return i, muserrs.ErrSmallBuf
 						}
 						vlm = string(buf[i : i+length])
 						i += length
 					}
 					if err != nil {
-						err = errs.NewMapValueError(kem, vlm, err)
+						err = muserrs.NewMapValueError(kem, vlm, err)
 						break
 					}
 					((*v)[j])[kem] = vlm
 				}
 			}
 			if err != nil {
-				err = errs.NewArrayError(j, err)
+				err = muserrs.NewArrayError(j, err)
 				break
 			}
 		}

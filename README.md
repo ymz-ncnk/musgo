@@ -185,7 +185,7 @@ func TestFooValidation(t *testing.T) {
 		if err == nil {
 			t.Error("validation error expected")
 		}
-		if fieldErr, ok := err.(*errs.FieldError); ok {
+		if fieldErr, ok := err.(*muserrs.FieldError); ok {
 			if fieldErr.FieldName() != "num" {
 				t.Error("wrong FieldError's FieldName")
 			}
@@ -211,11 +211,11 @@ func TestFooValidation(t *testing.T) {
 		if err == nil {
 			t.Error("validation error expected")
 		}
-		if fieldErr, ok := err.(*errs.FieldError); ok {
+		if fieldErr, ok := err.(*muserrs.FieldError); ok {
 			if fieldErr.FieldName() != "arr" {
 				t.Error("wrong FieldError's FieldName")
 			}
-			if sliceErr, ok := fieldErr.Cause().(*errs.SliceError); ok {
+			if sliceErr, ok := fieldErr.Cause().(*muserrs.SliceError); ok {
 				if sliceErr.Index() != 1 {
 					t.Error("wrong SliceError's Index")
 				}
@@ -244,11 +244,11 @@ func TestFooValidation(t *testing.T) {
 		if err == nil {
 			t.Error("validation error expected")
 		}
-		if fieldErr, ok := err.(*errs.FieldError); ok {
+		if fieldErr, ok := err.(*muserrs.FieldError); ok {
 			if fieldErr.FieldName() != "Alias" {
 				t.Error("wrong FieldError's FieldName")
 			}
-			if fieldErr.Cause() != errs.ErrMaxLengthExceeded {
+			if fieldErr.Cause() != muserrs.ErrMaxLengthExceeded {
 				t.Error("wrong FieldError's Cause")
 			}
 		} else {
@@ -427,7 +427,7 @@ func RorValidator(ror Ror) error {...}
 
 ## Errors
 Often validation errors are wrapped by one of the predefined error 
-(from the `errs` package):
+(from the `muserrs` module):
 - FieldError - happens when the field validation failed. Contains the field name
   and cause.
 - SliceError - happens when the validation of the slice element failed. Contains 
