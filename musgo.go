@@ -10,10 +10,10 @@ import (
 	"github.com/ymz-ncnk/musgo/tdesc_builder"
 )
 
-// DefConf is the default configuration for struct type.
+// DefConf is the default configuration for a struct type.
 var DefConf = Conf{Suffix: "MUS", Path: "."}
 
-// DefAliasConf is the default configuration for alias type.
+// DefAliasConf is the default configuration for an alias type.
 var DefAliasConf = AliasConf{Conf: DefConf}
 
 // New creates a new MusGo.
