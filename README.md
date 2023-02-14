@@ -324,7 +324,7 @@ You could encode and decode private fields too.
 You could generate fast unsafe code. Read more about it in the
 [MusGen documentation](https://github.com/ymz-ncnk/musgen#overview).
 
-# Nil pointer support
+# Nil pointers support
 Take a note, that nil pointers are encoded with zeros:
 ```go
 type PtrInt struct {
@@ -332,12 +332,13 @@ type PtrInt struct {
 }
 
 var ptr PtrInt
-// Buf will not equal to the empty slice here.
+// Buf will not equal to an empty slice here.
 buf := make([]byte, ptr.SizeMUS())
 ptr.MarshalMUS(buf) // buf == []{0}
 ```
 
-And instead of this zero you can, for example, persist an empty slice:
+There is no any reason, for example, to persist a buf of zeros, instead you can
+persist an empty slice:
 ```go
 ...
 var buf []byte
