@@ -124,6 +124,7 @@ Run from the command line:
 $ cd ~/foo
 $ go mod init foo
 $ go get github.com/ymz-ncnk/musgo/v2
+$ go get github.com/ymz-ncnk/muserrs
 $ go generate
 ```
 
