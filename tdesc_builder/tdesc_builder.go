@@ -100,9 +100,9 @@ func BuildForStruct(tp reflect.Type, fieldsTypes []string, fieldsProps [][]any,
 	return
 }
 
-func pkg(t reflect.Type) string {
+func pkg(tp reflect.Type) string {
 	re := regexp.MustCompile(`^(.*)\.`)
-	match := re.FindStringSubmatch(t.String())
+	match := re.FindStringSubmatch(tp.String())
 	if len(match) != 2 {
 		return ""
 	}
