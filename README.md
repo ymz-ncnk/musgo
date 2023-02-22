@@ -2,12 +2,11 @@
 MusGo is an extremely fast serializer based on code generation. It supports 
 validation, different encodings, aliases, pointers, and private fields.
 
-# Why we need another serializer?
-1. With MusGo you can encode/decode your data really fast.
-2. Encoded values take up so little space because the serialization format is 
-  very simple.
-3. You can set up validators for structure fields. This will save time when
-  decoding invalid data, see the [Validation](#validation) section.
+# Fail Fast Serializer
+When unmarshalling, MusGo fails fast with validation error as soon as it 
+realizes that the data is invalid. This leaves most of the data untouched and
+saves system resources. More info you can find in [Validation](#validation) 
+section.
 
 # Binary serialization format
 [Go to the MusGen documentation](https://github.com/ymz-ncnk/musgen#mus-format).
