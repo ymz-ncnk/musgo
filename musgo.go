@@ -1,3 +1,4 @@
+//go:generate go run gen/main.go $ARG
 package musgo
 
 import (
@@ -6,10 +7,13 @@ import (
 	"github.com/ymz-ncnk/musgen/v2"
 	musgen_textmpl "github.com/ymz-ncnk/musgen/v2/text_template"
 	"github.com/ymz-ncnk/musgo/v2/parser"
-	persistor_pkg "github.com/ymz-ncnk/musgo/v2/persistor"
 	"github.com/ymz-ncnk/musgo/v2/tdesc_builder"
+	persistor_mod "github.com/ymz-ncnk/persistor"
 	"golang.org/x/tools/imports"
 )
+
+// FilenameExtenstion of the generated files.
+const FilenameExtenstion = ".mus.go"
 
 // DefConf is the default configuration for a struct type.
 var DefConf = Conf{Suffix: "MUS", Path: "."}
@@ -23,11 +27,11 @@ func New() (musGo MusGo, err error) {
 	if err != nil {
 		return
 	}
-	return NewWith(musGen, persistor_pkg.NewHarDrivePersistor())
+	return NewWith(musGen, persistor_mod.NewHarDrivePersistor())
 }
 
 // NewWith creates a configurable MusGo.
-func NewWith(musGen musgen.MusGen, persistor persistor_pkg.Persistor) (
+func NewWith(musGen musgen.MusGen, persistor persistor_mod.Persistor) (
 	musGo MusGo, err error) {
 	return MusGo{musGen, persistor}, nil
 }
@@ -35,7 +39,7 @@ func NewWith(musGen musgen.MusGen, persistor persistor_pkg.Persistor) (
 // MusGo is a Go code generator for the MUS format.
 type MusGo struct {
 	musGen    musgen.MusGen
-	persistor persistor_pkg.Persistor
+	persistor persistor_mod.Persistor
 }
 
 // Generate accepts a struct or alias type. Returns an error if receives an
@@ -103,5 +107,6 @@ func (musGo MusGo) generate(tDesc musgen.TypeDesc, path string) (err error) {
 	if err != nil {
 		return
 	}
-	return musGo.persistor.Persist(tDesc, data, path)
+	name := tDesc.Name + FilenameExtenstion
+	return musGo.persistor.Persist(name, data, path)
 }

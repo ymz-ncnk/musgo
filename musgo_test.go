@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/ymz-ncnk/musgen/v2"
-	musgen_mock "github.com/ymz-ncnk/musgen/v2/testdata/mock"
 	"github.com/ymz-ncnk/musgo/v2/parser"
 	musgo_mock "github.com/ymz-ncnk/musgo/v2/testdata/mock"
 )
@@ -25,9 +24,10 @@ func TestMusGo(t *testing.T) {
 	makeMocks := func(wantTDesc musgen.TypeDesc, wantLang musgen.Lang,
 		wantData []byte,
 		wantPath string,
-	) (musgen_mock.MusGen, musgo_mock.Persistor) {
-		musGen := func() musgen_mock.MusGen {
-			return musgen_mock.NewMusGen().RegisterGenerate(
+	) (musgo_mock.MusGen, musgo_mock.Persistor) {
+		wantName := wantTDesc.Name + FilenameExtenstion
+		musGen := func() musgo_mock.MusGen {
+			return musgo_mock.NewMusGen().RegisterGenerate(
 				func(tDesc musgen.TypeDesc, lang musgen.Lang) (
 					data []byte, err error) {
 					if !reflect.DeepEqual(tDesc, wantTDesc) {
@@ -46,10 +46,10 @@ func TestMusGo(t *testing.T) {
 		}()
 		persistor := func() musgo_mock.Persistor {
 			return musgo_mock.NewPersistor().RegisterPersist(
-				func(tDesc musgen.TypeDesc, data []byte, path string) (err error) {
-					if !reflect.DeepEqual(tDesc, wantTDesc) {
-						err = fmt.Errorf("unexpected TypeDesc, want '%v' actual '%v'",
-							wantTDesc, tDesc)
+				func(name string, data []byte, path string) (err error) {
+					if name != wantName {
+						err = fmt.Errorf("unexpected name, want '%v' actual '%v'",
+							wantName, name)
 						return
 					}
 					if !reflect.DeepEqual(data, wantData) {
@@ -234,8 +234,8 @@ func TestMusGo(t *testing.T) {
 		var (
 			tp      = reflect.TypeOf((*IntAlias)(nil)).Elem()
 			wantErr = errors.New("musgen failed")
-			musGen  = func() musgen_mock.MusGen {
-				return musgen_mock.NewMusGen().RegisterGenerate(
+			musGen  = func() musgo_mock.MusGen {
+				return musgo_mock.NewMusGen().RegisterGenerate(
 					func(td musgen.TypeDesc, lang musgen.Lang) ([]byte, error) {
 						return nil, wantErr
 					})

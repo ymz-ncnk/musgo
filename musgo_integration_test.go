@@ -4,8 +4,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-
-	"github.com/ymz-ncnk/musgo/v2/persistor"
 )
 
 func TestMusGoIntegration(t *testing.T) {
@@ -26,8 +24,8 @@ func TestMusGoIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wantPath := conf.Path + string(os.PathSeparator) + "IntAlias" + "." +
-		persistor.FilenameExtenstion
+	wantPath := conf.Path + string(os.PathSeparator) + "IntAlias" +
+		FilenameExtenstion
 	if _, err := os.Stat(wantPath); err != nil {
 		t.Error("file was not generated")
 	}

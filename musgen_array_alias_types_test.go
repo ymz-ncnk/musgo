@@ -1,4 +1,3 @@
-//go:generate go run testdata/gen/mus.go -array $ARG
 package musgo
 
 import (
