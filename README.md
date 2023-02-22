@@ -142,101 +142,101 @@ __foo_test.go__
 package foo
 
 import (
-	"foo/validator"
-	"reflect"
-	"testing"
+  "foo/validator"
+  "reflect"
+  "testing"
 
-	"github.com/ymz-ncnk/muserrs"
+  "github.com/ymz-ncnk/muserrs"
 )
 
 func TestFooSerialization(t *testing.T) {
-	foo := Foo{
-		num:   5,
-		arr:   []int{4, 2},
-		Alias: StringAlias("hello"),
-		Bool:  true,
-	}
-	buf := make([]byte, foo.SizeMUS())
-	foo.MarshalMUS(buf)
+  foo := Foo{
+    num:   5,
+    arr:   []int{4, 2},
+    Alias: StringAlias("hello"),
+    Bool:  true,
+  }
+  buf := make([]byte, foo.SizeMUS())
+  foo.MarshalMUS(buf)
 
-	afoo := Foo{}
-	_, err := afoo.UnmarshalMUS(buf)
-	if err != nil {
-		t.Error(err)
-	}
-	foo.Bool = false
-	if !reflect.DeepEqual(foo, afoo) {
-		t.Error("something went wrong")
-	}
+  afoo := Foo{}
+  _, err := afoo.UnmarshalMUS(buf)
+  if err != nil {
+    t.Error(err)
+  }
+  foo.Bool = false
+  if !reflect.DeepEqual(foo, afoo) {
+    t.Error("something went wrong")
+  }
 }
 
 func TestFooValidation(t *testing.T) {
-	t.Run("Validator", func(t *testing.T) {
-		var (
-			foo = Foo{
-				num:   -11,
-				arr:   []int{1, 2},
-				Alias: "hello",
-			}
-			want = muserrs.NewFieldError("num", validator.ErrNegative)
-		)
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+  t.Run("Validator", func(t *testing.T) {
+    var (
+      foo = Foo{
+        num:   -11,
+        arr:   []int{1, 2},
+        Alias: "hello",
+      }
+      want = muserrs.NewFieldError("num", validator.ErrNegative)
+    )
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation error expected")
-		}
-		if err.Error() != want.Error() {
-			t.Fatalf("unexpected error, want '%v' actual '%v'", want, err)
-		}
-	})
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation error expected")
+    }
+    if err.Error() != want.Error() {
+      t.Fatalf("unexpected error, want '%v' actual '%v'", want, err)
+    }
+  })
 
-	t.Run("Element validator", func(t *testing.T) {
-		var (
-			foo = Foo{
-				num:   3,
-				arr:   []int{1, -12, 2},
-				Alias: "hello",
-			}
-			want = muserrs.NewFieldError("arr", muserrs.NewSliceError(1,
-				validator.ErrNegative))
-		)
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+  t.Run("Element validator", func(t *testing.T) {
+    var (
+      foo = Foo{
+        num:   3,
+        arr:   []int{1, -12, 2},
+        Alias: "hello",
+      }
+      want = muserrs.NewFieldError("arr", muserrs.NewSliceError(1,
+        validator.ErrNegative))
+    )
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation error expected")
-		}
-		if err.Error() != want.Error() {
-			t.Fatalf("unexpected error, want '%v' actual '%v'", want, err)
-		}
-	})
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation error expected")
+    }
+    if err.Error() != want.Error() {
+      t.Fatalf("unexpected error, want '%v' actual '%v'", want, err)
+    }
+  })
 
-	t.Run("Max length", func(t *testing.T) {
-		var (
-			foo = Foo{
-				num:   8,
-				arr:   []int{1, 2},
-				Alias: "hello world",
-			}
-			want = muserrs.NewFieldError("Alias", muserrs.ErrMaxLengthExceeded)
-		)
-		buf := make([]byte, foo.SizeMUS())
-		foo.MarshalMUS(buf)
+  t.Run("Max length", func(t *testing.T) {
+    var (
+      foo = Foo{
+        num:   8,
+        arr:   []int{1, 2},
+        Alias: "hello world",
+      }
+      want = muserrs.NewFieldError("Alias", muserrs.ErrMaxLengthExceeded)
+    )
+    buf := make([]byte, foo.SizeMUS())
+    foo.MarshalMUS(buf)
 
-		afoo := Foo{}
-		_, err := afoo.UnmarshalMUS(buf)
-		if err == nil {
-			t.Error("validation error expected")
-		}
-		if err.Error() != want.Error() {
-			t.Fatalf("unexpected error, want '%v' actual '%v'", want, err)
-		}
-	})
+    afoo := Foo{}
+    _, err := afoo.UnmarshalMUS(buf)
+    if err == nil {
+      t.Error("validation error expected")
+    }
+    if err.Error() != want.Error() {
+      t.Fatalf("unexpected error, want '%v' actual '%v'", want, err)
+    }
+  })
 }
 ```
 More advanced usage you can find at https://github.com/ymz-ncnk/musgotry.
