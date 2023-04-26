@@ -1,4 +1,16 @@
-# MusGo
+# [Deprecated] MusGo
+MusGo is no longer supported, please consider using [mus-go](https://github.com/mus-format/mus-go) instead.
+mus-go benefits:
+1. It is very simple and can be easily implemented for other programming 
+   languages.
+2. More flexible.
+3. The test coverage is 100%.
+4. It is faster.
+5. Does not use code generation.
+
+Please note that the serialization format of the mus-go is not compatible with 
+the serialization format of the MusGo, due to the `float` data type.
+
 MusGo is an extremely fast serializer based on code generation. It supports 
 validation, different encodings, aliases, pointers, and private fields.
 
